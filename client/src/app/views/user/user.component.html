@@ -1,0 +1,35 @@
+<div  class="user main">
+    <div class="center f15"  *ngIf="!saved"  >Please Complete User Profile</div>
+    <div class="center f15"  *ngIf="saved" >User Profile Saved</div>
+    <form action="/saveprofile" method="POST" > 
+      	<dl>
+          	<dt>
+          		<label for="last_name">Last Name</label>
+          	</dt>
+          	<dd>
+              	<input type="text" id="last_name" name="last_name" value="{{user.last_name}}" readonly />
+          	</dd>
+          	<dt>
+          		<label for="to">First Name</label>
+          	</dt>
+			<dd>
+              	<input type="text" id="first_name" name="first_name" value="{{user.first_name}}" readonly />
+          	</dd>
+          	<dt>
+          		<label for="email">Email (required) </label></dt>
+          	<dd>
+          		<input type="email" id=email name=email value="{{user.email}}"  placeholder="Email Address" required 
+                  	#email (keyup)="addEmail(email)" (blur)="addEmail(email) "
+                   	pattern="UsrTable.values.EMAIL_PATTERN" 
+                   	*ngIf="!saved"
+                /> 
+          		<input type="email" id=email name=email value="{{user.email}}"  readonly *ngIf="saved" />
+          	</dd>
+        </dl>
+        <br/>
+        <input type="submit" value="Save" *ngIf="!saved"/>
+        <input type="submit" value="Ok"   *ngIf="saved"/>
+        <br/>
+        <br/>
+    </form>
+</div>

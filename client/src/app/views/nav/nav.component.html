@@ -1,0 +1,20 @@
+<div  class="topnav" tabindex="-1"  id="topnav"  (blur)="toggle()">
+    <div id=navicon (click)="toggle()" >&#9776; </div>
+
+
+        <ul class="nav" *ngIf="show_nav"  >
+            <li *ngIf="!signed_in"> <app-linkedin></app-linkedin></li>
+            <li *ngIf="!signed_in"> <script type="in/Login"></script></li>
+            <li (click)="ride.ride.signout()" *ngIf="signed_in">Signout</li> 
+            <li (click)="select('user')" >My Profile</li>
+            <li (click)="select('search')" >Search</li>
+            <li id=trip  (click)="select('trip')" >Post a Trip</li>
+            <li><a href="/mytrips"    onclick="return ride.checkAuth(); ">My Offers</a></li>
+            <li><a href="/mybookings" onclick="return ride.checkAuth(); ">My Booking</a></li>
+            <li><a href="/deposit" >Deposit</a></li>
+            <li><a href="/withdraw" >Withdraw</a></li>
+            <li><a href="/contactus">Contact Us</a></li>
+            <li><a href="/termsofuse">Terms of Use</a></li>
+        </ul>
+</div>
+
