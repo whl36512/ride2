@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'app-linkedin',
 //  templateUrl: './linkedin.component.html',
-  template: '<a [href]="url">LinkedIn</a>'
+  template: '<a [href]="url">LinkedIn</a>' ,
   styleUrls: ['./linkedin.component.css']
 })
 export class LinkedinComponent implements OnInit {
