@@ -37,3 +37,6 @@ npm add --save-dev @types/leaflet
 
 npm install query-string
 npm install body-parser jsonwebtoken express-jwt
+
+
+look at https://github.com/haoliangyu/ngx-leaflet-starter

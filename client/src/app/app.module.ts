@@ -19,6 +19,8 @@ import { UserComponent } from './views/user/user.component';
 import { TripComponent } from './views/trip/trip.component';
 import { LinkedinComponent } from './views/linkedin/linkedin.component';
 import { LinkedinService } from './models/linkedin/linkedin.service';
+import { Map2Component } from './views/map2/map2.component';
+import { MapService } from './models/map/map.service';
 
 const appRoutes: Routes = [
 /*
@@ -46,6 +48,7 @@ const appRoutes: Routes = [
     UserComponent,
     TripComponent,
     LinkedinComponent,
+    Map2Component,
   ],
   imports: [
     BrowserModule,
@@ -56,10 +59,12 @@ const appRoutes: Routes = [
     RouterModule.forRoot(
       appRoutes,
       { enableTracing: true } // <-- debugging purposes only
-    )
+    ),
   ],
   providers: [
+    MapService,
   ],
+
   bootstrap: [AppComponent]
 })
 export class AppModule { }

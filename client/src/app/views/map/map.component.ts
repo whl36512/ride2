@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
-import { latLng, LatLng, tileLayer } from 'leaflet';
+//import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+//import { latLng, LatLng, tileLayer } from 'leaflet';
+
+import * as L from "leaflet";
 
 @Component({
 	selector: 'app-map',
