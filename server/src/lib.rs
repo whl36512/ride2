@@ -14,6 +14,8 @@ extern crate iron;
 extern crate router;
 extern crate params;  // parse get and post to a map
 extern crate url;
+extern crate hyper;
+extern crate json;
 
 
 pub mod db;

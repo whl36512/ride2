@@ -1,8 +1,16 @@
-use iron::prelude::*;
 use iron::request::Request ;
-//use iron::status;
-use std::collections::HashMap;
-use params::{Params, Value, Map} ;
+
+pub fn params_to_json (request: & mut Request ) -> String
+{
+    use params::{Params, Value};
+    use iron::prelude::*;
+    use json ;
+    let map = request.get_ref::<Params>().unwrap();
+    trace!("20180809  map = {:?}", map) ;
+    let json_string = format!("{:?}", map) ;  // dumping of BtreeMap happens to be a json string
+    trace!("20180809  json_string = {}", json_string) ;
+    json_string
+}
 
 /*
 pub struct RideRequest < 's, 'l : 's >  {

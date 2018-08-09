@@ -19,9 +19,10 @@ use std::io::Read;
 // url::form_urlencoded::parse()
 
 pub fn router_setup() -> iron::Chain  {
+    use linkedin::auth_msg ;
     let mut router = Router::new();
-    router.get("/linkedin/callback", linkedin_callback, "callback");
-    router.post("/linkedin/callback", linkedin_callback, "callback");
+    router.get("/linkedin/callback", auth_msg::linkedin_callback, "callback");
+    router.post("/linkedin/callback", auth_msg::linkedin_callback, "callback");
     router.post("/:page", post_page, "pageroute");
     router.post("/tables/get_user", get_user, "get_user");
 
@@ -36,7 +37,7 @@ pub fn get_user(_: &mut Request) -> IronResult<Response> {
     Ok(Response::with((iron::status::Ok, "Got page")))
 }
 
-fn linkedin_callback (request: & mut Request ) -> IronResult<Response> 
+fn llinkedin_callback (request: & mut Request ) -> IronResult<Response> 
 {
     debug!("linkedin_callback request= {:?}", request) ;
     //let rideRequest = RideRequest{req: request} ;
@@ -64,8 +65,6 @@ pub fn router_start(port : u32)
    chain.link_after(response_printer);
    iron::Iron::new(chain).http(format!("0.0.0.0:{}", port)).unwrap();
 }
-
-
 
 pub fn test() {
     router_start(4201);
