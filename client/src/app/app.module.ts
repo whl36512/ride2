@@ -14,7 +14,7 @@ import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 //appplication modules
 import { AppComponent } from './app.component';
 import { NavComponent } from './views/nav/nav.component';
-import { MapComponent } from './views/map/map.component';
+//import { MapComponent } from './views/map/map.component';
 import { UserComponent } from './views/user/user.component';
 import { TripComponent } from './views/trip/trip.component';
 import { LinkedinComponent } from './views/linkedin/linkedin.component';
@@ -44,7 +44,7 @@ const appRoutes: Routes = [
   declarations: [
     AppComponent,
     NavComponent,
-    MapComponent,
+    //MapComponent,
     UserComponent,
     TripComponent,
     LinkedinComponent,
@@ -55,7 +55,7 @@ const appRoutes: Routes = [
     // import HttpClientModule after BrowserModule.
     HttpClientModule,
     FormsModule,
-    LeafletModule.forRoot(),
+    //        LeafletModule.forRoot(),
     RouterModule.forRoot(
       appRoutes,
       { enableTracing: true } // <-- debugging purposes only

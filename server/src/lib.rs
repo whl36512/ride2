@@ -15,8 +15,9 @@ extern crate router;
 extern crate params;  // parse get and post to a map
 extern crate url;
 extern crate hyper;
+extern crate hyper_native_tls;
 extern crate json;
-
+//extern crate reqwest;
 
 pub mod db;
 pub mod util;

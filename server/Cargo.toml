@@ -18,8 +18,13 @@ serde_json = "*"
 serde_derive = "*"
 serde = "*"
 params ="*"
-hyper ="*"
+
+hyper ="0.10.13"
 json = "*"
+#openssl = { version = "0.10", features = ["vendored"] }
+#hyper-openssl = "*"
+hyper-native-tls = "*"
+#reqwest = "*"
 #diesel = {version="1.1.0", features = ["postgres"]}
 #env_logger = "0.5.3"
 #futures = "0.1.17"

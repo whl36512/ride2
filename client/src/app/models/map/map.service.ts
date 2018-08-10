@@ -8,10 +8,9 @@ export class MapService {
 	public map: L.Map;
 	public baseMaps: any;
 	private vtLayer: any;
-	private maker: any;
-	private maker: any;
-	private makerFrome: any;
-	private makerTo: any;
+	private marker: any;
+	private markerFrom: any;
+	private markerTo: any;
 
 	constructor() {
 		const osmAttr =
@@ -65,6 +64,7 @@ export class MapService {
 		L.DomEvent.disableScrollPropagation(element);
 	}
 		
+	/*
 	toggleMarkerEditing(on: boolean) {
 		if (on) {
 		this.map.on("click", this.addMarker.bind(this));
@@ -72,10 +72,13 @@ export class MapService {
 		this.map.off("click");
 		}
 	}
+	*/
 		
+	/*
 	fitBounds(bounds: L.LatLngBounds) {
 		this.map.fitBounds(bounds, {});
 	}
+	*/
 		
 	/*
 	private addMarker(e: L.LeafletMouseEvent) {
@@ -110,50 +113,51 @@ export class MapService {
 		return this.map;
 	}
 
-	function flyTo(lat,lon,name){
+	flyTo(lat,lon,name){
 		console.log("flyTo");
 		this.map.setView([lat,lon],12);
 		//this.map.flyTo([lat,lon],12);
-		if(marker) {         map.removeLayer(marker); }
-		if(markerTo) {         map.removeLayer(markerTo); }
-		if(markerFrom) {         map.removeLayer(markerFrom); }
+		if(this.marker) {         this.map.removeLayer(this.marker); }
+		if(this.markerTo) {         this.map.removeLayer(this.markerTo); }
+		if(this.markerFrom) {         this.map.removeLayer(this.markerFrom); }
 		//marker1= L.marker([lat,lon]).addTo(map).bindPopup(name) ;
-		marker= L.marker([lat,lon], {icon:MyIcon.get('#583470')}).addTo(map).bindPopup(name) ;
+		this.marker= L.marker([lat,lon], {icon:MyIcon.get('#583470')}).addTo(this.map).bindPopup(name) ;
 	}
 
 
-	function flyToBounds(start_lat, start_lon, start_display_name, end_lat, end_lon, end_display_name)
+	flyToBounds(start_lat, start_lon, start_display_name, end_lat, end_lon, end_display_name)
 	{
 		console.debug("flyToBounds");
-		fitB= this.map.fitBounds([
-			[start_lat, start_lon],
-			[end_lat, end_lon]
-		]);
-		if(marker)     {     this.map.removeLayer(marker); }
-		if(markerTo)   {     this.map.removeLayer(markerTo); }
-		if(markerFrom) {     this.map.removeLayer(markerFrom); }
-		this.map.flyToBounds(fitB);
-		markerFrom= L.marker([start_lat,start_lon], {icon:MyIcon.get('green')} ).addTo(this.map).bindPopup(start_display_name) ;
-		markerTo=   L.marker([end_lat,end_lon], {icon:MyIcon.get('red')} ).addTo(this.map).bindPopup(end_display_name) ;
+		let corner1 = L.latLng(start_lat, start_lon);
+		let corner2 = L.latLng(end_lat, end_lon);
+		let bounds = L.latLngBounds(corner1, corner2);
+
+		if(this.marker)     {     this.map.removeLayer(this.marker); }
+		if(this.markerTo)   {     this.map.removeLayer(this.markerTo); }
+		if(this.markerFrom) {     this.map.removeLayer(this.markerFrom); }
+		this.map.fitBounds(bounds);
+		this.map.flyToBounds(bounds);
+		this.markerFrom= L.marker([start_lat,start_lon], {icon:MyIcon.get('green')} ).addTo(this.map).bindPopup(start_display_name) ;
+		this.markerTo=   L.marker([end_lat,end_lon], {icon:MyIcon.get('red')} ).addTo(this.map).bindPopup(end_display_name) ;
 	}
 	
 	
-	function routingUrl(start_lat, start_lon, end_lat, end_lon){
+	routingUrl(start_lat, start_lon, end_lat, end_lon){
 	// curl 'http://router.project-osrm.org/route/v1/driving/13.388860,52.517037;13.397634,52.529407;13.428555,52.523219?overview=false'
-		var url= "http://router.project-osrm.org/route/v1/driving/" ;
-		points=start_lon+","+ start_lat + ";" + end_lon+ ","+ end_lat  ;
-		var query="?overview=false"  ;
-		var urlEncoded=url+points+query ;
+		let url= "http://router.project-osrm.org/route/v1/driving/" ;
+		let points=start_lon+","+ start_lat + ";" + end_lon+ ","+ end_lat  ;
+		let query="?overview=false"  ;
+		let urlEncoded=url+points+query ;
 		return urlEncoded;
 	}
 
 }
 
 class MyIcon {
- 	function get (myCustomColour) {
 		//var myCustomColour = '#583470' ;
 		
-		private markerHtmlStyles = 
+ 	public static get (myCustomColour) {
+		let markerHtmlStyles = 
 		'background-color: ' + myCustomColour + ';' 				+
 		'width: 3rem;' 				+
 		'height: 3rem;' 				+
@@ -165,7 +169,7 @@ class MyIcon {
 		'transform: rotate(45deg);' 				+
 		'border: 1px solid #FFFFFF; '   ;
 		
-		private markerHtmlStylesSmall = 
+		let markerHtmlStylesSmall = 
 		'background-color: ' + myCustomColour + ';' 				+
 		'width: 2rem;' 				+
 		'height: 2rem;' 				+
@@ -177,7 +181,7 @@ class MyIcon {
 		'transform: rotate(45deg);' 				+
 		'border: 1px solid #FFFFFF; '   ;
 		
-		private 	html= 	''  ;
+		let html= 	''  ;
 		html +='<span class="mapiconfrom" style="background: radial-gradient(red,white, red 70%); width:1.5rem;height:1.5rem;display: block; left: -0.75rem;top: -1.5rem;position: absolute; border: 0px solid white; border-radius: 20rem" ></span>'  ;
 		//html +='<span class="mapiconcenter" style="background: linear-gradient(to bottom right, white, white);; width:0.5rem;height: 0.5rem;display: block; left: -0.25rem;top: -1.0rem;position: absolute; border: 0rem solid red; border-radius: 20rem" ></span>' ;
 		html +='<span class="mapiconstemfrom" style=" background-color: red; width: 0.2rem;height: 1.5rem;display: block; left: -0.1rem;top: -0.1rem;position: absolute; border: 0rem solid red; border-radius: 8rem" ></span> ' ;
@@ -188,11 +192,11 @@ class MyIcon {
 		
 		//console.log ("DEBUG 201807181726 markerHtmlStyles= " + markerHtmlStyles) ;
 		
-		var colorIcon = L.divIcon({
+		let colorIcon = L.divIcon({
 		className: "my-custom-pin",
 		//className: "",
 		iconAnchor: [0, 24],
-		labelAnchor: [-6, 0],
+		//labelAnchor: [-6, 0],
 		popupAnchor: [0, -36],
 		//html: '<span style="'+ markerHtmlStylesSmall+ '" />'
 		html: html
