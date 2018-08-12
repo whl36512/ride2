@@ -18,6 +18,8 @@ extern crate hyper;
 extern crate hyper_native_tls;
 extern crate json;
 //extern crate reqwest;
+//
+extern crate iron_postgres_middleware as pg_middleware;
 
 pub mod db;
 pub mod util;

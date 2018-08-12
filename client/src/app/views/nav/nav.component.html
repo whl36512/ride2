@@ -3,9 +3,6 @@
 
 
         <ul class="nav" *ngIf="show_nav"  >
-            <li *ngIf="!signed_in"> <app-linkedin></app-linkedin></li>
-            <li *ngIf="!signed_in"> <script type="in/Login"></script></li>
-            <li (click)="ride.ride.signout()" *ngIf="signed_in">Signout</li> 
             <li (click)="select('user')" >My Profile</li>
             <li (click)="select('search')" >Search</li>
             <li id=trip  (click)="select('trip')" >Post a Trip</li>

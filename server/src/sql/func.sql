@@ -6,7 +6,7 @@ create schema funcs ;
 grant all on schema funcs to ride;
 --grant all on all functions in schema funcs to ride;
 
-create or replace function funcs.updateusr( in_user json)
+create or replace function funcs.updateusr( in_user text)
   returns usr
 as
 $body$
@@ -16,7 +16,7 @@ DECLARE
   s1 RECORD ;
   u1 RECORD ;
 BEGIN
-	SELECT * into s0 FROM json_populate_record(NULL::usr, in_user) ;
+	SELECT * into s0 FROM json_populate_record(NULL::usr, in_user::json) ;
 	
 	insert into usr ( oauth_id) 
   	select  s0.oauth_id 
@@ -24,6 +24,9 @@ BEGIN
 	on conflict on constraint uk_usr
 	do nothing 
 	returning * into i1
+	;
+
+	select * into s1 from usr u where (u.usr_id=s0.usr_id or u.oauth_id=s0.oauth_id)
 	;
 
 	update usr u
@@ -42,7 +45,7 @@ BEGIN
 		  , deposit_id       	=coalesce(s0.deposit_id, u.deposit_id)
 		  , c_ts             	=coalesce(s0.c_ts, u.c_ts)
 		  , m_ts             	=coalesce(s0.m_ts, clock_timestamp())
-	where u.usr_id in ( i1.usr_id, s0.usr_id)
+	where u.usr_id = s1.usr_id
 	returning u.* into u1
 	;
         
@@ -52,7 +55,7 @@ $body$
 language plpgsql;
 
 
-create or replace function funcs.updatetrip( in_trip json)
+create or replace function funcs.updatetrip( in_trip text)
   returns trip
 as
 $body$
@@ -61,7 +64,7 @@ DECLARE
   i1 RECORD ;
   u1 RECORD ;
 BEGIN
-	SELECT * into s0 FROM json_populate_record(NULL::trip, in_trip) ;
+	SELECT * into s0 FROM json_populate_record(NULL::trip, in_trip::json) ;
 
 
   	insert into trip ( driver_id, start_date) 
@@ -108,7 +111,7 @@ END
 $body$
 language plpgsql;
 
-create or replace function funcs.update_money_trnx( trnx json)
+create or replace function funcs.update_money_trnx( trnx text)
   returns money_trnx
 as
 $body$
@@ -117,7 +120,7 @@ DECLARE
   	i1 RECORD ;
   	u1 RECORD ;
 BEGIN
-	SELECT * into s0 FROM json_populate_record(NULL::money_trnx, trnx) ;
+	SELECT * into s0 FROM json_populate_record(NULL::money_trnx, trnx::json) ;
 
 	insert into money_trnx ( usr_id, trnx_cd) 
 	select  s0.usr_id, s0.trnx_cd
