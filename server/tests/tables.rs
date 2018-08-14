@@ -1,11 +1,14 @@
+#[macro_use] extern crate log;
 extern crate server;
 
-mod common
+mod common ;
 
 #[test]
-pub fn tables_test ()  {
+fn tables_test ()  {
     common::setup();
 
+    use server::tables::Usr;
+    use server::db;
     let pool = db::db_pool(None) ;
     let sql= "select row_to_json(a, true) from usr a limit 2" ;
     let js_vec = db::runsql(&pool, &sql  , &[]) ;

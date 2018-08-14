@@ -1,8 +1,4 @@
 use rustc_serialize::json::Json;
-use r2d2::{Pool};
-use r2d2_postgres::{TlsMode, PostgresConnectionManager};
-type PoolType = Pool<PostgresConnectionManager> ;
-
 
 #[derive(Debug)]
 #[derive(Serialize, Deserialize)]
@@ -26,34 +22,61 @@ pub struct Usr {
 }
 
 impl Usr {
-    pub fn from_js_string (js: & String) -> Self
+//    pub fn from_js_string (js: Option<String>) -> Option<Self>
+//    {
+//        use serde_json::{ from_str}  ;
+//        trace!("201808051805 Usr.from_js_string js = {:?}", js) ;
+//        match js {
+//            None => return None,
+//            Some(u) => {
+//                let user :Usr= from_str(&u).unwrap(); 
+//                return Some(user) ;
+//            },
+//        };
+//    }
+
+    pub fn from_js_string (js: & Option<String>) -> Option<Self>
     {
         use serde_json::{ from_str}  ;
-        trace!("201808051805 Usr.from_js_string js = {}", js) ;
-        let obj: Usr = from_str(& js).unwrap() ;
-        obj
+        trace!("201808051805 Usr.from_js_string js = {:?}", js) ;
+        match js {
+            None => return None,
+            Some(u) => {
+                let user :Usr= from_str(&u).unwrap(); 
+                return Some(user) ;
+            },
+        };
     }
 
-    pub fn from_js (js: & Json) -> Self
+//    pub fn from_js (js: Option<Json>) -> Option<Self>
+//    {
+//        //use serde_json::from_str  ;
+//        let js_string=js.map(|j| j.to_string())  ;
+//        let user= Usr::from_js_string( js_string) ;
+//        user
+//    }
+    pub fn from_js (js: & Option<Json>) -> Option<Self>
     {
-        use serde_json::{ from_str}  ;
-
-        let js_string= js.to_string() ;
-        let obj: Usr= Usr::from_js_string(&js_string);
-        obj
+        //use serde_json::from_str  ;
+        let js_string=js.as_ref().map(|j| j.to_string())  ;
+        let user= Usr::from_js_string( & js_string) ;
+        user
     }
 
-    pub fn  from_js_vec <'a> (js_vec: & Vec<Json>) ->  Vec<Self>
+    /*
+      pub fn  from_js_vec <'a> (js_vec: & Option <Vec<Json>>) ->  Option<Vec<Self>>
     {
-        let mut objs : Vec<Usr>  = Vec::new();
-        trace!("201808051804 Usr.objs_from_js_vec js_vec.len() = {}", js_vec.len()) ;
-        for js in js_vec  {
-            let obj: Usr = Usr::from_js(js) ;
-            trace!("201808051806 obj = {:?}", obj) ;   
-            objs.push(obj) ;
-        }
+        let objs = js_vec.and_then(|vec: Vec<Json> | Some(vec.iter().map(|js: &Json| Usr::from_js(js)).collect::<Vec<_>>())) ;
+        //let mut objs : Vec<Usr>  = Vec::new();
+        //trace!("201808051804 Usr.objs_from_js_vec js_vec.len() = {}", js_vec.len()) ;
+        //for js in js_vec  {
+            //let obj: Usr = Usr::from_js(js) ;
+            //trace!("201808051806 obj = {:?}", obj) ;   
+            //objs.push(obj) ;
+        //}
         return objs;
     }
+    */
 
     pub fn to_string(&self) -> String
     {
@@ -61,20 +84,6 @@ impl Usr {
         use serde_json::{ to_string}  ;
         to_string(&self).unwrap()
     }
-}
-
-//parse json data into struct
-//let p: Person = serde_json::from_str(data)?;
-//
-pub fn test () ->   Vec<Usr> {
-    use db::test ;
-    let js_vec= test();
-    let objs : Vec<Usr> = Usr::from_js_vec(&js_vec) ;
-    for obj in &objs {
-        info!("201808061234 test() obj = {:?}" , obj) ;
-        info!("201808081230 obj.to_string= {}" , obj.to_string() ) ;
-    }
-    return objs;
 }
 
 #[cfg(test)]

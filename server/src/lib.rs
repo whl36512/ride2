@@ -7,6 +7,7 @@ extern crate serde_json;
 extern crate serde;
 extern crate rustc_serialize;
 
+
 extern crate r2d2;
 extern crate r2d2_postgres;
 
@@ -16,17 +17,25 @@ extern crate params;  // parse get and post to a map
 extern crate url;
 extern crate hyper;
 extern crate hyper_native_tls;
+extern crate secure_session;
+extern crate typemap;
 extern crate json;
 //extern crate reqwest;
 //
 extern crate iron_postgres_middleware as pg_middleware;
 
+extern crate crypto;
+extern crate rand;
+extern crate data_encoding;
+
 pub mod db;
 pub mod util;
 pub mod tables;
 pub mod reqres;
-pub mod linkedin;
+//pub mod linkedin;
 pub mod router_util;
+//pub mod crypt;
+pub mod handlers;
 
 
 
