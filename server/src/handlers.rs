@@ -10,8 +10,6 @@ use iron::headers::ContentType;
 use pg_middleware::PostgresReqExt;
 use rustc_serialize::json::Json;
 
-
-
 use tables::Usr ;
 
 pub fn get_session (req : &mut Request) -> IronResult<Response> {

@@ -10,6 +10,11 @@ use router::Router;
 //use std::io::Read;
 use pg_middleware::PostgresMiddleware ;
 //use pg_middleware::PostgresReqExt ;
+//
+
+use std::collections::HashSet;
+use iron_cors::CorsMiddleware;
+
 
 //use db;
 //use tables;
@@ -56,12 +61,21 @@ pub fn router_start(http_port : u32)
     //let url="postgres://user:pass@host:port/database?arg1=val1&arg2=val2"
     let url =format!("postgres://{}:{}@{}:{}/{}", user, passwd, host, port, database) ;
     let mut chain = router_setup() ;
+
     let pg_middleware = PostgresMiddleware::new(&url, 5);
-    let session_middleware = reqres::session_middleware(*b"01234567012345670123456701234567");
     trace!("201808121031 pg_middleware result= \n{:?}", pg_middleware) ;
     let pg_middleware = pg_middleware.unwrap();
     trace!("201808121030 pg_middleware= \n{:?}", pg_middleware) ;
+
+    let session_middleware = reqres::session_middleware(*b"01234567012345670123456701234567");
+
+    let allowed_hosts = ["http://rideshare.beegrove.com:4200", "rideshare.beegrove.com:4200", "rideshare.beegrove.com"].iter()
+                        .map(ToString::to_string)
+                        .collect::<HashSet<_>>();
+    let cors_middleware = CorsMiddleware::with_whitelist(allowed_hosts);
+
     chain.link_before(pg_middleware);
+    chain.link_around(cors_middleware);
     chain.link_around(session_middleware);
     chain.link_after(response_printer);
     iron::Iron::new(chain).http(format!("0.0.0.0:{}", http_port)).unwrap();

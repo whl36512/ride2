@@ -14,7 +14,7 @@ export class MapService {
 
 	constructor() {
 		const osmAttr =
-			"&copy; <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>, " +
+			"&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, " +
 			"Tiles courtesy of <a href='http://hot.openstreetmap.org/' target='_blank'>Humanitarian OpenStreetMap Team</a>";
 	
 		const esriAttr =
@@ -23,32 +23,32 @@ export class MapService {
 			"Esri China (Hong Kong), and the GIS User Community";
 		
 		const cartoAttr =
-			"&copy; <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> " +
-			"&copy; <a href='http://cartodb.com/attributions'>CartoDB</a>";
+			"&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> " +
+			"&copy; <a href='https://cartodb.com/attributions'>CartoDB</a>";
 		
 		this.baseMaps = {
 
-			OpenStreetMapBusy: L.tileLayer( 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			OpenStreetMapBusy: L.tileLayer( 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		  		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 			  	subdomains: ['a', 'b', 'c']
 				}
 		        ) ,
 			OpenStreetMap: L.tileLayer(
-				"http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+				"https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
 				{
 				//zIndex: 1,
 					attribution: osmAttr ,
 				}
 			),
 			Esri: L.tileLayer(
-				"http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+				"https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
 				{
 					zIndex: 1,
 					attribution: esriAttr
 				}
 			),
 		CartoDB: L.tileLayer(
-		"http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+		"https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
 		{
 		zIndex: 1,
 		attribution: cartoAttr
@@ -144,7 +144,7 @@ export class MapService {
 	
 	routingUrl(start_lat, start_lon, end_lat, end_lon){
 	// curl 'http://router.project-osrm.org/route/v1/driving/13.388860,52.517037;13.397634,52.529407;13.428555,52.523219?overview=false'
-		let url= "http://router.project-osrm.org/route/v1/driving/" ;
+		let url= "https://router.project-osrm.org/route/v1/driving/" ;
 		let points=start_lon+","+ start_lat + ";" + end_lon+ ","+ end_lat  ;
 		let query="?overview=false"  ;
 		let urlEncoded=url+points+query ;
