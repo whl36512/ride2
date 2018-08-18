@@ -11,16 +11,18 @@ import { HttpClientModule } from '@angular/common/http';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
 
-//appplication modules
-import { AppComponent } from './app.component';
-import { NavComponent } from './views/nav/nav.component';
-//import { MapComponent } from './views/map/map.component';
-import { UserComponent } from './views/user/user.component';
-import { TripComponent } from './views/trip/trip.component';
-import { LinkedinComponent } from './views/linkedin/linkedin.component';
-import { LinkedinService } from './models/linkedin/linkedin.service';
-import { Map2Component } from './views/map2/map2.component';
-import { MapService } from './models/map/map.service';
+//appplication components
+import { AppComponent } 	from './app.component';
+import { NavComponent } 	from './views/nav/nav.component';
+import { UserComponent } 	from './views/user/user.component';
+import { TripComponent } 	from './views/trip/trip.component';
+import { LinkedinComponent } 	from './views/linkedin/linkedin.component';
+import { Map2Component } 	from './views/map2/map2.component';
+
+//appplication services
+import { LinkedinService } 	from './models/linkedin.service';
+import { MapService } 		from './models/map.service';
+import { RemoteService } 	from './models/remote.service';
 
 const appRoutes: Routes = [
 /*
@@ -63,6 +65,7 @@ const appRoutes: Routes = [
   ],
   providers: [
     MapService,
+    RemoteService,
   ],
 
   bootstrap: [AppComponent]

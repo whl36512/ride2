@@ -7,17 +7,21 @@ import {Usr} from '../../models/tables'
   styleUrls: ['./user.component.css']
 })
 export class UserComponent implements OnInit {
+// when *ngIf is true, both constructor() and ngOnInit() are called
     user: Usr  = new Usr({last_name:'Lin'});
     saved=false;
 
 
-    name: string;
-    value: string;
-    constructor() { 
-  		console.log('UserComponent.constructor this.user.last_name='+ this.user.last_name)  ;
+    	name: string;
+    	value: string;
+    	constructor() { 
+  		console.log("user.component.ts UserComponent.constructor() enter")  ;
+		//let user_from_cookie = get_user_from_cookie();
+		//let user_from_db =     get_user_from_db(user_from_cookie);
   	}
 
-  	ngOnInit() {
+	ngOnInit() {
+		console.info("user.component.ts UserComponent.ngOnInit() enter");
   	}
 
   	addEmail(input:HTMLInputElement) {

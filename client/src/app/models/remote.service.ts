@@ -12,7 +12,7 @@ import { catchError, retry } from 'rxjs/operators';
   providedIn: 'root'
 })
 
-export class GeocodeService {
+export class RemoteService {
 	body: any;
   	constructor(private httpClient: HttpClient) { }
 
@@ -119,6 +119,9 @@ export class GeocodeService {
 			// return an observable with a user-facing error message
 		return throwError( 'Something bad happened; please try again later.');
 	};
+
+	get_user_from_db(user: string) {
+	}
 }
 
 

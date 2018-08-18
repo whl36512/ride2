@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as L from "leaflet";
-import {MapService} from "../../models/map/map.service"
+import {MapService} from "../../models/map.service"
 
 @Component({
   selector: 'app-map2',
