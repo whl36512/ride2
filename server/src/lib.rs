@@ -24,10 +24,14 @@ extern crate json;
 //
 extern crate iron_postgres_middleware as pg_middleware;
 extern crate iron_cors ;
+extern crate unicase;
 
 extern crate crypto;
 extern crate rand;
 extern crate data_encoding;
+extern crate jsonwebtoken as jwt;
+extern crate chrono;
+
 
 pub mod db;
 pub mod util;
@@ -37,6 +41,7 @@ pub mod reqres;
 pub mod router_util;
 //pub mod crypt;
 pub mod handlers;
+pub mod token;
 
 
 

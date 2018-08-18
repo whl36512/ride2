@@ -1,6 +1,7 @@
 use rustc_serialize::json::Json;
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 #[derive(Serialize, Deserialize)]
 pub struct Usr {
     pub usr_id              : Option<String>

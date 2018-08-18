@@ -2,10 +2,11 @@
     // Handle the successful return from the API call
     // Use the API call wrapper to request the member's basic profile data
 
+//https://flaviocopes.com/commonjs/
 var ride = {
-
     onLinkedInLoad: function () {
-      IN.Event.on(IN, "auth", ride.getProfileData);
+      IN.Event.on(IN, "auth", ride.getProfileDataOnAuthEvent);
+      IN.Event.on(IN, "logout", ride.signoutCallback);
       var auth_status= ride.checkAuth();
       ride.change_gui_show(auth_status);
     },
@@ -30,35 +31,45 @@ var ride = {
 
     },
 
+    getProfileDataOnAuthEvent: function (){
+        console.info("201808172332 getProfileDataOnAuthEvent()   enter") ;
+	ride.getProfileData();
+    },
+
+    authorizeCallback:  function (){
+	console.info("201808172335 authorizeCallback()   enter") ;
+	ride.getProfileData();
+    },
 
     getProfileDataOnSuccess : function (data) {
-        console.log("INFO 2017131508 getProfileDataOnSuccess() data-");
+        console.log("INFO 2017131508 getProfileDataOnSuccess() data=");
         console.log(data);
-	//profileJson = JSON.parse(data)
-        setCookie("first_name", data.firstName, 1 ) ;
-        setCookie("last_name", data.lastName, 1 );
-        setCookie("headline", data.headline, 1 );
-        setCookie("oauth_id", data.id, 1 );
+	var profile = {"first_name": data.firstName
+		, "last_name": data.lastName
+		, "headline": data.headline
+		, "oauth_id": data.id
+	} ;
 
-        console.log("INFO 2017131508 getProfileDataOnSuccess() oauth_id =" + getCookie("oauth_id"));
-        console.log("INFO 2017131508 getProfileDataOnSuccess() last_name =" + getCookie("last_name"));
+	var profile_hex = rideCrypt.encrypt(JSON.stringify(profile));
+	
+        setCookie("profile", profile_hex, 1 );
+
+	var decrypted_profile= rideCrypt.decrypt(getCookie("profile"))
+	profile = JSON.parse(decrypted_profile);
+
+        console.log("INFO 2017131508 getProfileDataOnSuccess() oauth_id =" + profile.oauth_id);
+        console.log("INFO 2017131508 getProfileDataOnSuccess() first_name =" + profile.first_name);
         ride.change_gui_show(true);
-        ride.get_session()        ;
+        ride.get_session(profile)        ;
 
 	//window.location.reload(true);              // use true to reload page from server
     },
 
-    get_session: function()
+    get_session: function(profile)
     {
 	    var encodedRelativeUrl = "/get_session" ;
-	    var data = {"first_name": getCookie("first_name"), 
-		    	"last_name" : getCookie("last_name"),
-		    	"headline" : getCookie("headline"),
-		    	"oauth_id" : getCookie("oauth_id")
-	    } ;
 
-	    var json_string = JSON.stringify(data);
-
+	    var json_string = JSON.stringify(profile);
 
 	    rideHttpClient.sendRequestToServerWithCallback(json_string, "POST", encodedRelativeUrl , null, ride.get_session_callback ) ;
 
@@ -66,8 +77,16 @@ var ride = {
 
     get_session_callback: function (httpRequest, elem)
     {
+	console.info("INFO 201808172240 ride.get_session_callback() enter ");
 	var	httpResponseTextJson = rideHttpClient.httpResponseTextJson(httpRequest);
-	//if (httpResponseTextJson != null) 
+	if (httpResponseTextJson != null)  {
+	console.info("INFO 201808172242 ride.get_session_callback() about to set jwt cookie ");
+	setCookie("jwt", httpResponseTextJson.jwt) ;
+	console.info("INFO 201808172244 ride.get_session_callback() jwt cookie is set");
+	}
+	else {
+		console.info("INFO 201808172247 ride.get_session_callback() httpResponseTextJson is null. jwt cookie cannot be set");
+	}
     },
 
     change_gui_show :function(signed_in)
@@ -78,7 +97,7 @@ var ride = {
 
 
     newtrip : function () {
-	     this.checkAuth();
+	     ride.checkAuth();
 	     if (getCookie("profile.id") !== "") window.location = '/newtrip';
     },
 
@@ -89,12 +108,13 @@ var ride = {
       if ( !IN.User.isAuthorized() ) {
         ride.clearProfileInCookie() ;  //just in case the cookie still holds the profile
         ride.change_gui_show(false);
-        //IN.User.authorize(this.getProfileData, null);
+        //IN.User.authorize(ride.authorizeCallback, null);
 	return flase;
       }
-      else if ( IN.User.isAuthorized() && getCookie("oauth_id") === "" ) 
+      else if ( IN.User.isAuthorized()  ) 
       {
-	IN.User.authorize(this.getProfileData, null);
+	//IN.User.authorize(ride.authorizeCallback, null);
+	IN.User.authorize(null, null); // on auth event will trigger getProfileData()
 	return true;
       }
       else {
@@ -105,25 +125,28 @@ var ride = {
     },
 
     signout: function () {
-      IN.User.logout(this.signoutCallback, null) ;
-      ride.clearProfileInCookie() ;
-      ride.change_gui_show(false);
+	if (  IN.User.isAuthorized() ) {
+      		//IN.User.logout(ride.signoutCallback, null) ;
+      		IN.User.logout(null, null) ; //logout event will trigger signoutCallback()
+	}
+        ride.signoutCallback () ; // just double sure that cookies are cleared
     },
 
     signoutCallback: function () {
         console.log("INFO 201807131556 Signed Out !") ;
+      	ride.clearProfileInCookie() ;
+      	ride.change_gui_show(false);
 //	       window.location.replace("/signout");              // use true to reload page from server
     },
 
     clearProfileInCookie: function () {
 	console.debug("201808161126 clearProfileInCookie()");
-        setCookie("oauth_id", "", -1 ) ;
-        setCookie("first_name", "", -1 ) ;
-        setCookie("last_name", "", -1 ) ;
-        setCookie("headline", "", -1 ) ;
-        setCookie("ss", "", -1 ) ;  //iron secure session cookie
+        setCookie("profile", "", -1 ) ;
+        setCookie("jwt", "", -1 ) ;
+        setCookie("ss", "", -1 ) ;  //iron secure session cookie. Not using it
         //setCookie("PLAY_SESSION", "", -1 ) ;  // cannot remove PLAY_SESSION because it has "same site" attribute
     }
+
 };
 
 

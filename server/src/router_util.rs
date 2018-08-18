@@ -15,6 +15,11 @@ use pg_middleware::PostgresMiddleware ;
 use std::collections::HashSet;
 use iron_cors::CorsMiddleware;
 
+use iron::headers::{ AccessControlExposeHeaders };
+use iron::headers::{ AccessControlAllowCredentials };
+use iron::middleware::AfterMiddleware;
+use unicase::UniCase;
+
 
 //use db;
 //use tables;
@@ -74,11 +79,25 @@ pub fn router_start(http_port : u32)
                         .collect::<HashSet<_>>();
     let cors_middleware = CorsMiddleware::with_whitelist(allowed_hosts);
 
+    let my_cors_middleware = MyCorsMiddleware ;
+
     chain.link_before(pg_middleware);
     chain.link_around(cors_middleware);
     chain.link_around(session_middleware);
+    chain.link_after(my_cors_middleware);
     chain.link_after(response_printer);
     iron::Iron::new(chain).http(format!("0.0.0.0:{}", http_port)).unwrap();
+}
+
+struct MyCorsMiddleware;
+
+impl AfterMiddleware for MyCorsMiddleware {
+    fn after(&self, req: &mut Request, mut res: Response) -> IronResult<Response> {
+        //res.headers.set(hyper::header::AccessControlAllowOrigin::Any);
+        res.headers.set(AccessControlAllowCredentials) ;
+        res.headers.set( AccessControlExposeHeaders(vec![ UniCase("Set-Cookie".to_owned()), UniCase("content-length".to_owned()) ]) );
+        Ok(res)
+    }
 }
 
 pub fn test() {

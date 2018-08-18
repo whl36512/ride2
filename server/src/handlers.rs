@@ -9,8 +9,14 @@ use iron::IronResult;
 use iron::headers::ContentType;
 use pg_middleware::PostgresReqExt;
 use rustc_serialize::json::Json;
+use serde_json;
+
 
 use tables::Usr ;
+use token::JwtToken;
+use token;
+
+static SECRET : &str ="an ultra secretstr" ;
 
 pub fn get_session (req : &mut Request) -> IronResult<Response> {
     //user 3party auth info comes in a json payload
@@ -25,9 +31,13 @@ pub fn get_session (req : &mut Request) -> IronResult<Response> {
                                       , &[&user.to_string()]) ; //user_vec is an Option
             debug!(" 201808121053 get_session() user_json_from_db=\n{:?}", user_json_from_db) ;
             let user_from_db = Usr::from_js(& user_json_from_db);
-            req.set_session(user_from_db);
+            //req.set_session(user_from_db); 
+            let token = token::Token { jwt: user_from_db.unwrap().to_jwt(SECRET.as_ref()) };
+            debug!("201808171508 get_session() token = {}", serde_json::to_string_pretty(&token).unwrap());
 
-            let mut response= Response::with((status::Ok, r#"{"get_session": "Ok"}"#  )) ;
+
+
+            let mut response= Response::with((status::Ok, format!("{}" ,serde_json::to_string_pretty(&token).unwrap()  ) )) ;
             //response.headers.set(ContentType::plaintext());
             response.headers.set(ContentType::json());
             //response.headers.set(ContentType::html());
@@ -35,8 +45,8 @@ pub fn get_session (req : &mut Request) -> IronResult<Response> {
             response
         }
         None        => {
-            req.set_session(None); //clear session
-            let response= Response::with((status::NotFound, r#"{"get_session": "NotFound"}"# )) ;
+            //req.set_session(None); //clear session
+            let response= Response::with((status::NotFound, r#"{"jwt": ""}"# )) ;
             response
         }
     } ;

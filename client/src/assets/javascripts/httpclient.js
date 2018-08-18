@@ -38,10 +38,15 @@ var rideHttpClient = {
 		if (httpRequest.readyState === XMLHttpRequest.DONE) {
                 	if (httpRequest.status === 200) {
 				var response=httpRequest.responseText;
-                        	console.log("INFO 201807132315 callbackRouting response.length=" + response.length );
-                        	console.log("INFO 201807132315 callbackRouting response=" + response );
+                        	console.info("201807132315 httpResponseTextJson() response.length=" + response.length );
+                        	console.info("201807132315 httpResponseTextJson() response=" + response );
 				var responseTextJson=JSON.parse(response) ;
-				console.log("callbackRouting responseTextJson.length=" +  responseTextJson.length );
+				console.info("201807132315 httpResponseTextJson() responseTextJson=" +  responseTextJson );
+
+				var repsonse_all_header = httpRequest.getAllResponseHeaders();
+				console.info("201808161156 httpResponseTextJson() repsonse_all_header=" +  repsonse_all_header );
+				//var repsonse_cookie_header = httpRequest.getResponseHeader("Set-Cookie");
+				//console.info("201808161156 httpResponseTextJson() repsonse_cookie_header=" +  repsonse_cookie_header );
 				return responseTextJson ;
                 	}
                 	else {
