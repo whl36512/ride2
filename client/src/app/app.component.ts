@@ -6,58 +6,88 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'ride2';
+  	title = 'ride2';
  
-  user :boolean;
-  trip :boolean;
-  signout :boolean;
-  mytrips:boolean;
-  mybookings :boolean;
-  map :boolean;
-  nav :boolean;
+  	map :boolean;
+  	nav :boolean;
+
+  	user :boolean;
+  	trip :boolean;
+  	signout :boolean;
+  	mytrips:boolean;
+  	mybookings :boolean;
+  	deposit :boolean;
+  	withdraw :boolean;
+  	contact_us :boolean;
+  	tou :boolean;
 
   constructor (){
   	this.setFalse();
-    this.nav=true;
-    this.map=true;
+    	this.nav=true;
+    	this.map=true;
   }
 
   setFalse ()
   {
-  	this.user =false;
-  	this.trip = false;
-  	this.signout = false;
-  	this.mytrips= false;
+  	this.user 	= false;
+  	this.trip 	= false;
+  	this.signout 	= false;
+  	this.mytrips	= false;
   	this.mybookings = false;
+  	this.deposit 	= false
+  	this.withdraw	= false
+  	this.contact_us	= false
+  	this.tou	= false
   }
 
   select(page:string) {
-  	this.setFalse();
+	console.log("201808201649 AppComponent.select() page=" + page);
   	switch (page) {
   		case "signout" : {
-  			this.signout=true;
+
+			if (!this.signout)
+			{	
+  				this.setFalse();
+				this.signout= true;
+			};
   			break;
   		}
  
   		case "user" : {
-  			this.user=true;
+			if (!this.user)
+			{	
+				console.log("201808201649 AppComponent.select() this.user=" + this.user);
+  				this.setFalse();
+				this.user= true;
+			};
   			break;
   		}
   		case "trip" : {
-  			this.trip=true;
+			if (!this.trip)
+			{	
+  				this.setFalse();
+				this.trip= true;
+			};
   			break;
   		}
  
    		case "mytrips" : {
-  			this.mytrips=true;
+			if (!this.mytrips)
+			{	
+  				this.setFalse();
+				this.mytrips= true;
+			};
   			break;
   		}
  
    		case "mybookings" : {
-  			this.mybookings=true;
+			if (!this.mybookings)
+			{	
+  				this.setFalse();
+				this.mybookings= true;
+			};
   			break;
   		}
   	}
-
   }
 }

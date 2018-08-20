@@ -19,10 +19,14 @@ export class NavComponent implements OnInit {
   }
 
   select(elem:string) {
-    this.toggle();
-    console.debug('201808031521 NavComponent.select elem='+ elem) ;
-    console.log('201808031521 NavComponent.select elem='+ elem) ;
+  	this.show_nav=false;
+    	console.debug('201808031521 NavComponent.select elem='+ elem) ;
+    	console.log('201808031521 NavComponent.select elem='+ elem) ;
   	this.parent.select(elem) ;
+  }
+
+  nav_menu_off()  {
+  	this.show_nav = false ;
   }
   toggle()  {
   	this.show_nav =!this.show_nav ;
