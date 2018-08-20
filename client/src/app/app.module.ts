@@ -6,6 +6,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule }          from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
 
 //third party modules
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
@@ -22,7 +23,9 @@ import { Map2Component } 	from './views/map2/map2.component';
 //appplication services
 import { LinkedinService } 	from './models/linkedin.service';
 import { MapService } 		from './models/map.service';
-import { RemoteService } 	from './models/remote.service';
+//import { GeoService } 		from './models/remote.service';
+import { DBService } 		from './models/remote.service';
+import { HttpService } 		from './models/remote.service';
 
 const appRoutes: Routes = [
 /*
@@ -57,6 +60,7 @@ const appRoutes: Routes = [
     // import HttpClientModule after BrowserModule.
     HttpClientModule,
     FormsModule,
+    ReactiveFormsModule,
     //        LeafletModule.forRoot(),
     RouterModule.forRoot(
       appRoutes,
@@ -65,7 +69,9 @@ const appRoutes: Routes = [
   ],
   providers: [
     MapService,
-    RemoteService,
+    //   GeoService,
+    DBService,
+    HttpService,
   ],
 
   bootstrap: [AppComponent]

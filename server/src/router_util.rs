@@ -43,7 +43,7 @@ pub fn router_setup() -> iron::Chain  {
     router.post("/:page", handlers::post_page, "pageroute");
     router.post("/echo", handlers::echo, "echo");
     router.get("/echo", handlers::echo, "echo");
-    router.post("/tables/get_user", handlers::get_user, "get_user");
+    router.post("/get_user", handlers::get_user, "get_user");
     router.get("/redirect", handlers::redi, "redi");
     router.post("/get_session", handlers::get_session, "get_session");
 

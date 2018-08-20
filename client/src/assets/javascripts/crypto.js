@@ -13,8 +13,15 @@ var key = forge.pkcs5.pbkdf2('password', salt, numIterations, 16);
 //var rideCrypt = module.exports ;
 var rideCrypt ={};
 
-rideCrypt.key = forge.random.getBytesSync(16);
-rideCrypt.iv =forge.random.getBytesSync(16);
+//rideCrypt.salt = forge.random.getBytesSync(128);
+rideCrypt.salt_hex ="d043f85493366994d4e73441e2bd387be856c815a924ffb295ee53125df26d8b";
+rideCrypt.salt = forge.util.hexToBytes(rideCrypt.salt_hex);
+//rideCrypt.salt = forge.random.getBytesSync(32);
+rideCrypt.numIterations = 10;
+rideCrypt.key = forge.pkcs5.pbkdf2('password', rideCrypt.salt, rideCrypt.numIterations, 16);
+rideCrypt.iv =forge.util.hexToBytes(rideCrypt.salt_hex);
+//rideCrypt.iv =forge.random.getBytesSync(16);
+//rideCrypt.key = forge.random.getBytesSync(128);
 
 rideCrypt.encrypt = function (content)
 {
@@ -27,7 +34,8 @@ rideCrypt.encrypt = function (content)
 	var hex = encrypted.toHex()
 	//var hex=rideCrypt.byteToHexString(raw) ;
 	// outputs encrypted hex
-	console.debug('201808171902 rideCrypt.encrypt() encrypted_hex='+ hex);
+	console.info('201808171902 rideCrypt.encrypt() encrypted_hex='+ hex);
+	console.info('201808171902 rideCrypt.encrypt() salt='+ forge.util.bytesToHex(rideCrypt.salt));
 	return hex;
 };
 
@@ -35,7 +43,16 @@ rideCrypt.decrypt= function (encrypted_hex)
 {
 	// decrypt some bytes using CBC mode
 	// (other modes include: CFB, OFB, CTR, and GCM)
-	var encrypted=rideCrypt.hexStringToByte(encrypted_hex) ;
+//rideCrypt.key = forge.pkcs5.pbkdf2('password', rideCrypt.salt, rideCrypt.numIterations, 16);
+//rideCrypt.iv =forge.random.getBytesSync(16);
+	//
+	
+
+	//let salt_hex ="d043f85493366994d4e73441e2bd387be856c815a924ffb295ee53125df26d8b";
+	//rideCrypt.salt = forge.util.hexToBytes(salt_hex);
+	//rideCrypt.key = forge.pkcs5.pbkdf2('password', rideCrypt.salt, rideCrypt.numIterations, 16);  // same key can be regenerate from the same password, salt, iteration and key length in bytes
+	var encrypted=forge.util.hexToBytes(encrypted_hex);
+	//var encrypted=rideCrypt.hexStringToByte(encrypted_hex) ;
 	var buffer = forge.util.createBuffer(encrypted);
 
 	var decipher = forge.cipher.createDecipher('AES-CBC', rideCrypt.key);
@@ -43,6 +60,7 @@ rideCrypt.decrypt= function (encrypted_hex)
 	decipher.update(buffer);
 	var result = decipher.finish(); // check 'result' for true/false
 	// outputs decrypted hex
+	//decrypted = decipher.output.toString('raw') ;
 	decrypted = decipher.output.toString('utf8') ;
 	console.log("201808171500 rideCrypt.decrypt() decrypted=" + decrypted);
 	return decrypted;

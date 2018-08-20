@@ -1,35 +1,40 @@
-<div  class="user main">
-    <div class="center f15"  *ngIf="!saved"  >Please Complete User Profile</div>
-    <div class="center f15"  *ngIf="saved" >User Profile Saved</div>
-    <form action="/saveprofile" method="POST" > 
+<div  class="user main" >
+    <div class="center f12"  *ngIf="!saved">Edit User Profile</div>
+    <div class="center f12"  *ngIf="saved" >User Profile Saved</div>
+    <form [formGroup]="user_form" (ngSubmit)="onSubmit()">
       	<dl>
           	<dt>
-          		<label for="last_name">Last Name</label>
+			Last Name : {{user.last_name}}
           	</dt>
-          	<dd>
-              	<input type="text" id="last_name" name="last_name" value="{{user.last_name}}" readonly />
-          	</dd>
           	<dt>
-          		<label for="to">First Name</label>
+			First Name : {{user.first_name}}
           	</dt>
-			<dd>
-              	<input type="text" id="first_name" name="first_name" value="{{user.first_name}}" readonly />
+          	<dt *ngIf="!saved">
+		<label for="email">Email (required)
+			</label>
+		</dt>
+		<dd *ngIf="!saved">      
+          		<input  type="email"  formControlName="email" value="{{user.email}}"  placeholder="Email Address" required 
+                  		#email (kkeyup)="addEmail(email)" (bblur)="addEmail(email) " pattern="{{EMAIL_PATTERN}}" 
+                	/> 
+			<div *ngIf="email.invalid && (email.dirty || email.touched)"
+				    class="alert alert-danger">
+
+				  <div *ngIf="email.errors.required"> Email is required  </div>
+				  <div *ngIf="email.errors.pattern"> Email format is invalid  </div>
+			</div>
           	</dd>
-          	<dt>
-          		<label for="email">Email (required) </label></dt>
-          	<dd>
-          		<input type="email" id=email name=email value="{{user.email}}"  placeholder="Email Address" required 
-                  	#email (keyup)="addEmail(email)" (blur)="addEmail(email) "
-                   	pattern="UsrTable.values.EMAIL_PATTERN" 
-                   	*ngIf="!saved"
-                /> 
-          		<input type="email" id=email name=email value="{{user.email}}"  readonly *ngIf="saved" />
-          	</dd>
+		<dt *ngIf="saved"> Email: {{user.email}}  </dt>
         </dl>
         <br/>
-        <input type="submit" value="Save" *ngIf="!saved"/>
-        <input type="submit" value="Ok"   *ngIf="saved"/>
+	<button  *ngIf="!saved" type="submit" [disabled]="user_form.invalid" >Submit</button>
+	<button  *ngIf="saved"  type="submit" >Close</button>
         <br/>
-        <br/>
+
+	<p>
+	  Form Value: {{ user_form.value }} </p>
+	<p>
+	  Form Status: {{ user_form.status }}
+	</p>
     </form>
 </div>

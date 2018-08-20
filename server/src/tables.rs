@@ -1,4 +1,8 @@
 use rustc_serialize::json::Json;
+use constants ;
+use token::TokenOption;
+use token::JwtToken;
+use serde_json ;
 
 #[derive(Debug)]
 #[derive(PartialEq)]
@@ -84,6 +88,16 @@ impl Usr {
         //return a json string
         use serde_json::{ to_string}  ;
         to_string(&self).unwrap()
+    }
+    
+    pub fn from_token(params: & String) ->  Option<Usr>
+    {
+        let token : TokenOption = serde_json::from_str(params).unwrap();
+        let user = match token.jwt {
+            Some(jwt)   => Some(Usr::from_jwt(&jwt, constants::SECRET.as_ref())),
+            None        => None
+        };
+        user
     }
 }
 

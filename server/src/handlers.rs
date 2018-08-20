@@ -15,6 +15,7 @@ use serde_json;
 use tables::Usr ;
 use token::JwtToken;
 use token;
+use reqres::SecurityStatus;
 
 static SECRET : &str ="an ultra secretstr" ;
 
@@ -53,8 +54,28 @@ pub fn get_session (req : &mut Request) -> IronResult<Response> {
     Ok(response) 
 }
 
-pub fn get_user(_: &mut Request) -> IronResult<Response> {
-    Ok(Response::with((status::Ok, "Got page")))
+pub fn get_user(req: &mut Request) -> IronResult<Response> {
+    // user_from_session and user_from_cookie must match
+    let request_component = req.inspect();
+    let status = request_component.security_status();
+    let db_conn= req.db_conn() ;
+    let response= match status {
+        SecurityStatus::SignedIn => {
+            let user_json_from_db: Option<Json>  
+                = db::runsql_one_row (&db_conn
+                                      , "select row_to_json(a) from funcs.updateusr($1) a "
+                                      , &[&request_component.user_from_cookie.unwrap().to_string()]) ; 
+            let user_from_db = Usr::from_js(& user_json_from_db);
+
+            let mut response= Response::with((status::Ok, format!("{}" ,serde_json::to_string_pretty(&user_from_db).unwrap() ) )) ;
+            response
+        },
+        _                       => {
+            let mut response = Response::with((status::Ok, r##"{"error":"security error"}"## ));
+            response
+        }
+    } ;
+    Ok(response)
 }
 
 pub fn echo(request: &mut Request) -> IronResult<Response> {

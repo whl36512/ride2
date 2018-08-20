@@ -25,6 +25,14 @@ pub struct Token {
     pub jwt: String
 }
 
+#[derive(Debug)]
+#[derive(PartialEq)]
+#[derive(Serialize, Deserialize)]
+pub struct TokenOption {
+    pub jwt: Option<String>
+}
+
+
 impl JwtToken for Usr {
     fn to_jwt(&self, key: & [u8]) -> String {
         let mut header = Header::default();

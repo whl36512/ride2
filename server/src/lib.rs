@@ -3,6 +3,7 @@ extern crate simplelog;
 
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
 extern crate serde_json;
 extern crate serde;
 extern crate rustc_serialize;
@@ -42,6 +43,7 @@ pub mod router_util;
 //pub mod crypt;
 pub mod handlers;
 pub mod token;
+pub mod constants;
 
 
 
