@@ -17,51 +17,6 @@ import {Constants} 	from './constants' ;
 
 // code sample from https://angular.io/guide/http
 
-@Injectable({
-  providedIn: 'root'
-})
-
-/*
-export class GeoService {
-	//private static httpClient: HttpClient = HttpClient
-
-	constructor(private httpService: HttpService){}
-
-	private routingUrl(start_lat, start_lon, end_lat, end_lon){
-		let url= "http://router.project-osrm.org/route/v1/driving/" ;
-		let points=start_lon+","+ start_lat + ";" + end_lon+ ","+ end_lat  ;
-		let query="?overview=false"  ;
-		let encodedUrl=url+points+query ;
-		return encodedUrl;
-	}
-
-	routing(start_lat, start_lon, end_lat, end_lon) : number {
-		// curl 'http://router.project-osrm.org/route/v1/driving/13.388860,52.517037;13.397634,52.529407;13.428555,52.523219?overview=false'
-		// response: {"routes":[{"legs":[{"summary":"","weight":534.5,"duration":354.1,"steps":[],"distance":1880.2},{"summary":"","weight":679.8,"duration":483.4,"steps":[],"distance":2947.6}],"weight_name":"routability","weight":1214.3,"duration":837.5,"distance":4827.8}],"waypoints":[{"hint":"09sJgLtb54QkAAAADwAAAAMAAAAAAAAAeOI0QY6li0FoZYRAAAAAACQAAAAPAAAAAwAAAAAAAACyowAAAEzMAKlYIQM8TMwArVghAwEA3wqcmk-F","name":"Friedrichstraße","location":[13.3888,52.517033]},{"hint":"KpYTgKABvYEMAAAACgAAANYBAAAAAAAA4pzIQFu_j0CGdCVDAAAAAAwAAAAKAAAAXgEAAAAAAACyowAAf27MABiJIQOCbswA_4ghAwQAnxCcmk-F","name":"Torstraße","location":[13.397631,52.529432]},{"hint":"9n8YgP___38cAAAA2AAAACIAAABQAAAAsowKQkpQX0Lx6yZC8esmQhwAAABsAAAAIgAAACkAAACyowAASufMAOdwIQNL58wA03AhAwMAvxCcmk-F","name":"Platz der Vereinten Nationen","location":[13.428554,52.523239]}],"code":"Ok"}
-		let encodedUrl = this.routingUrl(start_lat, start_lon, end_lat, end_lon);
-
-		let response= this.httpService.request(Constants.GET, encodedUrl, null) ;
-		let body=this.httpService.subscribe(response);
-		let distance=body.routes[0].distance ;
-		return  Math.round(distance /160)/10;
-	}
-
-	geocode(address: string) :any     {
-		//request:   https://nominatim.openstreetmap.org/search/135%20pilkington%20avenue,%20birmingham?format=json&polygon=0&addressdetails=0
-		//response:   [{"place_id":"91015286","licence":"Data © OpenStreetMap contributors, ODbL 1.0. https:\/\/osm.org\/copyright","osm_type":"way","osm_id":"90394480","boundingbox":["52.5487473","52.5488481","-1.816513","-1.8163464"],"lat":"52.5487921","lon":"-1.8164308339635","display_name":"135, Pilkington Avenue, Sutton Coldfield, Birmingham, West Midlands Combined Authority, West Midlands, England, B72 1LH, United Kingdom","class":"building","type":"yes","importance":0.411}]
-
-		let url="https://nominatim.openstreetmap.org/search/" ;
-		//	address = 135%20pilkington%20avenue,%20birmingham ;
-
-		let query="?format=json&polygon=0&addressdetails=0" ;
-		let encodedUrl = url+encodeURIComponent(address) +query;
-		console.debug("20180815 geocode() encodedUrl="+encodedUrl) ;
-		let response= this.httpService.request(Constants.GET, encodedUrl, null) ;
-		let body= this.httpService.subscribe(response);
-		return body ;
-	}
-}
-*/
 
 @Injectable({
   providedIn: 'root'
@@ -221,7 +176,7 @@ export class DBService {
 		let response_body: any  ;
 		console.info("201808190205 DBService.call_db payload=\n"+ payload);
 		// add jwt token to the payload
-		payload = this.add_token(relative_url, payload) ; // return null if not passing session check
+		payload = this.add_token(relative_url, payload) ; 
 		console.info("201808190206 DBService.call_db after adding jwt and profile. payload=\n"+ JSON.stringify(payload));
 
 		if ( payload.error == undefined )
@@ -256,9 +211,7 @@ export class DBService {
 			) 
 		{ 
 			let jwt=  CookieService.getCookie(Constants.JWT);
-			let encrypted_profile = CookieService.getCookie(Constants.PROFILE) ;
-			let profile = CryptoService.decrypt(encrypted_profile);
-			let profile_json=JSON.parse(profile);
+			let encrypted_profile =  CookieService.getCookie(Constants.PROFILE);
 			if (jwt == null || jwt =='') {
 				combined_payload = Constants.NO_SESSION_ERROR ;
 			}
@@ -267,6 +220,8 @@ export class DBService {
 				combined_payload = Constants.NOT_SIGNED_IN_ERROR ;
 			}
 			else { // everything ok
+				let profile = CryptoService.decrypt(encrypted_profile);
+				let profile_json=JSON.parse(profile);
 				combined_payload = {...payload, ...profile_json, "jwt": jwt };  // add profile into the payload. server side must compare jwt and profile to make sure they match
 				console.info("201808190230 DBService.add_token after combining. combined_payload=\n"+ JSON.stringify(combined_payload));
 			}
@@ -276,3 +231,42 @@ export class DBService {
 	}
 }
 
+@Injectable({
+  providedIn: 'root'
+})
+export class GeoService {
+	//private static httpClient: HttpClient = HttpClient
+
+	constructor(private httpService: HttpService){}
+
+	private routingUrl(start_lat, start_lon, end_lat, end_lon){
+		let url= "http://router.project-osrm.org/route/v1/driving/" ;
+		let points=start_lon+","+ start_lat + ";" + end_lon+ ","+ end_lat  ;
+		let query="?overview=false"  ;
+		let encodedUrl=url+points+query ;
+		return encodedUrl;
+	}
+
+	routing(start_lat, start_lon, end_lat, end_lon) : Observable<any> {
+		// curl 'http://router.project-osrm.org/route/v1/driving/13.388860,52.517037;13.397634,52.529407;13.428555,52.523219?overview=false'
+		// response: {"routes":[{"legs":[{"summary":"","weight":534.5,"duration":354.1,"steps":[],"distance":1880.2},{"summary":"","weight":679.8,"duration":483.4,"steps":[],"distance":2947.6}],"weight_name":"routability","weight":1214.3,"duration":837.5,"distance":4827.8}],"waypoints":[{"hint":"09sJgLtb54QkAAAADwAAAAMAAAAAAAAAeOI0QY6li0FoZYRAAAAAACQAAAAPAAAAAwAAAAAAAACyowAAAEzMAKlYIQM8TMwArVghAwEA3wqcmk-F","name":"Friedrichstraße","location":[13.3888,52.517033]},{"hint":"KpYTgKABvYEMAAAACgAAANYBAAAAAAAA4pzIQFu_j0CGdCVDAAAAAAwAAAAKAAAAXgEAAAAAAACyowAAf27MABiJIQOCbswA_4ghAwQAnxCcmk-F","name":"Torstraße","location":[13.397631,52.529432]},{"hint":"9n8YgP___38cAAAA2AAAACIAAABQAAAAsowKQkpQX0Lx6yZC8esmQhwAAABsAAAAIgAAACkAAACyowAASufMAOdwIQNL58wA03AhAwMAvxCcmk-F","name":"Platz der Vereinten Nationen","location":[13.428554,52.523239]}],"code":"Ok"}
+		let encodedUrl = this.routingUrl(start_lat, start_lon, end_lat, end_lon);
+
+		let response_body= this.httpService.request(Constants.GET, encodedUrl, null) ;
+		return response_body;
+	}
+
+	geocode(address: string) : Observable<any>     {
+		//request:   https://nominatim.openstreetmap.org/search/135%20pilkington%20avenue,%20birmingham?format=json&polygon=0&addressdetails=0
+		//response:   [{"place_id":"91015286","licence":"Data © OpenStreetMap contributors, ODbL 1.0. https:\/\/osm.org\/copyright","osm_type":"way","osm_id":"90394480","boundingbox":["52.5487473","52.5488481","-1.816513","-1.8163464"],"lat":"52.5487921","lon":"-1.8164308339635","display_name":"135, Pilkington Avenue, Sutton Coldfield, Birmingham, West Midlands Combined Authority, West Midlands, England, B72 1LH, United Kingdom","class":"building","type":"yes","importance":0.411}]
+
+		let url="https://nominatim.openstreetmap.org/search/" ;
+		//	address = 135%20pilkington%20avenue,%20birmingham ;
+
+		let query="?format=json&polygon=0&addressdetails=0" ;
+		let encodedUrl = url+encodeURIComponent(address) +query;
+		console.debug("20180815 geocode() encodedUrl="+encodedUrl) ;
+		let response_body= this.httpService.request(Constants.GET, encodedUrl, null) ;
+		return response_body ;
+	}
+}

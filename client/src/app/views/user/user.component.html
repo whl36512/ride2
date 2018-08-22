@@ -1,7 +1,8 @@
 <div  class="user main" >
     <div class="center f12"  *ngIf="!saved">Edit User Profile</div>
+    <div class="error" *ngIf="!signed_in"> You are not signed in. Please sign in first </div>
     <div class="center f12"  *ngIf="saved" >User Profile Saved</div>
-    <form [formGroup]="user_form" (ngSubmit)="onSubmit()">
+    <form *ngIf="signed_in" [formGroup]="user_form" (ngSubmit)="onSubmit()">
       	<dl>
           	<dt>
 			Last Name : {{user.last_name}}
@@ -27,7 +28,7 @@
 		<dt *ngIf="saved"> Email: {{user.email}}  </dt>
         </dl>
         <br/>
-	<button  *ngIf="!saved" type="submit" [disabled]="user_form.invalid" >Submit</button>
+	<button  *ngIf="!saved" type="submit" [disabled]="user_form.invalid" >Save</button>
 	<button  *ngIf="saved"  type="submit" >Close</button>
         <br/>
 

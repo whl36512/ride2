@@ -12,9 +12,9 @@ import { Validators } from '@angular/forms';
 import {AbstractControl,  ValidatorFn} from '@angular/forms';
 import {EventEmitter, Input, Output} from '@angular/core';
 
-import {Usr} from '../../models/tables'
-import {UserService} from '../../models/gui.service'
-import {DBService} from '../../models/remote.service'
+import {Usr} from '../../models/tables' ;
+import {UserService} from '../../models/gui.service' ;
+import {DBService} from '../../models/remote.service' ;
 import { AppComponent } from '../../app.component';
 
 
@@ -31,6 +31,7 @@ export class UserComponent implements OnInit {
 	user: Usr =new Usr  ; 
 
     	saved=false;
+	signed_in= false;
 	EMAIL_PATTERN = String.raw`^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-]{1,30}\.){1,4}([a-zA-Z]{2,5})$` ;
 
 	user_form = this.form_builder.group({
@@ -48,16 +49,21 @@ export class UserComponent implements OnInit {
 		user_from_db_observable.subscribe(
 			user_from_db => {
 				console.info("201808201201 UserComponent.constructor() user_from_db =" + JSON.stringify(user_from_db));
-			
+				if (user_from_db.error == undefined )	
+				{
+					this.signed_in = true;
 				this.user = new Usr( {	
 				 	last_name	: user_from_db.last_name  ,
 					first_name	: user_from_db.first_name ,
 					email		: user_from_db.email 	  ,
 				});
+				} else {
+					this.signed_in= false;
+				}
 			}
 		)
 
-		//this.user_form.valueChanges.subscribe(data => console.log('Form vakue changes', data));
+		//this.user_form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		//this.user_form.statusChanges.subscribe(data => console.log('Form status changes', data));
   	}
 
@@ -76,7 +82,7 @@ export class UserComponent implements OnInit {
 	    	console.warn("201808201534 UserComponent.onSubmit() this.user_form.value=" + this.user_form.value );
 		if (this.saved) 
 		{
-			this.parent.user = false;
+			this.parent.pages.user = false;
 		}
 		else {
 	    		let user_from_db_observable     = this.dbService.get_user_from_db(this.user_form.value);

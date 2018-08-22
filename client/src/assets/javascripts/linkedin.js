@@ -109,7 +109,7 @@ var ride = {
         ride.clearProfileInCookie() ;  //just in case the cookie still holds the profile
         ride.change_gui_show(false);
         //IN.User.authorize(ride.authorizeCallback, null);
-	return flase;
+	return false;
       }
       else if ( IN.User.isAuthorized()  ) 
       {
@@ -125,18 +125,18 @@ var ride = {
     },
 
     signout: function () {
-	if (  IN.User.isAuthorized() ) {
+	//if (  IN.User.isAuthorized() ) {
       		//IN.User.logout(ride.signoutCallback, null) ;
       		IN.User.logout(null, null) ; //logout event will trigger signoutCallback()
-	}
-        ride.signoutCallback () ; // just double sure that cookies are cleared
+	//}
+        //ride.signoutCallback () ; // just double sure that cookies are cleared
     },
 
     signoutCallback: function () {
         console.log("INFO 201807131556 Signed Out !") ;
       	ride.clearProfileInCookie() ;
       	ride.change_gui_show(false);
-//	       window.location.replace("/signout");              // use true to reload page from server
+	window.location.replace("/");              // use true to reload page from server
     },
 
     clearProfileInCookie: function () {

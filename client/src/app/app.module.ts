@@ -8,6 +8,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 
+//import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+//import {NoopAnimationsModule} from '@angular/platform-browser/animations';
+//import {MatButtonModule, MatCheckboxModule} from '@angular/material'; // import after BrowserModule
+
 //third party modules
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
@@ -23,7 +27,7 @@ import { Map2Component } 	from './views/map2/map2.component';
 //appplication services
 import { LinkedinService } 	from './models/linkedin.service';
 import { MapService } 		from './models/map.service';
-//import { GeoService } 		from './models/remote.service';
+import { GeoService } 		from './models/remote.service';
 import { DBService } 		from './models/remote.service';
 import { HttpService } 		from './models/remote.service';
 
@@ -61,15 +65,19 @@ const appRoutes: Routes = [
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    //BrowserAnimationsModule,
+    //NoopAnimationsModule,
+    //MatButtonModule , 
+    //MatCheckboxModule,
     //        LeafletModule.forRoot(),
     RouterModule.forRoot(
-      appRoutes,
-      { enableTracing: true } // <-- debugging purposes only
-    ),
+    appRoutes,
+    { enableTracing: true } // <-- debugging purposes only
+       ),
   ],
   providers: [
     MapService,
-    //   GeoService,
+    GeoService,
     DBService,
     HttpService,
   ],

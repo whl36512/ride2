@@ -16,12 +16,8 @@
 	                                   #email (keyup)='geocode("start_loc")' (blur)='geocode("start_loc") ' 
 				/>
 			</dd>
-          		<dd  class="f08"> 
-				{{trip.start_lat}}  {{trip.start_lon}} 
-			</dd>
-			<dd class="f08">
-				{{trip.start_display_name}}
-			</dd>
+          		<dd> {{trip_form.value.start_lat}}  {{trip_form.value.start_lon}}  </dd>
+			<dd> {{trip_form.value.start_display_name}} </dd>
         	</dl>
 
         	<dl >
@@ -38,17 +34,15 @@
 	                                   (keyup)='geocode("end_loc")' (blur)='geocode("end_loc") ' 
 				/>
 			</dd>
-			<dd class="f08">
-				{{trip.end_lat}} {{trip.end_lon}} 
+          		<dd>
+	  			{{trip_form.value.end_lat}}  {{trip_form.value.end_lon}}  
 			</dd>
-			<dd class="f08">
-				{{trip.end_display_name	}}
-			</dd>
+			<dd>
+				{{trip_form.value.end_display_name}}
+          		</dd>
         	</dl>
         	<dl >
-			<dt>
-			Distance (miles): {{trip.distance}} 
-			</dt>
+			<dt *ngIf="trip_form.value.distance" >Distance: {{trip_form.value.distance}} miles </dt>
         	</dl>
 
         	<dl >
@@ -66,16 +60,16 @@
         	</dl>
 
         	<dl>
-			<dt><label for="seats">Available Seats: {{this.trip_form.value.seats}} </label></dt>
+          		<dt><label for="seats">Available Seats (required, min 1, max 6)</label></dt>
           		<dd>
-			<input type="range" formControlName="seats" value="{{trip_form.value.seats}}" min="1" max="6" step=1 required /> 
+				<input type="number" formControlName="seats" value="{{trip_form.value.seats}}" min="1" max="6" step=1 required />
           		</dd>
         	</dl>
 
         	<dl>
-			<dt><label for="price">Price: ${{this.trip_form.value.price}} per mile</label></dt>
+          		<dt><label for="price">Price (required, min 0.0, max 0.2) </label></dt>
           		<dd>
-			<input type="range" formControlName="price" value="0" min="0" max="0.20" step=0.01 />
+				<input type="number" formControlName="price" value="0" min="0" max="0.20" step=0.01 /> per mile
           		</dd>
         	</dl>
 

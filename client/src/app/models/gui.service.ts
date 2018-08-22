@@ -102,6 +102,7 @@ export class CryptoService {
 
 	static decrypt(encrypted_hex: string): string
 	{
+		if (encrypted_hex== undefined || encrypted_hex== null || encrypted_hex=="") return null ;
 		// decrypt some bytes using CBC mode
 		// (other modes include: CFB, OFB, CTR, and GCM)
 		let encrypted = forge.util.hexToBytes(encrypted_hex) ;

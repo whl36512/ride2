@@ -37,6 +37,9 @@ npm add --save-dev @types/leaflet
 
 npm install query-string
 npm install body-parser jsonwebtoken express-jwt
+npm install --save @angular/material @angular/cdk @angular/animations
+npm install --save hammerjs
 
 
 look at https://github.com/haoliangyu/ngx-leaflet-starter
+if  class A uses class B, class A must be defined after class B
