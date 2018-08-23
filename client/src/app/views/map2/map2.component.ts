@@ -18,20 +18,18 @@ import {CommunicationService} from "../../models/communication.service"
 export class Map2Component implements OnInit , OnDestroy {
 	subscription: Subscription;
 
-	map; 
-
-	constructor(private communicationService: CommunicationService) { 
-		this.subscription =this.communicationService.currentMessage.subscribe(
+	constructor(private communicationService: CommunicationService
+		, private mapService: MapService) { 
+		this.subscription =this.communicationService.trip_msg.subscribe(
       			trip  => {
-					console.info("201808222332 Map2Component.constructor.  subscription got message. trip="+ JSON.stringify(trip));
-					//this.flyTo(trip);
-				}
+				console.info("201808222332 Map2Component.constructor.  subscription got message. trip="+ JSON.stringify(trip));
+				this.flyTo(trip);
+			}
     		);	  
 	}
 
 	ngOnInit() {
-		let mapService = new MapService();
-		this.map= mapService.createMap('map', 41.889489, -87.633229, 12) ;
+		this.mapService.createMap('map', 41.889489, -87.633229, 12) ;
 	}
 
 	ngOnDestroy() {
@@ -42,16 +40,16 @@ export class Map2Component implements OnInit , OnDestroy {
 	flyTo (trip: any)
 	{
 		if (trip.start_lat && trip.end_lat) {
-			this.map.flyToBounds(trip.start_lat, trip.start_lon, trip.start_display_name
+			this.mapService.flyToBounds(trip.start_lat, trip.start_lon, trip.start_display_name
 				, trip.end_lat, trip.end_lon, trip.end_display_name
 			)
 			
 		}
 		else if ( trip.start_lat) {
-			this.map.flyTo(trip.start_lat, trip.start_lon, trip.start_display_name);
+			this.mapService.flyTo(trip.start_lat, trip.start_lon, trip.start_display_name);
 		}
 		else if (trip.end_lat) {
-			this.map.flyTo(trip.end_lat, trip.end_lon, trip.end_display_name);
+			this.mapService.flyTo(trip.end_lat, trip.end_lon, trip.end_display_name);
 		}
 		else {} 
 	}

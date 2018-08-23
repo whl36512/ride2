@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AppComponent } from '../../app.component';
 import { CookieService } from '../../models/gui.service';
 import { Constants } from '../../models/constants';
+import { CommunicationService } from '../../models/communication.service';
  
 
 @Component({
@@ -13,7 +14,10 @@ export class NavComponent implements OnInit {
   signed_in = false;
   //parent:AppComponent ;
   show_nav=false ;
-  public constructor(public parent:AppComponent)  {
+  public constructor(
+  	//public parent:AppComponent
+	private communicationService: CommunicationService
+  ) {
   	//this.parent = parent ;
 
   }
@@ -25,7 +29,8 @@ export class NavComponent implements OnInit {
   	this.show_nav=false;
     	console.debug('201808031521 NavComponent.select elem='+ elem) ;
     	console.log('201808031521 NavComponent.select elem='+ elem) ;
-  	this.parent.select(elem) ;
+	//this.parent.select(elem) ;
+	this.communicationService.send_selected_menu(elem);
   }
 
   nav_menu_off()  {

@@ -8,39 +8,27 @@ import { BehaviorSubject } from 'rxjs';
 //})
 
 export class CommunicationService {
-// for inter component communication
+	// for inter component communication
  
   // Observable string sources
-  	private missionAnnouncedSource = new Subject<string>();
-  	private missionConfirmedSource = new Subject<string>();
-
-  	private mapbound_source = new Subject<any>();
- 
-  // Observable string streams
-  missionAnnounced$ = this.missionAnnouncedSource.asObservable();
-  missionConfirmed$ = this.missionConfirmedSource.asObservable();
-
-  mapbound$= this.mapbound_source.asObservable();
-
-	private messageSource = new BehaviorSubject('default message');
-	currentMessage = this.messageSource.asObservable();
-	send(message: string) {
+	private messageSource = new BehaviorSubject<any> ('default message');
+	currentMessage = this.messageSource.asObservable();  // all components subscribing to this message will get the message
+	send(message: any) {
 		console.info("201808230806 CommunicationService.sendMessage() message=" + message);
 	    	this.messageSource.next(message)
 	}
-  	
- 
-  	// Service message commands
-  	announceMission(mission: string) {
-    		this.missionAnnouncedSource.next(mission);
-  	}
- 	
-  	confirmMission(astronaut: string) {
-    		this.missionConfirmedSource.next(astronaut);
-  	}
-	
-  	mapbound(trip: any) {
-    		console.info("201808222339 CommunicationService.mapbounde() trip=" + JSON.stringify(trip));
-    		this.mapbound_source.next(trip);
-  	}
+
+	private trip_msg_subject = new BehaviorSubject<any> ('default message');
+	trip_msg = this.trip_msg_subject.asObservable();  // all components subscribing to this message will get the message
+	send_trip_msg(message: any) {
+		console.info("201808230806 CommunicationService.sendMessage() message=" + JSON.stringify(message));
+	    	this.trip_msg_subject.next(message) ;
+	}
+
+	private menu_msg_subject = new BehaviorSubject<string> ('default message');
+	menu_msg = this.menu_msg_subject.asObservable();  // all components subscribing to this message will get the message
+	send_selected_menu(message: string) {
+		console.info("201808230806 CommunicationService.send_selected_menu() message=" + message);
+	    	this.menu_msg_subject.next(message) ;
+	}
 }

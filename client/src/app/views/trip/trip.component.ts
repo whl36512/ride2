@@ -80,13 +80,6 @@ export class TripComponent implements OnInit,  OnDestroy{
 
 		this.subscription1 = this.trip_form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		this.subscription2 = this.trip_form.statusChanges.subscribe(data => console.log('Form status changes', data));
-
-		this.subscription3 =this.communicationService.currentMessage.subscribe(
-			trip  => {
-			console.info("201808222332 TripComponent.constructor.  subscription got message. trip="+ JSON.stringify(trip));
-			//this.flyTo(trip);
-			}
-		);
   	} 
 
 	ngOnInit() {
@@ -173,7 +166,7 @@ export class TripComponent implements OnInit,  OnDestroy{
 						console.info("201808212149 TripComponent.geocode()  this.trip.end_display_name=" +  this.trip.end_display_name);
 					}
 					this.routing();
-					this.communicationService.send( JSON.stringify(this.trip)) ; // send lat/lon info to map commponent
+					this.communicationService.send_trip_msg( this.trip) ; // send lat/lon info to map commponent
 				}
 			);
 		}
