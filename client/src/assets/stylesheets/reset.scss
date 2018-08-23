@@ -62,7 +62,9 @@ textarea {
 }
 
 .main {
-	position: fixed;
+	/* use absolute tp the main page can scroll */
+	position: absolute;
+	height: auto;
 	width: auto;
 	top: 0rem;
 	left: 0rem;

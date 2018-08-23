@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AppComponent } from '../../app.component';
+import { CookieService } from '../../models/gui.service';
+import { Constants } from '../../models/constants';
  
 
 @Component({
@@ -13,6 +15,7 @@ export class NavComponent implements OnInit {
   show_nav=false ;
   public constructor(public parent:AppComponent)  {
   	//this.parent = parent ;
+
   }
 
   ngOnInit() {
@@ -30,6 +33,23 @@ export class NavComponent implements OnInit {
   }
   toggle()  {
   	this.show_nav =!this.show_nav ;
+	this.signed_in= this.is_signed_in();
+    	console.log('301808221747 NavComponent.constructor this.signed_in='+ this.signed_in) ;
+
+  }
+
+  is_signed_in ()
+  {
+  	let encrypted_profile = CookieService.getCookie(Constants.PROFILE);
+  	let jwt =CookieService.getCookie(Constants.JWT);
+	if ( encrypted_profile == undefined || encrypted_profile == null || encrypted_profile == "")
+	{
+		return false;
+	} 
+	if ( jwt == undefined || jwt == null || jwt == "" ) {
+		return false;
+	} 
+	return true;
   }
 
 }

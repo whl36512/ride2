@@ -2,43 +2,47 @@
 // https://angular.io/guide/form-validation
 
 import { Component, OnInit } from '@angular/core';
+import { OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { FormGroup } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { Validators } from '@angular/forms';
-
-
+import { Subscription }   from 'rxjs';
 
 import {AbstractControl,  ValidatorFn} from '@angular/forms';
 import {EventEmitter, Input, Output} from '@angular/core';
 
 import {GeoService} from '../../models/remote.service' ;
 import {DBService} from '../../models/remote.service' ;
+import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 
 
 @Component({
-  selector: 'app-trip',
-  templateUrl: './trip.component.html',
-  styleUrls: ['./trip.component.css']
+  selector	: 'app-trip'			,
+  templateUrl	: './trip.component.html'	,
+  styleUrls	: ['./trip.component.css']
 })
 
-export class TripComponent implements OnInit {
+export class TripComponent implements OnInit,  OnDestroy{
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
+	subscription1: Subscription ;
+	subscription2: Subscription ;
+	subscription3: Subscription ;
 
     	saved=false;
 
 	trip_form = this.form_builder.group({
 		start_loc	: ['', [Validators.required]],     // sync validators must be in an array
-		//start_lat	: ['', []],     // sync validators must be in an array
-		//start_lon	: ['', []],     // sync validators must be in an array
-		//start_display_name	: ['', []],     // sync validators must be in an array
+		//start_lat	: ['', []],     
+		//start_lon	: ['', []],     
+		//start_display_name	: ['', []], 
 		end_loc		: ['', [Validators.required]], 
-		//end_lat		: ['', []],     // sync validators must be in an array
-		//end_lon		: ['', []],     // sync validators must be in an array
-		//end_display_name	: ['', []],     // sync validators must be in an array
+		//end_lat		: ['', []], 
+		//end_lon		: ['', []],
+		//end_display_name	: ['', []],
 		start_date	: ['', [Validators.required]], 
 		departure_time	: ['', [Validators.required]], 
 		seats		: [3, [Validators.required]], 
@@ -65,20 +69,36 @@ export class TripComponent implements OnInit {
 		, "distance": null
 		};
 
-	constructor(public parent: AppComponent
-		, private geoService: GeoService
-		, private dbService: DBService
-		, private form_builder: FormBuilder
+	constructor(
+		  public parent			: AppComponent
+		, private geoService		: GeoService
+		, private dbService		: DBService
+		, private form_builder		: FormBuilder
+		, private communicationService	: CommunicationService
 	){ 
   		console.log("TripComponent.constructor() enter")  ;
 
-		this.trip_form.valueChanges.subscribe(data => console.log('Form value changes', data));
-		this.trip_form.statusChanges.subscribe(data => console.log('Form status changes', data));
-  	}
+		this.subscription1 = this.trip_form.valueChanges.subscribe(data => console.log('Form value changes', data));
+		this.subscription2 = this.trip_form.statusChanges.subscribe(data => console.log('Form status changes', data));
+
+		this.subscription3 =this.communicationService.currentMessage.subscribe(
+			trip  => {
+			console.info("201808222332 TripComponent.constructor.  subscription got message. trip="+ JSON.stringify(trip));
+			//this.flyTo(trip);
+			}
+		);
+  	} 
 
 	ngOnInit() {
 		console.info("TripComponent.ngOnInit() enter");
   	}
+
+	ngOnDestroy() {
+		// prevent memory leak when component destroyed
+		this.subscription1.unsubscribe();
+		this.subscription2.unsubscribe();
+		this.subscription3.unsubscribe();
+	}
 
 	onSubmit() {
 	  	// TODO: Use EventEmitter with form value
@@ -131,6 +151,12 @@ export class TripComponent implements OnInit {
 						console.info("201808212149 TripComponent.geocode()  lon=" +  lon);
 						console.info("201808212149 TripComponent.geocode()  display_name=" +  display_name);
 					}
+					else
+					{
+						lat=null;
+						lon=null;
+						display_name= null;
+					}
 					if (element_id == "start_loc" ) {
 						this.trip.start_lat=lat;
 						this.trip.start_lon=lon;
@@ -147,6 +173,7 @@ export class TripComponent implements OnInit {
 						console.info("201808212149 TripComponent.geocode()  this.trip.end_display_name=" +  this.trip.end_display_name);
 					}
 					this.routing();
+					this.communicationService.send( JSON.stringify(this.trip)) ; // send lat/lon info to map commponent
 				}
 			);
 		}
@@ -175,9 +202,9 @@ export class TripComponent implements OnInit {
 					this.trip.distance="no route";
 				}
 			);
-		}
+		} else this.trip.distance="no route";
 	}
-	
+
 	get start_loc		() { return this.trip_form.get('start_loc'	); }  // the getter is required for reactive form validation to work 
 	get end_loc		() { return this.trip_form.get('end_loc'	); }  
 	get start_date		() { return this.trip_form.get('start_date'	); }

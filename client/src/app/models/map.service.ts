@@ -113,15 +113,15 @@ export class MapService {
 		return this.map;
 	}
 
-	flyTo(lat,lon,name){
+	flyTo(lat,lon,display_name){ // display_name will be shown in popup
 		console.log("flyTo");
 		this.map.setView([lat,lon],12);
 		//this.map.flyTo([lat,lon],12);
 		if(this.marker) {         this.map.removeLayer(this.marker); }
 		if(this.markerTo) {         this.map.removeLayer(this.markerTo); }
 		if(this.markerFrom) {         this.map.removeLayer(this.markerFrom); }
-		//marker1= L.marker([lat,lon]).addTo(map).bindPopup(name) ;
-		this.marker= L.marker([lat,lon], {icon:MyIcon.get('#583470')}).addTo(this.map).bindPopup(name) ;
+		//marker1= L.marker([lat,lon]).addTo(map).bindPopup(display_name) ;
+		this.marker= L.marker([lat,lon], {icon:MyIcon.get('#583470')}).addTo(this.map).bindPopup(display_name) ;
 	}
 
 

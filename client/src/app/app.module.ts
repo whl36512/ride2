@@ -30,6 +30,8 @@ import { MapService } 		from './models/map.service';
 import { GeoService } 		from './models/remote.service';
 import { DBService } 		from './models/remote.service';
 import { HttpService } 		from './models/remote.service';
+import {CommunicationService} 	from "./models/communication.service"
+
 
 const appRoutes: Routes = [
 /*
@@ -80,6 +82,7 @@ const appRoutes: Routes = [
     GeoService,
     DBService,
     HttpService,
+    CommunicationService,
   ],
 
   bootstrap: [AppComponent]

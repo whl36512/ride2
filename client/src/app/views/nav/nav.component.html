@@ -3,15 +3,15 @@
 
 
         <ul class="nav" *ngIf="show_nav"  >
-            <li (click)="select('user')" >My Profile</li>
-            <li (click)="select('search')" >Search</li>
-            <li id=trip  (click)="select('trip')" >Post a Trip</li>
-            <li><a href="/mytrips"    onclick="return ride.checkAuth(); ">My Offers</a></li>
-            <li><a href="/mybookings" onclick="return ride.checkAuth(); ">My Booking</a></li>
-            <li><a href="/deposit" >Deposit</a></li>
-            <li><a href="/withdraw" >Withdraw</a></li>
-            <li><a href="/contactus">Contact Us</a></li>
-            <li><a href="/termsofuse">Terms of Use</a></li>
+            	<li                   (click)="select('search')" 	>Search</li>
+	    	<li *ngIf="signed_in" (click)="select('trip')" 		>Post a Trip</li>
+		<li *ngIf="signed_in" (click)="select('mytrips')"  	>My Offers</li>
+		<li *ngIf="signed_in" (click)="select('mybookings')"  	>My Booking</li>
+		<li *ngIf="signed_in" (click)="select('user')" 		>My Profile</li>
+		<li                   (click)="select('deposit')"  	>Deposit</li>
+		<li                   (click)="select('withdraw')"  	>Withdraw</li>
+		<li                   (click)="select('contact_us')"  	>Contact Us</li>
+		<li                   (click)="select('tou')"  		>Terms of Use</li>
         </ul>
 </div>
 
