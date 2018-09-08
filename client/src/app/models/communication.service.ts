@@ -31,4 +31,11 @@ export class CommunicationService {
 		console.info("201808230806 CommunicationService.send_selected_menu() message=" + message);
 	    	this.menu_msg_subject.next(message) ;
 	}
+
+	private close_page_msg_subject = new BehaviorSubject<string> ('default message');
+	close_page_msg = this.close_page_msg_subject.asObservable();  // all components subscribing to this message will get the message
+	close_page(message: string) {
+		console.info("201808230806 CommunicationService.close_page() message=" + message);
+	    	this.close_page_msg_subject.next(message) ;
+	}
 }

@@ -3,10 +3,14 @@ use r2d2::{Pool, PooledConnection};
 use r2d2_postgres::{TlsMode, PostgresConnectionManager};
 use r2d2_postgres::postgres::types::{ ToSql};
 //use r2d2_postgres::postgres::{Error};
-use rustc_serialize::json::Json ;
+//use rustc_serialize::json::Json ;
+//use serde_json::{ to_string}  ;
+use serde_json  ;
+
 
 type PConnection = PooledConnection<PostgresConnectionManager> ;
 type PPool = Pool<PostgresConnectionManager> ;
+type Json = serde_json::Value;
 
 pub struct DbUrl {
     port        :String,

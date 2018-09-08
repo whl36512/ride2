@@ -13,7 +13,8 @@ import {CommunicationService} from "./models/communication.service"
 export class AppComponent {
   	title = 'ride2';
 	pages: any ;
-	subscription: Subscription;
+	subscription1: Subscription;
+	subscription2: Subscription;
 
 
   constructor (private communicationService: CommunicationService){
@@ -22,10 +23,16 @@ export class AppComponent {
     	this.pages.nav=true;
     	this.pages.map=true;
 
-	this.subscription =this.communicationService.menu_msg.subscribe(
+	this.subscription1 =this.communicationService.menu_msg.subscribe(
 		message  => {
 			console.info("201808222332 Map2Component.constructor.  subscription got message. message="+ JSON.stringify(message));
 			this.select(message);
+		}
+	);
+	this.subscription2 =this.communicationService.close_page_msg.subscribe(
+		message  => {
+			console.info("201808222332 Map2Component.constructor.  subscription got message. message="+ JSON.stringify(message));
+			this.deselect(message);
 		}
 	);
   }
@@ -51,9 +58,18 @@ export class AppComponent {
 		this.pages = { ...this.pages, ...json} ;
 		console.info("201808221510 AppComponent.select()  this.pages="+  JSON.stringify(this.pages) ) ;
   	}
+
+  	deselect(page:string) {
+		console.log("201808201649 AppComponent.deselect() page=" + page);
+		let json = JSON.parse(`{"${page}":false}`);
+	
+		this.pages = { ...this.pages, ...json} ;
+		console.info("201808221510 AppComponent.select()  this.pages="+  JSON.stringify(this.pages) ) ;
+  	}
 	
 	ngOnDestroy() {
 		// prevent memory leak when component destroyed
-		this.subscription.unsubscribe();
+		this.subscription1.unsubscribe();
+		this.subscription2.unsubscribe();
 	}
 }

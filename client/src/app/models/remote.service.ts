@@ -172,7 +172,7 @@ export class DBService {
 
 	constructor(private httpService: HttpService){}
 
-	private call_db(relative_url: String, payload: any) : Observable<any> {  // expect payload in JSON object. return also in JSON object
+	call_db(relative_url: String, payload: any) : Observable<any> {  // expect payload in JSON object. return also in JSON object
 		let response_body: any  ;
 		console.info("201808190205 DBService.call_db payload=\n"+ payload);
 		// add jwt token to the payload
@@ -197,6 +197,12 @@ export class DBService {
 		return this.call_db(Constants.SAVE_USER_URL, user);
 	}
 
+	upd_trip(trip: any) :  Observable<any> {
+		return this.call_db(Constants.UPD_TRIP_URL, trip);
+	}
+
+
+
 	private add_token( relative_url: String, payload: any): any
 	{
 		var combined_payload: any;
@@ -207,7 +213,7 @@ export class DBService {
 
 		if (	   relative_url == Constants.GET_USER_URL
 			|| relative_url == Constants.SAVE_USER_URL
-			|| relative_url == Constants.GET_TRIP_URL
+			|| relative_url == Constants.UPD_TRIP_URL
 			) 
 		{ 
 			let jwt=  CookieService.getCookie(Constants.JWT);

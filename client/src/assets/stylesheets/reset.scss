@@ -28,7 +28,7 @@ a:hover {
 }
 
 div.toggle, *[show=false] {
-display: none;
+	display: none;
 }
 
 div.center {
@@ -93,4 +93,10 @@ textarea {
 	margin: 0.5rem;
 }
 
-
+button.close-button {
+	/* use absolute to position child relative to its parent. parent must have absolue of fixed position */
+	position: absolute;
+	width: auto;
+	top: 0.2rem ;
+	right: 0.2rem;
+}

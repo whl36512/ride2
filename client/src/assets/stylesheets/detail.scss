@@ -1,0 +1,15 @@
+input:invalid+span:after {
+	content: '✖';
+	padding-left: 5px;
+	color: red;
+}
+
+input:valid+span:after {
+	content: '✓';
+	padding-left: 5px;
+	color: green;
+}
+
+*[error=true] {
+	color: red;
+}

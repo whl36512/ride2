@@ -3,7 +3,7 @@ use typemap;
 use secure_session::middleware::{SessionMiddleware, SessionConfig};
 use secure_session::session::ChaCha20Poly1305SessionManager;
 use tables::Usr;
-use constants;
+//use constants;
 
 #[derive(Debug)]
 #[derive(Serialize, Deserialize)]
@@ -100,7 +100,7 @@ impl<'a, 'b> RideRequest for Request<'a, 'b> {
 
     fn params_to_json (& mut self ) -> String
     {
-        use std::collections::BTreeMap;
+        //use std::collections::BTreeMap;
         use params::Params ;
         //use params::Value;
         use iron::prelude::*;

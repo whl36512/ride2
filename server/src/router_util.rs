@@ -46,6 +46,7 @@ pub fn router_setup() -> iron::Chain  {
     router.post("/get_user", handlers::get_user, "get_user");
     router.get("/redirect", handlers::redi, "redi");
     router.post("/get_session", handlers::get_session, "get_session");
+    router.post("/upd_trip", handlers::upd_trip, "upd_trip");
 
     let chain = iron::Chain::new(router);
     return chain ;
@@ -92,7 +93,7 @@ pub fn router_start(http_port : u32)
 struct MyCorsMiddleware;
 
 impl AfterMiddleware for MyCorsMiddleware {
-    fn after(&self, req: &mut Request, mut res: Response) -> IronResult<Response> {
+    fn after(&self, _req: &mut Request, mut res: Response) -> IronResult<Response> {
         //res.headers.set(hyper::header::AccessControlAllowOrigin::Any);
         res.headers.set(AccessControlAllowCredentials) ;
         res.headers.set( AccessControlExposeHeaders(vec![ UniCase("Set-Cookie".to_owned()), UniCase("content-length".to_owned()) ]) );

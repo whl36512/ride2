@@ -12,14 +12,10 @@ import { CommunicationService } from '../../models/communication.service';
 })
 export class NavComponent implements OnInit {
   signed_in = false;
-  //parent:AppComponent ;
   show_nav=false ;
   public constructor(
-  	//public parent:AppComponent
 	private communicationService: CommunicationService
   ) {
-  	//this.parent = parent ;
-
   }
 
   ngOnInit() {
@@ -29,7 +25,6 @@ export class NavComponent implements OnInit {
   	this.show_nav=false;
     	console.debug('201808031521 NavComponent.select elem='+ elem) ;
     	console.log('201808031521 NavComponent.select elem='+ elem) ;
-	//this.parent.select(elem) ;
 	this.communicationService.send_selected_menu(elem);
   }
 

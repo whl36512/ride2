@@ -55,27 +55,29 @@ $body$
 language plpgsql;
 
 
-create or replace function funcs.updatetrip( in_trip text)
+create or replace function funcs.upd_trip( in_trip text, in_user text)
   returns trip
 as
 $body$
 DECLARE
   s0 RECORD ;
+  usr0 RECORD ;
   i1 RECORD ;
   u1 RECORD ;
 BEGIN
-	SELECT * into s0 FROM json_populate_record(NULL::trip, in_trip::json) ;
+	SELECT * into s0   FROM json_populate_record(NULL::trip, in_trip::json) ;
+	SELECT * into usr0 FROM json_populate_record(NULL::usr , in_user::json) ;
 
 
   	insert into trip ( driver_id, start_date) 
-  	select  s0.driver_id, s0.start_date
+  	select  usr0.usr_id, s0.start_date
   	where s0.trip_id is null
   	returning * into i1 
   	;
 
   	update trip t
   	set 
-      		start_date          = coalesce(s0.start_date          , t.start_date        ) 
+      		  start_date          = coalesce(s0.start_date          , t.start_date        ) 
     		, end_date            = coalesce(s0.end_date            , t.end_date          )
     		, departure_time      = coalesce(s0.departure_time      , t.departure_time    )
     		, start_loc           = coalesce(s0.start_loc           , t.start_loc         )
@@ -111,7 +113,7 @@ END
 $body$
 language plpgsql;
 
-create or replace function funcs.update_money_trnx( trnx text)
+create or replace function funcs.upd_money_trnx( trnx text)
   returns money_trnx
 as
 $body$

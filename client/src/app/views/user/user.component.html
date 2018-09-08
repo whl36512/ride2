@@ -1,41 +1,46 @@
-<div  class="user main" >
-    <div class="center f12"  *ngIf="!saved">Edit User Profile</div>
-    <div class="error" *ngIf="!signed_in"> You are not signed in. Please sign in first </div>
-    <div class="center f12"  *ngIf="saved" >User Profile Saved</div>
-    <form *ngIf="signed_in" [formGroup]="user_form" (ngSubmit)="onSubmit()">
-      	<dl>
-          	<dt>
-			Last Name : {{user.last_name}}
-          	</dt>
-          	<dt>
-			First Name : {{user.first_name}}
-          	</dt>
-          	<dt *ngIf="!saved">
-		<label for="email">Email (required)
-			</label>
-		</dt>
-		<dd *ngIf="!saved">      
-          		<input  type="email"  formControlName="email" value="{{user.email}}"  placeholder="Email Address" required 
-                  		#email (kkeyup)="addEmail(email)" (bblur)="addEmail(email) " pattern="{{EMAIL_PATTERN}}" 
-                	/> 
-			<div *ngIf="email.invalid && (email.dirty || email.touched)"
-				    class="alert alert-danger">
+<div  class="user main" *ngIf="!error_msg" >
+	<button  type="button" class="close-button" (click)="close_page()" >X</button>
+	<div class="alert-error" > {{error_msg}} </div>
 
-				  <div *ngIf="email.errors.required"> Email is required  </div>
-				  <div *ngIf="email.errors.pattern"> Email format is invalid  </div>
-			</div>
-          	</dd>
-		<dt *ngIf="saved"> Email: {{user.email}}  </dt>
-        </dl>
-        <br/>
-	<button  *ngIf="!saved" type="submit" [disabled]="user_form.invalid" >Save</button>
-	<button  *ngIf="saved"  type="submit" >Close</button>
-        <br/>
+</div>
+<div  class="user main" *ngIf="!error_msg" >
+	<button  type="button" class="close-button" (click)="close_page()" >X</button>
 
-	<p>
-	  Form Value: {{ user_form.value }} </p>
-	<p>
-	  Form Status: {{ user_form.status }}
-	</p>
-    </form>
+	<div class="center f12"  *ngIf="!saved">Edit User Profile</div>
+	<div class="center f12"  *ngIf="saved" >User Profile Saved</div>
+	<form [formGroup]="user_form" (ngSubmit)="onSubmit()">
+      		<dl>
+       		   	<dt>
+				Last Name : {{user_from_db.last_name}}
+       	   		</dt>
+       	   		<dt>
+				First Name : {{user_from_db.first_name}}
+          		</dt>
+          		<dt *ngIf="!saved">
+			<label for="email">Email (required)
+				</label>
+			</dt>
+			<dd *ngIf="!saved">      
+          			<input  type="email"  formControlName="email" value="{{user_from_db.email}}"  placeholder="Email Address" required 
+                  			#email (kkeyup)="addEmail(email)" (bblur)="addEmail(email) " pattern="{{EMAIL_PATTERN}}" 
+                		/> 
+				<div *ngIf="email.invalid && (email.dirty || email.touched)"
+				    	class="alert alert-danger">
+	
+				  	<div *ngIf="email.errors.required"> Email is required  </div>
+				  	<div *ngIf="email.errors.pattern"> Email format is invalid  </div>
+				</div>
+          		</dd>
+			<dt *ngIf="saved"> Email: {{user_from_db.email}}  </dt>
+        	</dl>
+        	<br/>
+		<button  *ngIf="!saved" type="submit" [disabled]="user_form.invalid" >Save</button>
+        	<br/>
+	
+		<p>
+	  	Form Value: {{ user_form.value }} </p>
+		<p>
+	  	Form Status: {{ user_form.status }}
+		</p>
+	</form>
 </div>
