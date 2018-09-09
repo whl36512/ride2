@@ -40,6 +40,7 @@ export class TripComponent implements OnInit,  OnDestroy{
 	trip:any;
 	trip_form: any;
 	today : any;
+	step=1;
 
 	constructor(
 		  private geoService		: GeoService

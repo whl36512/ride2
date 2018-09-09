@@ -4,7 +4,7 @@
 	<div class="center f12" *ngIf="form_saved_to_db" >Trip Information Saved</div>
 	<button  type="button" class="close-button" (click)="close_page()" >X</button>
 	<form [formGroup]="trip_form" (ngSubmit)="onSubmit()">
-		<dl > 
+		<dl *ngIf="step==1||form_saved_to_db"> 
           		<dt>
 				<label for="start_loc">From
 				<span *ngIf="start_loc.invalid && (start_loc.dirty || start_loc.touched)"
@@ -35,7 +35,7 @@
 			</dd>
         	</dl>
 
-        	<dl >
+        	<dl *ngIf="step==2||form_saved_to_db">
           		<dt>
 				<label for="end_loc">To
 				<span *ngIf="end_loc.invalid && (end_loc.dirty || end_loc.touched)"
@@ -63,8 +63,6 @@
 			<dd class="f08">
 				{{trip.end_display_name	}}
 			</dd>
-        	</dl>
-        	<dl >
 			<dt>
 			Distance (miles): 
 			<span *ngIf="trip.distance=='no route' " error=true>{{trip.distance}}</span>
@@ -72,75 +70,75 @@
 			</dt>
         	</dl>
 
-        	<dl >
+        	<dl *ngIf="step==3||form_saved_to_db">
           		<dt><label for="start_date">Start Date (required)</label></dt>
           		<dd>
 			<input type="date" formControlName="start_date" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" min={{today}} required [readonly]="form_saved_to_db"/>
 			<span class="validity"></span>
           		</dd>
-        	</dl>
 
-        	<dl>
           		<dt><label for="departure_time">Departure Time (required)</label></dt>
           		<dd>
 				<input type="time" formControlName="departure_time" step="60" required [readonly]="form_saved_to_db"/>
+				<span class="validity"></span>
           		</dd>
         	</dl>
 
-        	<dl>
+        	<dl *ngIf="step==4||form_saved_to_db">
 			<dt><label for="seats">Available Seats: {{this.trip_form.value.seats}} </label></dt>
           		<dd>
 			<input type="range" formControlName="seats" value="{{trip_form.value.seats}}" min="1" max="6" step=1 *ngIf="!form_saved_to_db"/> 
           		</dd>
-        	</dl>
 
-        	<dl>
 			<dt><label for="price">Price: ${{this.trip_form.value.price}} per mile</label></dt>
           		<dd>
 			<input type="range" formControlName="price" value="0" min="0" max="0.20" step=0.01 *ngIf="!form_saved_to_db"/>
           		</dd>
         	</dl>
 
-		<dl>
+		<dl *ngIf="step==5||form_saved_to_db">
           		<dt><label for="recur_ind">Recurring: </label>
             			<input type="checkbox" formControlName="recur_ind" [readonly]="form_saved_to_db"/>
 			</dt>
 
-		<dd *ngIf="trip_form.value.recur_ind">
-          		<dl>
-            			<dt><label for="end_date">End Date (must be within 92 days after Start Date)</label></dt>
-            			<dd>
-				<input type="date" id="end_date" formControlName="end_date" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" 
-						min={{next_n_days(trip_form.value.start_date,1)}} 
-						max={{next_n_days(trip_form.value.start_date,92)}} 
-						[required]="trip_form.value.recur_ind"
-						[readonly]="form_saved_to_db"/>
-				<span class="validity"></span>
-            			</dd>
-  
-            			<dt><label>Recur on</label></dt>
-            			<dd> <input type="checkbox" formControlName="day0_ind" [readonly]="form_saved_to_db"/>Sun 
-            			<input type="checkbox" formControlName="day1_ind" [readonly]="form_saved_to_db"/>Mon 
-            			<input type="checkbox" formControlName="day2_ind" [readonly]="form_saved_to_db"/>Tue 
-            			<input type="checkbox" formControlName="day3_ind" [readonly]="form_saved_to_db"/>Wed 
-            			<input type="checkbox" formControlName="day4_ind" [readonly]="form_saved_to_db"/>Thur 
-            			<input type="checkbox" formControlName="day5_ind" [readonly]="form_saved_to_db"/>Fri 
-            			<input type="checkbox" formControlName="day6_ind" [readonly]="form_saved_to_db"/>Sat 
-				</dd>
-          		</dl>
-		</dd>
+			<dd *ngIf="trip_form.value.recur_ind">
+          			<dl>
+            				<dt><label for="end_date">End Date (must be within 92 days after Start Date)</label></dt>
+            				<dd>
+					<input type="date" id="end_date" formControlName="end_date" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" 
+							min={{next_n_days(trip_form.value.start_date,1)}} 
+							max={{next_n_days(trip_form.value.start_date,92)}} 
+							[required]="trip_form.value.recur_ind"
+							[readonly]="form_saved_to_db"/>
+					<span class="validity"></span>
+            				</dd>
+  	
+            				<dt><label>Recur on</label></dt>
+            				<dd> 
+						<input type="checkbox" formControlName="day0_ind" [readonly]="form_saved_to_db"/>Sun 
+            					<input type="checkbox" formControlName="day1_ind" [readonly]="form_saved_to_db"/>Mon 
+            					<input type="checkbox" formControlName="day2_ind" [readonly]="form_saved_to_db"/>Tue 
+						<input type="checkbox" formControlName="day3_ind" [readonly]="form_saved_to_db"/>Wed <br/>
+            					<input type="checkbox" formControlName="day4_ind" [readonly]="form_saved_to_db"/>Thur 
+            					<input type="checkbox" formControlName="day5_ind" [readonly]="form_saved_to_db"/>Fri 
+            					<input type="checkbox" formControlName="day6_ind" [readonly]="form_saved_to_db"/>Sat 
+					</dd>
+          			</dl>
+			</dd>
         	</dl>
-		<dl class=" error" id="description_field">
+		<dl *ngIf="step==6||form_saved_to_db">
           		<dt><label for="description">Description</label></dt>
           		<dd *ngIf="!form_saved_to_db">
-			<textarea formControlName=description placeholder="For example, non-smoking, female only, flexible time, flexible pickup,etc" >{{trip_form.value.description}} </textarea>
+			<textarea id="description" formControlName=description placeholder="For example, non-smoking, female only, flexible time, flexible pickup,etc" >{{trip_form.value.description}} </textarea>
           		</dd>
           		<dd *ngIf="form_saved_to_db">
 				{{trip_form.value.description}}
           		</dd>
-        	</dl>
         	<br/>
-		<button  type="submit" [disabled]="trip_form.invalid || trip.distance==null || trip.distance=='no route' " *ngIf="!form_saved_to_db">Post</button>
+		<button  type="submit" [disabled]="trip_form.invalid || trip.distance==null || trip.distance=='no route' " *ngIf="!form_saved_to_db">Publish</button>
 		 <p> Form Status: {{ trip_form.status }}
+        	</dl>
+		<button  type="button" *ngIf="step>1&&!form_saved_to_db" (click)="step=step-1">&lt; Back</button> &nbsp; &nbsp;
+		<button  type="button" *ngIf="step<6&&!form_saved_to_db" (click)="step=step+1">Next &gt;</button>
       </form>
 </div>
