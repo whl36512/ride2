@@ -14,6 +14,7 @@ use serde_json;
 
 
 use tables::Usr ;
+use tables::Trip ;
 use token::JwtToken;
 use token;
 use reqres::SecurityStatus;
@@ -88,22 +89,20 @@ pub fn upd_trip(req: &mut Request) -> IronResult<Response> {
     let request_component = req.inspect();
     let status = request_component.security_status();
     let db_conn= req.db_conn() ;
-    let response = match status {
-        SecurityStatus::SignedIn => {
-            let user_from_token_string = request_component.user_from_token.unwrap().to_string() ;
-            let trip_from_db_json: Option<Json>  
-                = db::runsql_one_row (&db_conn
-                                      , "select row_to_json(a) from funcs.upd_trip($1, $2) a "
-                                      , &[&request_component.params, &user_from_token_string]) ;  //params has trip and user info
 
-            match trip_from_db_json {
-                Some(t) => Response::with((status::Ok, t.to_string() )) ,
-                None    => Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)) ,
-            }
-        },
-        _                       => Response::with((status::Unauthorized, constants::ERROR_NOT_SIGNED_IN )),
-    } ;
-    Ok(response)
+    if status  != SecurityStatus::SignedIn {  return Ok(Response::with((status::Unauthorized, constants::ERROR_NOT_SIGNED_IN ))) } 
+
+    let user_from_token_string = request_component.user_from_token.unwrap().to_string() ;
+    let trip_from_param = validate_trip(&request_component.params);
+
+    if trip_from_param == None { return Ok(Response::with((status::NotAcceptable, constants::ERROR_TRIP_VALIDATION)))}
+    let trip_from_db_json: Option<Json>  
+        = db::runsql_one_row (&db_conn
+            , "select row_to_json(a) from funcs.upd_trip($1, $2) a "
+            , &[&trip_from_param.unwrap().to_string(), &user_from_token_string]) ;  //params has trip and user info
+            //, &[&request_component.params.to_string(), &user_from_token_string]) ;  //params has trip and user info
+    if trip_from_db_json == None { return Ok(Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)))} 
+    return Ok(Response::with((status::Ok, trip_from_db_json.unwrap().to_string()))) ;
 }
 
 pub fn echo(request: &mut Request) -> IronResult<Response> {
@@ -122,4 +121,50 @@ pub fn redi(_: &mut Request) -> IronResult<Response> {
 
     let url = Url::parse("http://rideshare.beegrove.com:4200").unwrap();
     Ok(Response::with((status::TemporaryRedirect, Redirect(url.clone()))))
+}
+
+pub fn validate_trip(params: & String) -> Option<Trip> {
+    let trip_from_params : Trip = Trip::from_js_string(&Some(params.to_string())).expect(&format!("ERROR 201809091848 Unable to get Trip from params. params={}", params)) ;
+    if       trip_from_params.start_loc == None {return None}
+    else if  trip_from_params.start_lat == None {return None}
+    else if  trip_from_params.start_lon == None {return None}
+    else if  trip_from_params.start_display_name == None {return None}
+    else if  trip_from_params.end_loc == None {return None} 
+    else if  trip_from_params.end_lat == None {return None}
+    else if  trip_from_params.end_lon == None {return None}
+    else if  trip_from_params.end_display_name == None {return None}
+    else if  trip_from_params.start_date == None {return None}
+    else if  trip_from_params.departure_time == None {return None}
+    else if  trip_from_params.distance == None {return None}
+    else if  trip_from_params.price == None {return None}
+    else if  trip_from_params.price.unwrap()  < 0f64   {return None}
+    else if  trip_from_params.price.unwrap()  > 0.20 {return None}
+    else if  trip_from_params.price == None {return None}
+    else if  trip_from_params.seats == None {return None}
+    else if  trip_from_params.seats.unwrap() > 6     {return None}
+    else if  trip_from_params.seats.unwrap() < 1     {return None}
+    else if  trip_from_params.recur_ind == None {return None}
+    else if  trip_from_params.day0_ind == None {return None}
+    else if  trip_from_params.day1_ind == None {return None}
+    else if  trip_from_params.day2_ind == None {return None}
+    else if  trip_from_params.day3_ind == None {return None}
+    else if  trip_from_params.day4_ind == None {return None}
+    else if  trip_from_params.day5_ind == None {return None}
+    else if  trip_from_params.day6_ind == None {return None}
+    else if  trip_from_params.recur_ind.unwrap() == true 
+        && trip_from_params.day0_ind.unwrap() == false
+        && trip_from_params.day1_ind.unwrap() == false
+        && trip_from_params.day2_ind.unwrap() == false
+        && trip_from_params.day3_ind.unwrap() == false
+        && trip_from_params.day4_ind.unwrap() == false
+        && trip_from_params.day5_ind.unwrap() == false
+        && trip_from_params.day6_ind.unwrap() == false {return None}
+    else if  trip_from_params.recur_ind.unwrap() == true 
+        && trip_from_params.end_date == None {return None}
+    //else if  trip_from_params.recur_ind.unwrap() == true
+        //&& trip_from_params.end_date.unwrap() <= trip_from_params.start_date.unwrap() {return None}
+    // also need to check end_date is not 92 after start_date
+    // also need to check start_date is not in the past
+    ;
+    return Some(trip_from_params);
 }

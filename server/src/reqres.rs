@@ -4,6 +4,10 @@ use secure_session::middleware::{SessionMiddleware, SessionConfig};
 use secure_session::session::ChaCha20Poly1305SessionManager;
 use tables::Usr;
 //use constants;
+//
+use serde_json;
+type Json = serde_json::Value;
+
 
 #[derive(Debug)]
 #[derive(Serialize, Deserialize)]
@@ -105,16 +109,18 @@ impl<'a, 'b> RideRequest for Request<'a, 'b> {
         //use params::Value;
         use iron::prelude::*;
         //use json ;
-        let map = self.get_ref::<Params>().unwrap();
+        let map = self.get_ref::<Params>().expect("ERROR 201809091802 Unable to capture params");
         debug!("20180809  map = {:?}", map) ;
         //let json_string = serde_json::to_value(map) ;
         let json_string = format!("{:?}", map) ;  // dumping of BtreeMap happens to be a json string
         debug!("20180809  json_string = {:?}", json_string) ;
+        let _json : Json = serde_json::from_str(&json_string).expect(&format!("ERROR 201809091507 Unable to convert params to Json. json_string={}", json_string));
         json_string
     }
 }
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub enum SecurityStatus {
     NotSignedIn  ,//"NOT_SIGNED_IN"
     ClientSideSignin  ,//"CLIENT_SIDE_SIGNIN"
