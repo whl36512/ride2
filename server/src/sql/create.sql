@@ -1,3 +1,5 @@
+-- to run this script
+-- su postgres -c psql < src/sql/create.sql
 drop database if exists ride;
 create database ride; 
 drop user if exists ride;
