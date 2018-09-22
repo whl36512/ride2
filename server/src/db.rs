@@ -6,6 +6,7 @@ use r2d2_postgres::postgres::types::{ ToSql};
 //use rustc_serialize::json::Json ;
 //use serde_json::{ to_string}  ;
 use serde_json  ;
+use constants;
 
 
 type PConnection = PooledConnection<PostgresConnectionManager> ;
@@ -35,11 +36,11 @@ impl DbUrl {
 
 pub fn db_pool(db_url : Option<DbUrl>)  -> PPool {
     let default_db_url = DbUrl {
-          port        :"5432".to_string()
-        , host        :"10.0.0.111".to_string()
-        , user        :"ride".to_string()
-        , passwd      :"ride".to_string()
-        , database    :"ride".to_string()
+          port        : constants::PG_PORT.to_string()
+        , host        : constants::PG_HOST.to_string()
+        , user        : constants::PG_USER.to_string()
+        , passwd      : constants::PG_PASSWD.to_string()
+        , database    : constants::PG_DATABASE.to_string()
         , connection_string : "".to_string()
         , connection_string_no_passwd : "".to_string()
     };

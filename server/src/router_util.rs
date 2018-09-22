@@ -25,6 +25,7 @@ use unicase::UniCase;
 //use tables;
 use reqres;
 use handlers;
+use constants;
 
 
 //use url::Url;
@@ -60,13 +61,8 @@ pub fn response_printer(_req: &mut Request, res: Response) -> IronResult<Respons
 
 pub fn router_start(http_port : u32) 
 {
-    let port        ="5432";
-    let host        ="10.0.0.111" ; 
-    let user        ="ride"    ;
-    let passwd      ="ride" ;
-    let database    ="ride" ;
     //let url="postgres://user:pass@host:port/database?arg1=val1&arg2=val2"
-    let url =format!("postgres://{}:{}@{}:{}/{}", user, passwd, host, port, database) ;
+    let url =format!("postgres://{}:{}@{}:{}/{}", constants::PG_USER, constants::PG_PASSWD, constants::PG_HOST, constants::PG_PORT, constants::PG_DATABASE) ;
     let mut chain = router_setup() ;
 
     let pg_middleware = PostgresMiddleware::new(&url, 5);
