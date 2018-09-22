@@ -20,14 +20,14 @@ extern crate url;
 extern crate hyper_native_tls;
 extern crate secure_session;
 extern crate typemap;
-extern crate json;
+//extern crate json;
 //extern crate reqwest;
 //
 extern crate iron_postgres_middleware as pg_middleware;
 extern crate iron_cors ;
 extern crate unicase;
 
-extern crate crypto;
+//extern crate crypto;
 extern crate rand;
 extern crate data_encoding;
 extern crate jsonwebtoken as jwt;
