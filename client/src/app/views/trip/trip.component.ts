@@ -142,7 +142,7 @@ export class TripComponent implements OnInit,  OnDestroy{
 		}
 		else loc= this.trip_form.value.end_loc ;
 
-		if (loc.length >= 3) 
+		if (loc.length >= 3)  // must type at least 3 letters before geocoding starts
 		{	
 			let loc_response = this.geoService.geocode(loc) ;
 			loc_response.subscribe(
@@ -253,6 +253,10 @@ export class TripComponent implements OnInit,  OnDestroy{
 		let next_n_day= new Date(next_n_day_since_epoch).toJSON().slice(0,10)	
 		console.log("2018009081220 next_day =" + next_n_day);
 		return next_n_day;
+	}
+
+	track_trip(index, trip) {
+		return trip ? trip.trip_id : undefined;
 	}
 
 	get start_loc		() { return this.trip_form.get('start_loc'	); }  // the getter is required for reactive form validation to work 

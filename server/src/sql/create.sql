@@ -25,7 +25,7 @@ CREATE DOMAIN textwithdefault as text default '' ;
 CREATE DOMAIN sys_ts timestamp with time zone default clock_timestamp();
 CREATE DOMAIN tswithepoch timestamp with time zone default '1970-01-01 00:00:00Z' ;
 CREATE DOMAIN score integer  CHECK ( value in (1,2,3,4,5));
-CREATE DOMAIN ridemoney decimal(10,2) ;
+CREATE DOMAIN ridemoney decimal(10,4) ;
 
 --CREATE TYPE location AS
    --(
@@ -94,17 +94,32 @@ CREATE TABLE trip
         , constraint pk_trip PRIMARY KEY (trip_id)
 );
 
+CREATE TABLE journey
+(
+	journey_id		sys_id not null
+        , trip_id               sys_id not null
+        , journey_date          date    not null
+        , departure_time    	time    not null default current_time
+        , status_code           char(1) not null default  'P' -- Pending, Active,  Cancelled,  Expired
+        , price                 ridemoney    not null default 0.1 -- price per mile
+        , seats                 integer not null default 3 
+        , c_ts                  sys_ts not null
+        , m_ts                  sys_ts not null
+        , c_usr 		text
+        , constraint pk_journey PRIMARY KEY (journey_id)
+);
+
 
 create table book_status(
-	book_status_cd 	char(1) not null
+	status_cd 	char(1) not null
 	, description	textwithdefault not null
-	, constraint pk_book_status PRIMARY KEY (book_status_cd)
+	, constraint pk_book_status PRIMARY KEY (status_cd)
 );
 
 insert into book_status 
 values 
   ('C', 'Considering')
-, ('I', 'Insufficient Balance')
+, ('I', 'Insufficient balance')
 , ('B', 'Booked')
 , ('S', 'trip started')
 , ('R', 'cancelled by Rider')
@@ -115,13 +130,16 @@ values
 create table book
 (
 	book_id			sys_id not null
-	, trip_id		sys_id not null
+	, journey_id		sys_id not null
 	, rider_id		sys_id  not null
-	, trip_date		date not null default '1970-01-01'
-	, price			ridemoney not null default 0
-	, money_to_driver	ridemoney not null default 0
-	, money_to_rider	ridemoney not null default 0
-	, book_status_cd	char(1) not null default  'C' -- Considering, insufficient Balance, Resered, trip Started, Finished, cancelled by Rider, cancelled by Driver
+	, seats			integer not null default 1
+	, driver_price		ridemoney not null default 0
+	, driver_cost		ridemoney not null default 0
+	, rider_price		ridemoney not null default 0
+	, rider_cost		ridemoney not null default 0
+	, penalty_to_driver	ridemoney not null default 0    
+	, penalty_to_rider	ridemoney not null default 0
+	, status_cd		char(1) not null default  'C' -- Considering, Booked, trip Started, Finished, cancelled by Rider, cancelled by Driver
 	, rider_score		smallint  CHECK ( rider_score in (1,2,3,4,5))
 	, driver_score		smallint  CHECK ( rider_score in (1,2,3,4,5))
 	, rider_comment		text
@@ -132,7 +150,7 @@ create table book
 	, driver_cancel_ts	timestamp with time zone
 	, rider_cancel_ts	timestamp with time zone
 	, finish_ts		timestamp with time zone
-	, constraint pk_ook PRIMARY KEY (book_id)
+	, constraint pk_book PRIMARY KEY (book_id)
 );
 
 create table money_trnx (
@@ -152,12 +170,15 @@ create table money_trnx (
 );
 
 alter table trip add FOREIGN KEY (driver_id) REFERENCES usr (usr_id);
+alter table journey add FOREIGN KEY (trip_id) REFERENCES trip (trip_id);
 alter table book add FOREIGN KEY (rider_id) REFERENCES usr (usr_id);
-alter table book add FOREIGN KEY (trip_id) REFERENCES trip (trip_id);
+alter table book add FOREIGN KEY (journey_id) REFERENCES journey (journey_id);
 alter table money_trnx add FOREIGN KEY (usr_id) REFERENCES usr (usr_id);
-alter table book add FOREIGN KEY (book_status_cd) REFERENCES book_status (book_status_cd);
+alter table book add FOREIGN KEY (status_cd) REFERENCES book_status (status_cd);
 
 grant all on public.usr to ride;
 grant all on public.trip to ride;
+grant all on public.journey to ride;
 grant all on public.book to ride;
+grant all on public.book_status to ride;
 grant all on public.money_trnx to ride;

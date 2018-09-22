@@ -219,11 +219,11 @@ export class DBService {
 			let jwt=  CookieService.getCookie(Constants.JWT);
 			let encrypted_profile =  CookieService.getCookie(Constants.PROFILE);
 			if (jwt == null || jwt =='') {
-				combined_payload = Constants.NO_SESSION_ERROR ;
+				combined_payload = Constants.ERROR_NO_SESSION ;
 			}
 			else if (encrypted_profile==null || encrypted_profile == '')
 			{
-				combined_payload = Constants.NOT_SIGNED_IN_ERROR ;
+				combined_payload = Constants.ERROR_NOT_SIGNED_IN ;
 			}
 			else { // everything ok
 				let profile = CryptoService.decrypt(encrypted_profile);

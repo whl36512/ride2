@@ -22,8 +22,6 @@ use constants;
 
 type Json = serde_json::Value;
 
-//static SECRET : &str ="an ultra secretstr" ;
-
 pub fn get_session (req : &mut Request) -> IronResult<Response> {
     //user 3party auth info comes in a json payload
     let request_component = req.inspect();
@@ -38,7 +36,6 @@ pub fn get_session (req : &mut Request) -> IronResult<Response> {
             debug!(" 201808121053 get_session() user_json_from_db=\n{:?}", user_json_from_db) ;
             let user_from_db = Usr::from_js(& user_json_from_db);
             //req.set_session(user_from_db); 
-            //let token = token::Token { jwt: user_from_db.unwrap().to_jwt(SECRET.as_ref()) };
             let token = token::Token { jwt: user_from_db.unwrap().to_jwt(constants::SECRET.as_ref()) };
             debug!("201808171508 get_session() token = {}", serde_json::to_string_pretty(&token).unwrap());
 
@@ -105,9 +102,26 @@ pub fn upd_trip(req: &mut Request) -> IronResult<Response> {
     return Ok(Response::with((status::Ok, trip_from_db_json.unwrap().to_string()))) ;
 }
 
+pub fn search(req: &mut Request) -> IronResult<Response> {
+    // user_from_session and user_from_cookie must match
+    let request_component = req.inspect();
+    let _status = request_component.security_status();
+    let user_from_token_string = request_component.user_from_token.unwrap().to_string() ;
+    let db_conn= req.db_conn() ;
+
+
+    let trips_from_db_json: Option<Vec<Json>>  
+        = db::runsql_conn (&db_conn
+            , "select row_to_json(a) from funcs.search($1, $2) a "
+            , &[&request_component.params.to_string(), &user_from_token_string], 2) ;  //params has trip and user info
+    if trips_from_db_json == None { return Ok(Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)))} 
+
+    return Ok(Response::with((status::Ok, serde_json::to_string(&trips_from_db_json.unwrap()).unwrap()))) ;
+}
+
 pub fn echo(request: &mut Request) -> IronResult<Response> {
-    let request_dump  = format!("201808100834 request_dump =\n{:?}", request);
-    debug!("201808101134 request_dump= {:?}", request_dump) ;
+    let request_dump  = format!("{:?}", request);
+    debug!("201808101134 request_dump=\n{}", request_dump) ;
     Ok(Response::with((status::Ok, request_dump)))
 }
 

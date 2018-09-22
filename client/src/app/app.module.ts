@@ -30,7 +30,8 @@ import { MapService } 		from './models/map.service';
 import { GeoService } 		from './models/remote.service';
 import { DBService } 		from './models/remote.service';
 import { HttpService } 		from './models/remote.service';
-import {CommunicationService} 	from "./models/communication.service"
+import {CommunicationService} 	from './models/communication.service';
+import { SearchComponent } 	from './views/search/search.component' ;
 
 
 const appRoutes: Routes = [
@@ -60,6 +61,7 @@ const appRoutes: Routes = [
     TripComponent,
     LinkedinComponent,
     Map2Component,
+    SearchComponent,
   ],
   imports: [
     BrowserModule,

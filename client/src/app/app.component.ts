@@ -39,6 +39,7 @@ export class AppComponent {
 
 	setFalse ()
 	{
+		this.pages.search 	= false;
 		this.pages.user 	= false;
 		this.pages.trip 	= false;
 		this.pages.signout 	= false;

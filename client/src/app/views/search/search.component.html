@@ -1,0 +1,118 @@
+<div class="search main">
+	<div class="center f12">Search</div>
+	<button  type="button" class="close-button" (click)="close_page()" >X</button>
+	<form [formGroup]="form" (ngSubmit)="onSubmit()">
+		<dl *ngIf="step==1"> 
+          		<dt>
+				<label for="start_loc">From
+				</label>
+			</dt>
+          		<dd>
+	   			<input  type="text"  id="start_loc" formControlName="start_loc" placeholder="From" required
+	                                   (keyup)='geocode("start_loc")' 
+					pattern=".{3,}"
+					*ngIf="!form_saved_to_db"
+				/>
+				<span class="validity"></span>
+			</dd>
+          		<dd  class="f08"> 
+				{{trip.start_lat}}  {{trip.start_lon}} 
+			</dd>
+			<dd class="f08">
+				{{trip.start_display_name}}
+			</dd>
+        	</dl>
+
+        	<dl *ngIf="step==2">
+          		<dt>
+				<label for="end_loc">To</label>
+			</dt>
+          		<dd>
+	   			<input  type="text"  id="end_loc" formControlName="end_loc" placeholder="To" required
+	                                   (keyup)='geocode("end_loc")'  
+					pattern=".{3,}"
+					*ngIf="!form_saved_to_db"
+				/>
+				<span class="validity"></span>
+			</dd>
+			<dd class="f08">
+				{{trip.end_lat}} {{trip.end_lon}} 
+			</dd>
+			<dd class="f08">
+				{{trip.end_display_name	}}
+			</dd>
+			<dt>
+			Distance (miles): 
+			<span *ngIf="trip.distance=='no route' " error=true>{{trip.distance}}</span>
+			<span *ngIf="trip.distance!='no route' "           >{{trip.distance}}</span>
+			</dt>
+        	</dl>
+
+        	<dl *ngIf="step==3">
+          		<dt><label for="start_date">From Date</label></dt>
+          		<dd> <input type="date" formControlName="start_date" min={{today}} /> </dd>
+          		<dt><label for="start_date">To Date</label></dt>
+          		<dd> <input type="date" formControlName="end_date" min={{this.form.value.start_date}} /> 
+				<span class="validity"></span>
+			</dd>
+
+          		<dt><label for="departure_time">Departure Time</label></dt>
+          		<dd> <input type="time" formControlName="departure_time" step="60" /> </dd>
+        	</dl>
+
+        	<dl *ngIf="step==4">
+			<dt><label for="seats">Passengers: {{this.form.value.seats}}  </label></dt>
+          		<dd>
+			<input type="range" formControlName="seats" min="1" max="{{max_seats}}" step=1 /> 
+          		</dd>
+
+			<dt><label for="price">Max Price: ${{this.form.value.price}} per mile per passenger</label></dt>
+          		<dd>
+			<input type="range" formControlName="price" min="0" max="{{max_price}}" step=0.01 />
+          		</dd>
+        	</dl>
+		<br/>
+		<button  type="button" *ngIf="step>1" (click)="step=step-1">&lt; Back</button> &nbsp; &nbsp;
+		<button  type="button" *ngIf="step<4" (click)="step=step+1">Next &gt;</button>
+        	<span *ngIf="step==4">
+			<button  type="submit" [disabled]="form.invalid || trip.distance==null || trip.distance=='no route' " >Search</button>
+		</span>
+      	</form>
+
+      	<table class=searchresult *ngIf='trips!=null && form.valid'>
+	<thead>
+		<tr>
+			<th>No.</th>
+			<th>Driver</th>
+			<th>From</th>
+			<th>To</th>
+			<th>Date</th>
+			<th>Time</th>
+			<th>Seats</th>
+			<th>Price(/mile)</th>
+			<th>Quatity</th>
+			<th>Cost</th>
+		</tr>
+	</thead>
+	<tbody>
+			<tr 
+	       			*ngFor="let trip of trips;let i=index;let even=even;let odd=odd; let first = first; let last = last; trackBy:track_trip"
+				[ngClass]="{ odd: odd, even: even }">
+				<td>{{i}}</td>
+				<td>Driver</td>
+				<td>{{trips[i].start_loc}}</td>
+				<td>{{trips[i].end_loc}}</td>
+				<td>{{trips[i].start_date}}</td>
+				<td>{{trips[i].departure_time}}</td>
+				<td>{{trips[i].seats}}</td>
+				<td>{{trips[i].price}}</td>
+			</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<th>Total Cost</th>
+			<th>total_cost</th>
+		</tr>
+	</tfoot>
+	</table>
+</div>

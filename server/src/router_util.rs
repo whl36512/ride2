@@ -47,6 +47,7 @@ pub fn router_setup() -> iron::Chain  {
     router.get("/redirect", handlers::redi, "redi");
     router.post("/get_session", handlers::get_session, "get_session");
     router.post("/upd_trip", handlers::upd_trip, "upd_trip");
+    router.post("/search", handlers::search, "search");
 
     let chain = iron::Chain::new(router);
     return chain ;

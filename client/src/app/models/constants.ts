@@ -10,6 +10,11 @@ export class Constants{
 	static SAVE_USER_URL 	= '/save_user';
 	static UPD_TRIP_URL 	= '/upd_trip';
 
+	static URL_SAVE_USER 	= '/save_user';
+	static URL_GET_USER 	= '/get_user';
+	static URL_UPD_TRIP 	= '/upd_trip';
+	static URL_SEARCH 	= '/search';
+
 	static USER_PAGE 	= 'user';
 	static TRIP_PAGE 	= 'trip';
 	static SEARCH_PAGE 	= 'search';
@@ -22,9 +27,13 @@ export class Constants{
 
 	static EMAIL_PATTERN = String.raw`^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-]{1,30}\.){1,4}([a-zA-Z]{2,5})$` ;
 
+	static MAX_PRICE 	= 0.2 	;
+	static MAX_SEATS 	= 6	;
 
-	static NO_SESSION_ERROR 	= {"error": "#201808181958 no session"} ;
-	static NOT_SIGNED_IN_ERROR 	= {"error": "#201808181957 not signed in"} ;
+
+
+	static ERROR_NO_SESSION 	= {"error": "#201808181958 no session"} ;
+	static ERROR_NOT_SIGNED_IN 	= {"error": "#201808181957 not signed in"} ;
 
 	constructor (){} 
 }
