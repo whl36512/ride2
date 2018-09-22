@@ -20,7 +20,7 @@ serde_derive = "*"
 serde = "*"
 params ="*"
 
-hyper ="0.10.13"
+#hyper ="0.10.13"
 json = "*"
 iron-postgres-middleware = {git = "https://github.com/whl36512/iron-postgres-middleware.git"}
 #openssl = { version = "0.10", features = ["vendored"] }
