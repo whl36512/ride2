@@ -14,7 +14,7 @@ url    = "*"
 postgres = { version = "*", features = ["with-serde_json", "with-uuid"] }
 r2d2_postgres ="*"
 r2d2 ="*"
-rustc-serialize = "*"
+#rustc-serialize = "*"
 serde_json = "*"
 serde_derive = "*"
 serde = "*"

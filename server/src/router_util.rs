@@ -72,9 +72,7 @@ pub fn router_start(http_port : u32)
 
     let session_middleware = reqres::session_middleware(*b"01234567012345670123456701234567");
 
-    let allowed_hosts = ["http://rideshare.beegrove.com:4200", "rideshare.beegrove.com:4200", "rideshare.beegrove.com"].iter()
-                        .map(ToString::to_string)
-                        .collect::<HashSet<_>>();
+    let allowed_hosts = constants::CORS_ALLOWED_HOSTS.iter() .map(ToString::to_string) .collect::<HashSet<_>>();
     let cors_middleware = CorsMiddleware::with_whitelist(allowed_hosts);
 
     let my_cors_middleware = MyCorsMiddleware ;

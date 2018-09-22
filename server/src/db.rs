@@ -41,8 +41,8 @@ pub fn db_pool(db_url : Option<DbUrl>)  -> PPool {
         , user        : constants::PG_USER.to_string()
         , passwd      : constants::PG_PASSWD.to_string()
         , database    : constants::PG_DATABASE.to_string()
-        , connection_string : "".to_string()
-        , connection_string_no_passwd : "".to_string()
+        , connection_string : constants::EMPTY_STRING.to_string()
+        , connection_string_no_passwd : constants::EMPTY_STRING.to_string()
     };
 
     let mut db_url=db_url.unwrap_or(default_db_url);
