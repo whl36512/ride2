@@ -33,7 +33,7 @@
 					pattern=".{3,}"
 					*ngIf="!form_saved_to_db"
 				/>
-				<span class="validity"></span>
+				<span class="validity"></span> 
 			</dd>
 			<dd class="f08">
 				{{trip.end_lat}} {{trip.end_lon}} 
@@ -50,10 +50,13 @@
 
         	<dl *ngIf="step==3">
           		<dt><label for="start_date">From Date</label></dt>
-          		<dd> <input type="date" formControlName="start_date" min={{today}} /> </dd>
-          		<dt><label for="start_date">To Date</label></dt>
+          		<dd> <input type="date" formControlName="start_date" min={{today}} /> 
+				{{this.form.value.start_date}}
+			</dd>
+          		<dt><label for="end_date">To Date</label></dt>
           		<dd> <input type="date" formControlName="end_date" min={{this.form.value.start_date}} /> 
 				<span class="validity"></span>
+				{{this.form.value.end_date}}
 			</dd>
 
           		<dt><label for="departure_time">Departure Time</label></dt>
@@ -79,33 +82,32 @@
 		</span>
       	</form>
 
-      	<table class=searchresult *ngIf='trips!=null && form.valid'>
+      	<table class=searchresult *ngIf='trips_from_db.length>0 && form.valid'>
 	<thead>
 		<tr>
 			<th>No.</th>
 			<th>Driver</th>
-			<th>From</th>
-			<th>To</th>
-			<th>Date</th>
-			<th>Time</th>
+			<th>From/To</th>
+			<th>Date/Time</th>
 			<th>Seats</th>
-			<th>Price(/mile)</th>
+			<th>Price<br/>(/mile)</th>
 			<th>Quatity</th>
 			<th>Cost</th>
 		</tr>
 	</thead>
 	<tbody>
 			<tr 
-	       			*ngFor="let trip of trips;let i=index;let even=even;let odd=odd; let first = first; let last = last; trackBy:track_trip"
+	       			*ngFor="let trip of trips_from_db;let i=index;let even=even;let odd=odd; let first = first; let last = last; trackBy:track_trip"
 				[ngClass]="{ odd: odd, even: even }">
 				<td>{{i}}</td>
 				<td>Driver</td>
-				<td>{{trips[i].start_loc}}</td>
-				<td>{{trips[i].end_loc}}</td>
-				<td>{{trips[i].start_date}}</td>
-				<td>{{trips[i].departure_time}}</td>
-				<td>{{trips[i].seats}}</td>
-				<td>{{trips[i].price}}</td>
+				<td>	{{trips_from_db[i].start_display_name}}/<br/>
+					{{trips_from_db[i].end_display_name}}
+				</td>
+				<td>{{trips_from_db[i].start_date}}<br/>{{trips_from_db[i].departure_time}}
+				</td>
+				<td>{{trips_from_db[i].seats}}</td>
+				<td>{{trips_from_db[i].price}}</td>
 			</tr>
 	</tbody>
 	<tfoot>

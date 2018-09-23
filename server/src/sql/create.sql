@@ -80,7 +80,7 @@ CREATE TABLE trip
         , distance              decimal(8,2)    not null default 0
         , price                 ridemoney    not null default 0.1 -- price per mile
         , recur_ind             boolean not null default false
-        , status_code           char(1) not null default  'P' -- Pending, Active,  Cancelled,  Expired
+        , status_code           char(1) not null default  'A' -- Pending, Active,  Cancelled,  Expired
         , description           text
         , seats                 integer not null default 3
         , day0_ind              boolean not null default false          -- sunday
@@ -102,7 +102,7 @@ CREATE TABLE journey
         , trip_id               sys_id not null
         , journey_date          date    not null
         , departure_time    	time    not null default current_time
-        , status_code           char(1) not null default  'P' -- Pending, Active,  Cancelled,  Expired
+        , status_code           char(1) not null default  'A' -- Pending, Active, Cancelled,  Expired
         , price                 ridemoney    not null default 0.1 -- price per mile
         , seats                 integer not null default 3 
         , c_ts                  sys_ts not null

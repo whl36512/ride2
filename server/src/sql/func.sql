@@ -64,6 +64,7 @@ DECLARE
   usr0 RECORD ;
   i1 RECORD ;
   u1 RECORD ;
+  dummy RECORD ;
 BEGIN
 	SELECT * into s0   FROM json_populate_record(NULL::trip, in_trip::json) ;
 	SELECT * into usr0 FROM json_populate_record(NULL::usr , in_user::json) ;
@@ -107,13 +108,15 @@ BEGIN
   	returning t.* into u1 
   	;
 
+	select funcs.create_journey(u1.trip_id) into dummy;
+
   	return u1;
 END
 $body$
 language plpgsql;
 
-create or replace function funcs.create_journey( in_trip_id text)
-  returns setof journey
+create or replace function funcs.create_journey( in_trip_id sys_id)
+returns void 
 as
 $body$
 	with dates as (
@@ -140,7 +143,6 @@ $body$
 		or   dates.dow=5 and t.day5_ind = true
 		or   dates.dow=6 and t.day6_ind = true
 		)
-	returning * 
 	;
 $body$
 language sql;
@@ -172,29 +174,32 @@ language plpgsql;
 
 
 
+
 create or replace function funcs.search( in_trip text)
   returns setof json
 as
 $body$
+-- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
 	with trip0 as (
-		SELECT t.*, t.distance/600.0 degree10 FROM json_populate_record(NULL::trip , in_trip::json) t 
+		SELECT t.*, t.distance/600.0 degree10 FROM json_populate_record(NULL::trip , regexp_replace(in_trip, '": ?""', '":null', 'g')::json) t 
 	)
 	, a as (
-		select t.*, j.*
+		select t.* , j.*
 		from trip t, trip0, journey j
 		--join journey j on (t.trip_id=j.trip_id)
 		where t.start_lat	between trip0.start_lat-trip0.degree10 	and trip0.start_lat+trip0.degree10
 		and   t.start_lon	between trip0.start_lon-trip0.degree10	and trip0.start_lon+trip0.degree10
 		and   t.end_lat		between trip0.end_lat-trip0.degree10 		and trip0.end_lat+trip0.degree10
 		and   t.end_lon		between trip0.end_lon-trip0.degree10		and trip0.end_lon+trip0.degree10
-		and   ( trip0.start_date is null 
-			or t.start_date  	between trip0.start_date and coalesce ( trip0.end_date, trip0.start_date)
+		and   ( trip0.start_date is null  
+			or j.journey_date   between trip0.start_date and coalesce ( trip0.end_date, trip0.start_date)
 		)
-		and   ( trip0.departure_time is null 
+		and   ( trip0.departure_time is null  
 			or j.departure_time between trip0.departure_time- interval '1 hour' and trip0.departure_time + interval '1 hour'
 		)
 		and j.seats >= trip0.seats
 		and t.trip_id=j.trip_id
+		and j.status_code='A'
 	)
 	select row_to_json(a) 
 	from a
@@ -202,6 +207,8 @@ $body$
 $body$
 language sql;
 
+
+select * from funcs.search('{"departure_time": null, "distance": 30.7, "end_date": null, "end_display_name": "Millennium Centre, 33, West Ontario Street, Magnificent Mile, Chicago, Cook County, Illinois, 60654, USA", "end_lat": "41.89285925", "end_loc": "33 w ontario st, chicago", "end_lon": "-87.6292175246499", "price": 0.2, "seats": 1, "start_date": null, "start_display_name": "2916, Colton Court, Lisle, DuPage County, Illinois, 60532, USA", "start_lat": "41.7944060204082", "start_loc": "2916 colton ct", "start_lon": "-88.1075615306122"}');
 
 create or replace function funcs.book_count_of_trip ( in_trip_id text)
   returns bigint

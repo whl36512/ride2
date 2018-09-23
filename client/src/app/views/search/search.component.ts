@@ -44,7 +44,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 	form_trips: any= null;
 	today : any;
 	step=1;
-	trips_from_db: any = null;
+	trips_from_db: any = [];
 
 	constructor(
 		  private geoService		: GeoService
@@ -73,9 +73,9 @@ export class SearchComponent implements OnInit,  OnDestroy{
 		this.form = this.form_builder.group({
 			start_loc	: ['', [Validators.required]],
 			end_loc		: ['', [Validators.required]], 
-			start_date	: [null, [Validators.min]], 
-			end_date	: [null, [Validators.min]], 
-			departure_time	: [null, []], 
+			start_date	: ['', [Validators.min]],     // initilaized as ''. Deleted value in gui becomes ''
+			end_date	: ['', [Validators.min]], 
+			departure_time	: ['', []], 
 			seats		: [1, []], 
 			price		: [Constants.MAX_PRICE, []], 
 			}
@@ -104,10 +104,12 @@ export class SearchComponent implements OnInit,  OnDestroy{
 	}
 
 	onSubmit() {
-	    	console.warn("201808201534 SearchComponent.onSubmit() this.form.value=" + this.form.value );
+	    	console.warn("201809231416 SearchComponent.onSubmit() this.form.value=" + JSON.stringify(this.form.value) );
+	    	console.warn("201809231416 SearchComponent.onSubmit() this.form.value.start_date=" + this.form.value.start_date );
+	    	console.warn("201809231416 SearchComponent.onSubmit() this.form.value.end_date=" + this.form.value.end_date );
 		// combining data
-		this.trip = { ...this.form.value, ...this.trip};
-		let trips_from_db_observable     = this.dbService.call_db(Constants.URL_SEARCH, this.trip);
+		let trip = { ...this.form.value, ...this.trip};
+		let trips_from_db_observable     = this.dbService.call_db(Constants.URL_SEARCH, trip);
 		trips_from_db_observable.subscribe(
 	    		trips_from_db => {
 				console.info("201808201201 SearchComponent.constructor() trips_from_db =" + JSON.stringify(trips_from_db));

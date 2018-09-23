@@ -106,14 +106,14 @@ pub fn search(req: &mut Request) -> IronResult<Response> {
     // user_from_session and user_from_cookie must match
     let request_component = req.inspect();
     let _status = request_component.security_status();
-    let user_from_token_string = request_component.user_from_token.unwrap().to_string() ;
+    //let user_from_token_string = request_component.user_from_token.unwrap().to_string() ;
     let db_conn= req.db_conn() ;
 
 
     let trips_from_db_json: Option<Vec<Json>>  
         = db::runsql_conn (&db_conn
-            , "select row_to_json(a) from funcs.search($1, $2) a "
-            , &[&request_component.params.to_string(), &user_from_token_string], 2) ;  //params has trip and user info
+            , "select a from funcs.search($1) a "
+            , &[&request_component.params.to_string()], 2) ;  //params has trip info
     if trips_from_db_json == None { return Ok(Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)))} 
 
     return Ok(Response::with((status::Ok, serde_json::to_string(&trips_from_db_json.unwrap()).unwrap()))) ;
