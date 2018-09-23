@@ -154,6 +154,7 @@ DECLARE
   usr0 RECORD ;
   i1 RECORD ;
   u1 RECORD ;
+  journey1 RECORD ;
 BEGIN
 	SELECT * into journey0 FROM json_populate_record(NULL::journey , in_journey::json) ;
 
@@ -172,39 +173,34 @@ language plpgsql;
 
 
 create or replace function funcs.search( in_trip text)
-  returns book
+  returns setof json
 as
 $body$
-DECLARE
-  	trip0 RECORD ;
-	degree double precision;
-	degree10 double precision;
-BEGIN
-	SELECT * into trip0 FROM json_populate_record(NULL::trip , in_trip::json) ;
-
-	degree= trip0.distance/60.0 ;
-	degree10 = degree/10;
-	
-
-
-	select t, j
-	from trip t
-	join journey j on (t.trip_id=j.trip_id)
-	where t.start_lat	between trip0.start_lat-degree10 	and trip0.start_lat+degree10
-	and   t.start_lon	between trip0.start_lon-degree10	and trip0.start_lon+degree10
-	and   t.end_lat		between trip0.end_lat-degree10 		and trip0.end_lat+degree10
-	and   t.end_lon		between trip0.end_lon-degree10		and trip0.end_lon+degree10
-	and   ( trip0.start_date is null 
-		or j.start_date  	between trip0.start_date and coalesce ( trip0.end_date, trip0.start_date)
+	with trip0 as (
+		SELECT t.*, t.distance/600.0 degree10 FROM json_populate_record(NULL::trip , in_trip::json) t 
 	)
-	and   ( trip0.departure_time is null 
-		or j.departure_time between trip0.departure_time- interval '1 hour' and trip0.departure_time + interval '1 hour'
+	, a as (
+		select t.*, j.*
+		from trip t, trip0, journey j
+		--join journey j on (t.trip_id=j.trip_id)
+		where t.start_lat	between trip0.start_lat-trip0.degree10 	and trip0.start_lat+trip0.degree10
+		and   t.start_lon	between trip0.start_lon-trip0.degree10	and trip0.start_lon+trip0.degree10
+		and   t.end_lat		between trip0.end_lat-trip0.degree10 		and trip0.end_lat+trip0.degree10
+		and   t.end_lon		between trip0.end_lon-trip0.degree10		and trip0.end_lon+trip0.degree10
+		and   ( trip0.start_date is null 
+			or t.start_date  	between trip0.start_date and coalesce ( trip0.end_date, trip0.start_date)
+		)
+		and   ( trip0.departure_time is null 
+			or j.departure_time between trip0.departure_time- interval '1 hour' and trip0.departure_time + interval '1 hour'
+		)
+		and j.seats >= trip0.seats
+		and t.trip_id=j.trip_id
 	)
-	and j.seats>0
+	select row_to_json(a) 
+	from a
 	;
-END
 $body$
-language plpgsql;
+language sql;
 
 
 create or replace function funcs.book_count_of_trip ( in_trip_id text)
