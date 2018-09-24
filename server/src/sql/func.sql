@@ -184,7 +184,7 @@ $body$
 		SELECT t.*, t.distance/600.0 degree10 FROM json_populate_record(NULL::trip , regexp_replace(in_trip, '": ?""', '":null', 'g')::json) t 
 	)
 	, a as (
-		select t.* , j.*
+		select t.start_display_name, t.end_display_name , j.*
 		from trip t, trip0, journey j
 		--join journey j on (t.trip_id=j.trip_id)
 		where t.start_lat	between trip0.start_lat-trip0.degree10 	and trip0.start_lat+trip0.degree10
@@ -197,12 +197,14 @@ $body$
 		and   ( trip0.departure_time is null  
 			or j.departure_time between trip0.departure_time- interval '1 hour' and trip0.departure_time + interval '1 hour'
 		)
+		and j.price <= trip0.price
 		and j.seats >= trip0.seats
 		and t.trip_id=j.trip_id
 		and j.status_code='A'
 	)
 	select row_to_json(a) 
 	from a
+	order by a.journey_date, a.departure_time
 	;
 $body$
 language sql;

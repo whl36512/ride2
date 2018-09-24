@@ -81,40 +81,37 @@
 			<button  type="submit" [disabled]="form.invalid || trip.distance==null || trip.distance=='no route' " >Search</button>
 		</span>
       	</form>
+	<p>
+      	<div *ngIf='trips_from_db.length==0'>
+		No trips found
+	</div>
 
-      	<table class=searchresult *ngIf='trips_from_db.length>0 && form.valid'>
-	<thead>
-		<tr>
-			<th>No.</th>
-			<th>Driver</th>
-			<th>From/To</th>
-			<th>Date/Time</th>
-			<th>Seats</th>
-			<th>Price<br/>(/mile)</th>
-			<th>Quatity</th>
-			<th>Cost</th>
-		</tr>
-	</thead>
-	<tbody>
-			<tr 
-	       			*ngFor="let trip of trips_from_db;let i=index;let even=even;let odd=odd; let first = first; let last = last; trackBy:track_trip"
+	<form *ngIf='trips_from_db.length>0 && form.valid'>
+		<div
+	       		*ngFor="let trip of trips_from_db;let i=index;let even=even;let odd=odd; let first = first; let last = last; trackBy:track_trip"
 				[ngClass]="{ odd: odd, even: even }">
-				<td>{{i}}</td>
-				<td>Driver</td>
-				<td>	{{trips_from_db[i].start_display_name}}/<br/>
-					{{trips_from_db[i].end_display_name}}
-				</td>
-				<td>{{trips_from_db[i].start_date}}<br/>{{trips_from_db[i].departure_time}}
-				</td>
-				<td>{{trips_from_db[i].seats}}</td>
-				<td>{{trips_from_db[i].price}}</td>
-			</tr>
-	</tbody>
-	<tfoot>
-		<tr>
-			<th>Total Cost</th>
-			<th>total_cost</th>
-		</tr>
-	</tfoot>
-	</table>
+      			<table>
+				<thead>
+					<tr >
+						<th>Date/Time</th>
+						<th>Available<br/>Seats</th>
+						<th>Price<br/>($/mile)</th>
+						<th>Passengers</th>
+						<th>Cost</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>{{trips_from_db[i].journey_date}}<br/>{{trips_from_db[i].departure_time}}</td>
+						<td>{{trips_from_db[i].seats}}</td>
+						<td>{{trips_from_db[i].price}}</td>
+				
+					</tr>
+				</tbody>
+			</table>
+			<div class=f08 >From: {{trips_from_db[i].start_display_name}}</div>
+			<div class=f08 >To: {{trips_from_db[i].end_display_name}}</div>
+			<p>
+		</div>
+	</form>
 </div>
