@@ -10,6 +10,7 @@
           		<dd>
 	   			<input  type="text"  id="start_loc" formControlName="start_loc" placeholder="From" required
 	                                   (keyup)='geocode("start_loc")' 
+	                                   (blur)='geocode("start_loc")' 
 					pattern=".{3,}"
 					*ngIf="!form_saved_to_db"
 				/>
@@ -30,6 +31,7 @@
           		<dd>
 	   			<input  type="text"  id="end_loc" formControlName="end_loc" placeholder="To" required
 	                                   (keyup)='geocode("end_loc")'  
+	                                   (blur)='geocode("end_loc")' 
 					pattern=".{3,}"
 					*ngIf="!form_saved_to_db"
 				/>
@@ -43,8 +45,8 @@
 			</dd>
 			<dt>
 			Distance (miles): 
-			<span *ngIf="trip.distance=='no route' " error=true>{{trip.distance}}</span>
-			<span *ngIf="trip.distance!='no route' "           >{{trip.distance}}</span>
+			<span *ngIf="trip.distance==ERROR_NO_ROUTE " error=true>{{trip.distance}}</span>
+			<span *ngIf="trip.distance!=ERROR_NO_ROUTE "           >{{trip.distance}}</span>
 			</dt>
         	</dl>
 
@@ -66,12 +68,12 @@
         	<dl *ngIf="step==4">
 			<dt><label for="seats">Passengers: {{this.form.value.seats}}  </label></dt>
           		<dd>
-			<input type="range" formControlName="seats" min="1" max="{{max_seats}}" step=1 /> 
+			<input type="range" formControlName="seats" min="1" max="{{MAX_SEATS}}" step=1 /> 
           		</dd>
 
 			<dt><label for="price">Max Price: ${{this.form.value.price}} per mile per passenger</label></dt>
           		<dd>
-			<input type="range" formControlName="price" min="0" max="{{max_price}}" step=0.01 />
+			<input type="range" formControlName="price" min="0" max="{{MAX_PRICE}}" step=0.01 />
           		</dd>
         	</dl>
 		<br/>

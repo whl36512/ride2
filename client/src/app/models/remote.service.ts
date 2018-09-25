@@ -10,7 +10,8 @@ import { pipe, range, timer, zip, of } from 'rxjs';
 //import { ajax } from 'rxjs/ajax';
 import { retryWhen, map, mergeMap } from 'rxjs/operators';
 
-import {CookieService} 	from './gui.service' ;
+//import {CookieService} 	from './gui.service' ;
+import {StorageService} 	from './gui.service' ;
 import {CryptoService} 	from './gui.service' ;
 import {Util} 		from './gui.service' ;
 import {Constants} 	from './constants' ;
@@ -216,8 +217,10 @@ export class DBService {
 			|| relative_url == Constants.UPD_TRIP_URL
 			) 
 		{ 
-			let jwt=  CookieService.getCookie(Constants.JWT);
-			let encrypted_profile =  CookieService.getCookie(Constants.PROFILE);
+			//let jwt=  CookieService.getCookie(Constants.JWT);
+			let jwt=  StorageService.getSession(Constants.JWT);
+			//let encrypted_profile =  CookieService.getCookie(Constants.PROFILE);
+			let encrypted_profile =  StorageService.getSession(Constants.PROFILE);
 			if (jwt == null || jwt =='') {
 				combined_payload = Constants.ERROR_NO_SESSION ;
 			}

@@ -28,12 +28,17 @@ export class Constants{
 	static EMAIL_PATTERN = String.raw`^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-]{1,30}\.){1,4}([a-zA-Z]{2,5})$` ;
 
 	static MAX_PRICE 	= 0.2 	;
+	static MAX_PRICE_RIDER 	= 0.24 	;
 	static MAX_SEATS 	= 6	;
 
 
 
 	static ERROR_NO_SESSION 	= {"error": "#201808181958 no session"} ;
 	static ERROR_NOT_SIGNED_IN 	= {"error": "#201808181957 not signed in"} ;
+	static ERROR_NO_ROUTE 		= 'no route' ;
+
+	static KEY_FORM_SEARCH	= 'form_search';
+	static KEY_FORM_TRIP	= 'form_trip';
 
 	constructor (){} 
 }

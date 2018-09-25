@@ -48,13 +48,16 @@ var ride = {
 		, "last_name": data.lastName
 		, "headline": data.headline
 		, "oauth_id": data.id
+		, 'siteStandardProfileRequest': data.siteStandardProfileRequest
 	} ;
 
 	var profile_hex = rideCrypt.encrypt(JSON.stringify(profile));
 	
-        setCookie("profile", profile_hex, 1 );
+        //setCookie("profile", profile_hex, 1 );
+        sessionStorage.setItem("profile", profile_hex );
 
-	var decrypted_profile= rideCrypt.decrypt(getCookie("profile"))
+	//var decrypted_profile= rideCrypt.decrypt(getCookie("profile"))
+	var decrypted_profile= rideCrypt.decrypt(sessionStorage.getItem("profile"))
 	profile = JSON.parse(decrypted_profile);
 
         console.log("INFO 2017131508 getProfileDataOnSuccess() oauth_id =" + profile.oauth_id);
@@ -81,7 +84,9 @@ var ride = {
 	var	httpResponseTextJson = rideHttpClient.httpResponseTextJson(httpRequest);
 	if (httpResponseTextJson != null)  {
 	console.info("INFO 201808172242 ride.get_session_callback() about to set jwt cookie ");
-	setCookie("jwt", httpResponseTextJson.jwt) ;
+	//setCookie("jwt", httpResponseTextJson.jwt) ;
+	sessionStorage.setItem('jwt', httpResponseTextJson.jwt);
+
 	console.info("INFO 201808172244 ride.get_session_callback() jwt cookie is set");
 	}
 	else {
@@ -144,6 +149,8 @@ var ride = {
         setCookie("profile", "", -1 ) ;
         setCookie("jwt", "", -1 ) ;
         setCookie("ss", "", -1 ) ;  //iron secure session cookie. Not using it
+	sessionStorage.removeItem('jwt');
+	sessionStorage.removeItem('profile');
         //setCookie("PLAY_SESSION", "", -1 ) ;  // cannot remove PLAY_SESSION because it has "same site" attribute
     }
 

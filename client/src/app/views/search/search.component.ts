@@ -20,6 +20,7 @@ import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 import { Constants } from '../../models/constants';
+import { StorageService } from '../../models/gui.service';
 
 
 @Component({
@@ -36,8 +37,9 @@ export class SearchComponent implements OnInit,  OnDestroy{
 	subscription2: Subscription ;
 	subscription3: Subscription ;
 
-	max_seats=Constants.MAX_SEATS;
-	max_price=Constants.MAX_PRICE;
+	MAX_SEATS=Constants.MAX_SEATS;
+	MAX_PRICE=Constants.MAX_PRICE_RIDER;
+	ERROR_NO_ROUTE=Constants.ERROR_NO_ROUTE;
 
 	trip:any;
 	form: any;
@@ -70,16 +72,36 @@ export class SearchComponent implements OnInit,  OnDestroy{
 
 	ngOnInit() {
 		console.info("TripComponent.ngOnInit() enter");
-		this.form = this.form_builder.group({
-			start_loc	: ['', [Validators.required]],
-			end_loc		: ['', [Validators.required]], 
-			start_date	: ['', [Validators.min]],     // initilaized as ''. Deleted value in gui becomes ''
-			end_date	: ['', [Validators.min]], 
-			departure_time	: ['', []], 
-			seats		: [1, []], 
-			price		: [Constants.MAX_PRICE, []], 
-			}
-		);
+		let form_value_from_storage = StorageService.getForm(Constants.KEY_FORM_SEARCH);
+		if ( form_value_from_storage == null) {
+			this.form = this.form_builder.group({
+				// initilaized as ''. Deleted value in UX becomes ''
+				start_loc	: ['', [Validators.required]],
+				end_loc		: ['', [Validators.required]], 
+				start_date	: ['', [Validators.min]],     
+				end_date	: ['', [Validators.min]], 
+				departure_time	: ['', []], 
+				seats		: [1, []], 
+				price		: [MAX_PRICE, []], 
+				}
+			);
+		}
+		else {
+			// pre-populate search form
+			this.form = this.form_builder.group({
+				start_loc	: [form_value_from_storage.start_loc, [Validators.required]],
+				end_loc		: [form_value_from_storage.end_loc, [Validators.required]], 
+				start_date	: [form_value_from_storage.start_date, [Validators.min]], 
+				end_date	: [form_value_from_storage.end_date, [Validators.min]], 
+				departure_time	: [form_value_from_storage.departure_time, []], 
+				seats		: [form_value_from_storage.seats, []], 
+				price		: [form_value_from_storage.price, []], 
+				}
+			);
+
+			this.geocode('start_loc');
+			this.geocode('end_loc');
+		}
 
 		this.form_trips = this.form_builder.array([
 			this.form_builder.group({
@@ -107,6 +129,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 	    	console.warn("201809231416 SearchComponent.onSubmit() this.form.value=" + JSON.stringify(this.form.value) );
 	    	console.warn("201809231416 SearchComponent.onSubmit() this.form.value.start_date=" + this.form.value.start_date );
 	    	console.warn("201809231416 SearchComponent.onSubmit() this.form.value.end_date=" + this.form.value.end_date );
+		StorageService.storeForm(Constants.KEY_FORM_SEARCH, this.form);
 		// combining data
 		let trip = { ...this.form.value, ...this.trip};
 		let trips_from_db_observable     = this.dbService.call_db(Constants.URL_SEARCH, trip);
@@ -181,12 +204,11 @@ export class SearchComponent implements OnInit,  OnDestroy{
 					this.trip.distance= Math.round(distance /160)/10;
 				},
 				error => {
-					this.trip.distance="no route";
+					this.trip.distance=Constants.ERROR_NO_ROUTE;
 				}
 			);
-		} else this.trip.distance="no route";
+		} else this.trip.distance=Constants.ERROR_NO_ROUTE;
 	}
-
 
 	get start_loc		() { return this.form.get('start_loc'	); }  // the getter is required for reactive form validation to work 
 	get end_loc		() { return this.form.get('end_loc'	); }  

@@ -144,3 +144,34 @@ export class CryptoService {
 		return new Uint8Array(a);
 	}
 }
+
+export class StorageService {
+	static setLocal(key: string, value: any){
+		localStorage.setItem(key, value);
+	}
+	static getLocal(key: string): any{
+		let value=localStorage.getItem(key);
+		return value;
+	}
+	static setSession(key: string, value: any){
+		sessionStorage.setItem(key, value);
+	}
+	static getSession(key: string): any{
+		let value=sessionStorage.getItem(key);
+		return value;
+	}
+
+	static storeForm(key, form) {
+		StorageService.setLocal(key, JSON.stringify(form.value));
+	}
+
+	static getForm(key) : any{
+		let form_value= StorageService.getLocal (key);
+		if (form_value== undefined || form_value == null) return null;
+		console.info('201809241133 form_value =' + form_value);
+		let form_value1 = JSON.parse(form_value);
+
+		//console.info('201809241146 form_value1 =' + JSON.stringify(form_value1));
+		return form_value1;
+	}
+}

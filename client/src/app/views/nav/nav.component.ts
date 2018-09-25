@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AppComponent } from '../../app.component';
-import { CookieService } from '../../models/gui.service';
+//import { CookieService } from '../../models/gui.service';
+import { StorageService } from '../../models/gui.service';
 import { Constants } from '../../models/constants';
 import { CommunicationService } from '../../models/communication.service';
  
@@ -40,8 +41,10 @@ export class NavComponent implements OnInit {
 
   is_signed_in ()
   {
-  	let encrypted_profile = CookieService.getCookie(Constants.PROFILE);
-  	let jwt =CookieService.getCookie(Constants.JWT);
+  	//let encrypted_profile = CookieService.getCookie(Constants.PROFILE);
+  	let encrypted_profile = StorageService.getSession(Constants.PROFILE);
+  	//let jwt =CookieService.getCookie(Constants.JWT);
+  	let jwt = StorageService.getSession(Constants.JWT);
 	if ( encrypted_profile == undefined || encrypted_profile == null || encrypted_profile == "")
 	{
 		return false;
