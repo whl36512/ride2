@@ -82,7 +82,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 				end_date	: ['', [Validators.min]], 
 				departure_time	: ['', []], 
 				seats		: [1, []], 
-				price		: [MAX_PRICE, []], 
+				price		: [this.MAX_PRICE, []], 
 				}
 			);
 		}
