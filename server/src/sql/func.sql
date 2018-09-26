@@ -184,7 +184,9 @@ $body$
 		SELECT t.*, t.distance/600.0 degree10 FROM json_populate_record(NULL::trip , regexp_replace(in_trip, '": ?""', '":null', 'g')::json) t 
 	)
 	, a as (
-		select t.start_display_name, t.end_display_name,t.distance , j.*
+		select t.start_display_name, t.end_display_name ,t.distance 
+			, t.description
+			, j.*
 		from trip t, trip0, journey j
 		--join journey j on (t.trip_id=j.trip_id)
 		where t.start_lat	between trip0.start_lat-trip0.degree10 	and trip0.start_lat+trip0.degree10
