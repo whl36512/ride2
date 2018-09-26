@@ -84,13 +84,13 @@
 		</span>
       	</form>
 	<p>
-      	<div *ngIf='trips_from_db.length==0'>
+      	<div *ngIf='journeys_from_db.length==0'>
 		No trips found
 	</div>
 
-	<form *ngIf='trips_from_db.length>0 && form.valid'>
-		<div
-	       		*ngFor="let trip of trips_from_db;let i=index;let even=even;let odd=odd; let first = first; let last = last; trackBy:track_trip"
+	<form [formGroup]="form_journeys" id=serach-result *ngIf='journeys_from_db.length>0 && form.valid'>
+		<div formArrayName="journeys"
+	       		*ngFor="let journey of form_journeys.get('journeys').controls;let i=index;let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
 				[ngClass]="{ odd: odd, even: even }">
       			<table>
 				<thead>
@@ -98,21 +98,28 @@
 						<th>Date/Time</th>
 						<th>Available<br/>Seats</th>
 						<th>Price<br/>($/mile)</th>
-						<th>Passengers</th>
+						<th>Req.<br/>Seats</th>
 						<th>Cost</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
-						<td>{{trips_from_db[i].journey_date}}<br/>{{trips_from_db[i].departure_time}}</td>
-						<td>{{trips_from_db[i].seats}}</td>
-						<td>{{trips_from_db[i].price}}</td>
+						<td>{{journeys_from_db[i].journey_date}}<br/>{{journeys_from_db[i].departure_time}}</td>
+						<td>{{journeys_from_db[i].seats}}</td>
+						<td>{{journeys_from_db[i].price}}</td>
+						<td>
+							<div [formGroupName]="i">
+							<input formControlName="journey_id" type=hidden>
+							<input formControlName="seats" type=number min=0 max="{{journeys_from_db[i].seats}}" step=1>
+							</div>
+						</td>
+						<td> {{calc_cost(i) }}
 				
 					</tr>
 				</tbody>
 			</table>
-			<div class=f08 >From: {{trips_from_db[i].start_display_name}}</div>
-			<div class=f08 >To: {{trips_from_db[i].end_display_name}}</div>
+			<div class=f08 >From: {{journeys_from_db[i].start_display_name}}</div>
+			<div class=f08 >To: {{journeys_from_db[i].end_display_name}}</div>
 			<p>
 		</div>
 	</form>

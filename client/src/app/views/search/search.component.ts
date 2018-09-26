@@ -43,10 +43,10 @@ export class SearchComponent implements OnInit,  OnDestroy{
 
 	trip:any;
 	form: any;
-	form_trips: any= null;
+	form_journeys : any= null;
 	today : any;
 	step=1;
-	trips_from_db: any = [];
+	journeys_from_db: any = [];
 
 	constructor(
 		  private geoService		: GeoService
@@ -103,17 +103,21 @@ export class SearchComponent implements OnInit,  OnDestroy{
 			this.geocode('end_loc');
 		}
 
-		this.form_trips = this.form_builder.array([
-			this.form_builder.group({
-				trip_id		: [null, [Validators.required]],
-				seats		: [0, []], 
-			})
-		]);
 
 		//this.subscription1 = this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		//this.subscription2 = this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
 		console.info("SearchComponent.ngOnInit() exit");
   	}
+
+	add_journey_to_form(journey_id: string): void {
+		
+		let item= this.form_builder.group({
+			journey_id	: [journey_id, []],
+			seats		: [0, []], 
+		})
+		let journeys = this.form_journeys.get('journeys') as FormArray;				
+		journeys.push(item);
+	}
 
 	ngOnDestroy() {
 		// prevent memory leak when component destroyed
@@ -132,11 +136,21 @@ export class SearchComponent implements OnInit,  OnDestroy{
 		StorageService.storeForm(Constants.KEY_FORM_SEARCH, this.form);
 		// combining data
 		let trip = { ...this.form.value, ...this.trip};
-		let trips_from_db_observable     = this.dbService.call_db(Constants.URL_SEARCH, trip);
-		trips_from_db_observable.subscribe(
-	    		trips_from_db => {
-				console.info("201808201201 SearchComponent.constructor() trips_from_db =" + JSON.stringify(trips_from_db));
-				this.trips_from_db = trips_from_db;
+		let journeys_from_db_observable     = this.dbService.call_db(Constants.URL_SEARCH, trip);
+		journeys_from_db_observable.subscribe(
+	    		journeys_from_db => {
+				console.info("201808201201 SearchComponent.constructor() journeys_from_db =" + JSON.stringify(journeys_from_db));
+				this.journeys_from_db = journeys_from_db;
+				this.form_journeys = this.form_builder.group({
+					journeys: this.form_builder.array([ ]),
+				});
+				
+
+				for ( var journey in this.journeys_from_db)
+				{
+					let journey_json = JSON.parse(journey);
+					this.add_journey_to_form(journey_json.journey_id);
+				}
 			}
 		)
 	}
@@ -208,6 +222,15 @@ export class SearchComponent implements OnInit,  OnDestroy{
 				}
 			);
 		} else this.trip.distance=Constants.ERROR_NO_ROUTE;
+	}
+	
+	calc_cost(item :number): number {
+		let cost = this.form_journeys.value.journeys[item].seats 
+			* this.journeys_from_db[item].price 
+			* this.journeys_from_db[item].distance;
+
+		return Math.round(cost*100)/100;
+
 	}
 
 	get start_loc		() { return this.form.get('start_loc'	); }  // the getter is required for reactive form validation to work 
