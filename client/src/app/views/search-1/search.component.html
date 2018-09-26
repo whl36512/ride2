@@ -1,0 +1,127 @@
+<div class="search main">
+	<div class="center f12">Search</div>
+	<button  type="button" class="close-button" (click)="close_page()" >X</button>
+	<form [formGroup]="form" (ngSubmit)="onSubmit()">
+		<dl *ngIf="step==1"> 
+          		<dt>
+				<label for="start_loc">From
+				</label>
+			</dt>
+          		<dd>
+	   			<input  type="text"  id="start_loc" formControlName="start_loc" placeholder="From" required
+	                                   (keyup)='geocode("start_loc")' 
+	                                   (blur)='geocode("start_loc")' 
+					pattern=".{3,}"
+					*ngIf="!form_saved_to_db"
+				/>
+				<span class="validity"></span>
+			</dd>
+          		<dd  class="f08"> 
+				{{trip.start_lat}}  {{trip.start_lon}} 
+			</dd>
+			<dd class="f08">
+				{{trip.start_display_name}}
+			</dd>
+        	</dl>
+
+        	<dl *ngIf="step==2">
+          		<dt>
+				<label for="end_loc">To</label>
+			</dt>
+          		<dd>
+	   			<input  type="text"  id="end_loc" formControlName="end_loc" placeholder="To" required
+	                                   (keyup)='geocode("end_loc")'  
+	                                   (blur)='geocode("end_loc")' 
+					pattern=".{3,}"
+					*ngIf="!form_saved_to_db"
+				/>
+				<span class="validity"></span> 
+			</dd>
+			<dd class="f08">
+				{{trip.end_lat}} {{trip.end_lon}} 
+			</dd>
+			<dd class="f08">
+				{{trip.end_display_name	}}
+			</dd>
+			<dt>
+			Distance (miles): 
+			<span *ngIf="trip.distance==ERROR_NO_ROUTE " error=true>{{trip.distance}}</span>
+			<span *ngIf="trip.distance!=ERROR_NO_ROUTE "           >{{trip.distance}}</span>
+			</dt>
+        	</dl>
+
+        	<dl *ngIf="step==3">
+          		<dt><label for="start_date">From Date</label></dt>
+          		<dd> <input type="date" formControlName="start_date" min={{today}} /> 
+				{{this.form.value.start_date}}
+			</dd>
+          		<dt><label for="end_date">To Date</label></dt>
+          		<dd> <input type="date" formControlName="end_date" min={{this.form.value.start_date}} /> 
+				<span class="validity"></span>
+				{{this.form.value.end_date}}
+			</dd>
+
+          		<dt><label for="departure_time">Departure Time</label></dt>
+          		<dd> <input type="time" formControlName="departure_time" step="60" /> </dd>
+        	</dl>
+
+        	<dl *ngIf="step==4">
+			<dt><label for="seats">Passengers: {{this.form.value.seats}}  </label></dt>
+          		<dd>
+			<input type="range" formControlName="seats" min="1" max="{{MAX_SEATS}}" step=1 /> 
+          		</dd>
+
+			<dt><label for="price">Max Price: ${{this.form.value.price}} per mile per passenger</label></dt>
+          		<dd>
+			<input type="range" formControlName="price" min="0" max="{{MAX_PRICE}}" step=0.01 />
+          		</dd>
+        	</dl>
+		<br/>
+		<button  type="button" *ngIf="step>1" (click)="step=step-1">&lt; Back</button> &nbsp; &nbsp;
+		<button  type="button" *ngIf="step<4" (click)="step=step+1">Next &gt;</button>
+        	<span *ngIf="step==4">
+			<button  type="submit" [disabled]="form.invalid || trip.distance==null || trip.distance=='no route' " >Search</button>
+		</span>
+      	</form>
+	<p>
+      	<div *ngIf='journeys_from_db.length==0'>
+		No trips found
+	</div>
+
+	<form [formGroup]="form_journeys" id=serach-result *ngIf='journeys_from_db.length>0 && form.valid'>
+		<div formArrayName="journeys"
+	       		*ngFor="let journey of form_journeys.get('journeys').controls;let i=index;let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
+				[ngClass]="{ odd: odd, even: even }">
+      			<table>
+				<thead>
+					<tr >
+						<th>Date/Time</th>
+						<th>Available<br/>Seats</th>
+						<th>Price<br/>($/mile)</th>
+						<th>Req.<br/>Seats</th>
+						<th>Cost</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>{{journeys_from_db[i].journey_date}}<br/>{{journeys_from_db[i].departure_time}}</td>
+						<td>{{journeys_from_db[i].seats}}</td>
+						<td>{{journeys_from_db[i].price}}</td>
+						<td>
+							<div [formGroupName]="i">
+							<input formControlName="journey_id" type=hidden>
+							<input formControlName="seats" type=number min=0 max="{{journeys_from_db[i].seats}}" step=1>
+							</div>
+						</td>
+						<td> {{calc_cost(i) }}
+				
+					</tr>
+				</tbody>
+			</table>
+			<div class=f08 >From: {{journeys_from_db[i].start_display_name}}</div>
+			<div class=f08 >To: {{journeys_from_db[i].end_display_name}}</div>
+			<div class=f08 >Description: {{journeys_from_db[i].description}}</div>
+			<p>
+		</div>
+	</form>
+</div>
