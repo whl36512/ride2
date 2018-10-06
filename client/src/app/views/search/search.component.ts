@@ -3,6 +3,8 @@
 
 import { Component, OnInit } from '@angular/core';
 import { OnDestroy } from '@angular/core';
+import { NgZone  } from '@angular/core';
+import { ChangeDetectionStrategy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { FormGroup } from '@angular/forms';
 import { FormArray } from '@angular/forms';
@@ -26,7 +28,9 @@ import { StorageService } from '../../models/gui.service';
 @Component({
   selector	: 'app-search'			,
   templateUrl	: './search.component.html'	,
-  styleUrls	: ['./search.component.css']
+  styleUrls	: ['./search.component.css']	,
+//  changeDetection: ChangeDetectionStrategy.OnPush ,
+
 })
 
 export class SearchComponent implements OnInit,  OnDestroy{
@@ -43,16 +47,25 @@ export class SearchComponent implements OnInit,  OnDestroy{
 
 	trip:any;
 	form: any;
-	form_journeys : any= null;
+	form_journeys : any= [];
 	today : any;
 	step=1;
 	journeys_from_db: any = [];
+	seats_searched: number=0;
+
+	changed_times: number =0;
+
+	change_detect(): number{
+		return this.changed_times++;
+		
+	}
 
 	constructor(
 		  private geoService		: GeoService
 		, private dbService		: DBService
 		, private form_builder		: FormBuilder
 		, private communicationService	: CommunicationService
+		//, private zone: NgZone
 	){ 
 
   	console.log("SearchComponent.constructor() enter")  ;
@@ -109,16 +122,6 @@ export class SearchComponent implements OnInit,  OnDestroy{
 		console.info("SearchComponent.ngOnInit() exit");
   	}
 
-	add_journey_to_form(journey_id: string): void {
-		
-		let item= this.form_builder.group({
-			journey_id	: [journey_id, []],
-			seats		: [0, []], 
-		})
-		let journeys = this.form_journeys.get('journeys') as FormArray;				
-		journeys.push(item);
-	}
-
 	ngOnDestroy() {
 		// prevent memory leak when component destroyed
 		//this.subscription1.unsubscribe();
@@ -130,10 +133,11 @@ export class SearchComponent implements OnInit,  OnDestroy{
 	}
 
 	onSubmit() {
-	    	console.warn("201809231416 SearchComponent.onSubmit() this.form.value=" + JSON.stringify(this.form.value) );
-	    	console.warn("201809231416 SearchComponent.onSubmit() this.form.value.start_date=" + this.form.value.start_date );
-	    	console.warn("201809231416 SearchComponent.onSubmit() this.form.value.end_date=" + this.form.value.end_date );
+	    	console.debug("201809231416 SearchComponent.onSubmit() this.form.value=" + JSON.stringify(this.form.value) );
 		StorageService.storeForm(Constants.KEY_FORM_SEARCH, this.form);
+
+		this.seats_searched= this.form.value.seats;
+
 		// combining data
 		let trip = { ...this.form.value, ...this.trip};
 		let journeys_from_db_observable     = this.dbService.call_db(Constants.URL_SEARCH, trip);
@@ -141,6 +145,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 	    		journeys_from_db => {
 				console.info("201808201201 SearchComponent.constructor() journeys_from_db =" + JSON.stringify(journeys_from_db));
 				this.journeys_from_db = journeys_from_db;
+/*
 				this.form_journeys = this.form_builder.group({
 					journeys: this.form_builder.array([ ]),
 				});
@@ -151,10 +156,25 @@ export class SearchComponent implements OnInit,  OnDestroy{
 					let journey_json = JSON.parse(journey);
 					this.add_journey_to_form(journey_json.journey_id);
 				}
+*/
 			}
 		)
 	}
 
+	book(journey_id: string): void {
+	    	console.debug("201809261901 SearchComponent.book() journey_id=" + journey_id );
+		let book_to_db = { journey_id: journey_id, seats: this.seats_searched};
+		let book_from_db_observable     = this.dbService.call_db(Constants.URL_BOOK, book_to_db);
+		book_from_db_observable.subscribe(
+	    		book_from_db => {
+				console.debug("201808201201 SearchComponent.book() book_from_db =" + JSON.stringify(book_from_db));
+				alert('booked');
+				
+			}
+		)
+		
+	}
+	
 	geocode(element_id: string) {
 		var loc: string =null;
 		var lat: number =null;
@@ -223,9 +243,9 @@ export class SearchComponent implements OnInit,  OnDestroy{
 			);
 		} else this.trip.distance=Constants.ERROR_NO_ROUTE;
 	}
-	
+
 	calc_cost(item :number): number {
-		let cost = this.form_journeys.value.journeys[item].seats 
+		let cost = this.seats_searched
 			* this.journeys_from_db[item].price 
 			* this.journeys_from_db[item].distance;
 

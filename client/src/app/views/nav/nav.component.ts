@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AppComponent } from '../../app.component';
 //import { CookieService } from '../../models/gui.service';
 import { StorageService } from '../../models/gui.service';
+import { UserService } from '../../models/gui.service';
 import { Constants } from '../../models/constants';
 import { CommunicationService } from '../../models/communication.service';
  
@@ -32,13 +33,15 @@ export class NavComponent implements OnInit {
   nav_menu_off()  {
   	this.show_nav = false ;
   }
+
   toggle()  {
   	this.show_nav =!this.show_nav ;
-	this.signed_in= this.is_signed_in();
+	this.signed_in= UserService.is_signed_in();
     	console.log('301808221747 NavComponent.constructor this.signed_in='+ this.signed_in) ;
 
   }
 
+/*
   is_signed_in ()
   {
   	//let encrypted_profile = CookieService.getCookie(Constants.PROFILE);
@@ -54,6 +57,7 @@ export class NavComponent implements OnInit {
 	} 
 	return true;
   }
+*/
 
 }
 

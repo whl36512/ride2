@@ -14,6 +14,7 @@ export class Constants{
 	static URL_GET_USER 	= '/get_user';
 	static URL_UPD_TRIP 	= '/upd_trip';
 	static URL_SEARCH 	= '/search';
+	static URL_BOOK 	= '/book';
 
 	static USER_PAGE 	= 'user';
 	static TRIP_PAGE 	= 'trip';

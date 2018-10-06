@@ -14,6 +14,7 @@ import { retryWhen, map, mergeMap } from 'rxjs/operators';
 import {StorageService} 	from './gui.service' ;
 import {CryptoService} 	from './gui.service' ;
 import {Util} 		from './gui.service' ;
+import {UserService} 		from './gui.service' ;
 import {Constants} 	from './constants' ;
 
 // code sample from https://angular.io/guide/http
@@ -215,8 +216,10 @@ export class DBService {
 		if (	   relative_url == Constants.GET_USER_URL
 			|| relative_url == Constants.SAVE_USER_URL
 			|| relative_url == Constants.UPD_TRIP_URL
+			|| relative_url == Constants.URL_BOOK
 			) 
 		{ 
+/*	
 			//let jwt=  CookieService.getCookie(Constants.JWT);
 			let jwt=  StorageService.getSession(Constants.JWT);
 			//let encrypted_profile =  CookieService.getCookie(Constants.PROFILE);
@@ -228,11 +231,17 @@ export class DBService {
 			{
 				combined_payload = Constants.ERROR_NOT_SIGNED_IN ;
 			}
-			else { // everything ok
-				let profile = CryptoService.decrypt(encrypted_profile);
+*/
+
+			if( UserService.is_signed_in() ){ 
+				let jwt=  UserService.get_jwt_from_session();
+				let profile = UserService.get_profile_from_session()
 				let profile_json=JSON.parse(profile);
 				combined_payload = {...payload, ...profile_json, "jwt": jwt };  // add profile into the payload. server side must compare jwt and profile to make sure they match
 				console.info("201808190230 DBService.add_token after combining. combined_payload=\n"+ JSON.stringify(combined_payload));
+			}
+			else {
+				combined_payload = Constants.ERROR_NOT_SIGNED_IN ;
 			}
 		}	
 		else combined_payload= payload;

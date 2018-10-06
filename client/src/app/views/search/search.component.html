@@ -1,5 +1,5 @@
 <div class="search main">
-	<div class="center f12">Search</div>
+	<div class="center f12">Search </div>
 	<button  type="button" class="close-button" (click)="close_page()" >X</button>
 	<form [formGroup]="form" (ngSubmit)="onSubmit()">
 		<dl *ngIf="step==1"> 
@@ -87,41 +87,8 @@
       	<div *ngIf='journeys_from_db.length==0'>
 		No trips found
 	</div>
-
-	<form [formGroup]="form_journeys" id=serach-result *ngIf='journeys_from_db.length>0 && form.valid'>
-		<div formArrayName="journeys"
-	       		*ngFor="let journey of form_journeys.get('journeys').controls;let i=index;let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
-				[ngClass]="{ odd: odd, even: even }">
-      			<table>
-				<thead>
-					<tr >
-						<th>Date/Time</th>
-						<th>Available<br/>Seats</th>
-						<th>Price<br/>($/mile)</th>
-						<th>Req.<br/>Seats</th>
-						<th>Cost</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>{{journeys_from_db[i].journey_date}}<br/>{{journeys_from_db[i].departure_time}}</td>
-						<td>{{journeys_from_db[i].seats}}</td>
-						<td>{{journeys_from_db[i].price}}</td>
-						<td>
-							<div [formGroupName]="i">
-							<input formControlName="journey_id" type=hidden>
-							<input formControlName="seats" type=number min=0 max="{{journeys_from_db[i].seats}}" step=1>
-							</div>
-						</td>
-						<td> {{calc_cost(i) }}
-				
-					</tr>
-				</tbody>
-			</table>
-			<div class=f08 >From: {{journeys_from_db[i].start_display_name}}</div>
-			<div class=f08 >To: {{journeys_from_db[i].end_display_name}}</div>
-			<div class=f08 >Description: {{journeys_from_db[i].description}}</div>
-			<p>
-		</div>
-	</form>
+      	<app-journey *ngIf='journeys_from_db.length!=0' 
+			[journeys_from_db]="journeys_from_db" 
+			[seats_searched]="seats_searched">
+	</app-journey>
 </div>

@@ -119,6 +119,22 @@ pub fn search(req: &mut Request) -> IronResult<Response> {
     return Ok(Response::with((status::Ok, serde_json::to_string(&trips_from_db_json.unwrap()).unwrap()))) ;
 }
 
+pub fn book(req: &mut Request) -> IronResult<Response> {
+    let request_component = req.inspect();
+    let status = request_component.security_status();
+    if status  != SecurityStatus::SignedIn {  return Ok(Response::with((status::Unauthorized, constants::ERROR_NOT_SIGNED_IN ))) } 
+
+    let user_from_token_string = request_component.user_from_token.unwrap().to_string() ;
+    let db_conn= req.db_conn() ;
+    let book_from_db_json: Option<Json>  
+        = db::runsql_one_row (&db_conn
+            , "select a from funcs.book($1, $2) a "
+            , &[&request_component.params.to_string(), &user_from_token_string]) ;  
+    if book_from_db_json == None { return Ok(Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)))} 
+
+    return Ok(Response::with((status::Ok, serde_json::to_string(&book_from_db_json.unwrap()).unwrap()))) ;
+}
+
 pub fn echo(request: &mut Request) -> IronResult<Response> {
     let request_dump  = format!("{:?}", request);
     debug!("201808101134 request_dump=\n{}", request_dump) ;
@@ -126,7 +142,7 @@ pub fn echo(request: &mut Request) -> IronResult<Response> {
 }
 
 pub fn post_page(_: &mut Request) -> IronResult<Response> {
-    Ok(Response::with((status::Ok, "Posted page")))
+    Ok(Response::with((status::Ok, "{'page':'not found'}")))
 }
 
 pub fn redi(_: &mut Request) -> IronResult<Response> {

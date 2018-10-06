@@ -1,0 +1,32 @@
+
+		<div 
+	       		*ngFor="let journey of journeys_from_db ;let i=index;let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
+				[ngClass]="{ odd: odd, even: even }">
+      			<table>
+				<thead>
+					<tr >
+						<th>Date</th>
+						<th>Time</th>
+						<th>Seats</th>
+						<th>Price($)</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>{{journeys_from_db[i].journey_date}}</td>
+						<td>{{journeys_from_db[i].departure_time}}</td>
+						<td>{{seats_searched}}</td>
+						<td>{{calc_cost(i)}} </td>
+						<td>
+							<button *ngIf='is_signed_in' #j id={{journeys_from_db[i].journey_id}} type=submit (click)="book(j.id)">Book</button>
+						</td>
+				
+					</tr>
+				</tbody>
+			</table>
+			<div class=f08 >From: {{journeys_from_db[i].start_display_name}}</div>
+			<div class=f08 >To: {{journeys_from_db[i].end_display_name}}</div>
+			<div class=f08 >Description: {{journeys_from_db[i].description}}</div>
+			<p>
+		</div>

@@ -49,7 +49,8 @@ export class UserComponent implements OnInit {
   		console.log("UserComponent.constructor() enter")  ;
 		console.log( "201808201325 UserComponent EMAIL_PATTERN=" + this.EMAIL_PATTERN);
 		//this.error_msg= null;
-		let user_from_cookie 	= UserService.get_user_from_cookie();
+		//let user_from_cookie 	= UserService.get_user_from_cookie();
+		let user_from_cookie 	= UserService.get_profile_from_session();
 		// this.user_from_db will be assigned a value after the function call returns
 		let user_from_db_observable 	= this.dbService.get_user_from_db(user_from_cookie); 
 		// db returns a lot of field. we need only 3 of them

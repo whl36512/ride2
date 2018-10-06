@@ -49,6 +49,7 @@ pub fn router_setup() -> iron::Chain  {
     router.post("/get_session", handlers::get_session, "get_session");
     router.post("/upd_trip", handlers::upd_trip, "upd_trip");
     router.post("/search", handlers::search, "search");
+    router.post("/book", handlers::book, "book");
 
     let chain = iron::Chain::new(router);
     return chain ;
@@ -70,7 +71,7 @@ pub fn router_start(http_port : u32)
     let pg_middleware = pg_middleware.unwrap();
     trace!("201808121030 pg_middleware= \n{:?}", pg_middleware) ;
 
-    let session_middleware = reqres::session_middleware(*b"01234567012345670123456701234567");
+//    let session_middleware = reqres::session_middleware(*b"01234567012345670123456701234567");
 
     let allowed_hosts = constants::CORS_ALLOWED_HOSTS.iter() .map(ToString::to_string) .collect::<HashSet<_>>();
     let cors_middleware = CorsMiddleware::with_whitelist(allowed_hosts);
@@ -79,7 +80,7 @@ pub fn router_start(http_port : u32)
 
     chain.link_before(pg_middleware);
     chain.link_around(cors_middleware);
-    chain.link_around(session_middleware);
+//    chain.link_around(session_middleware);
     chain.link_after(my_cors_middleware);
     chain.link_after(response_printer);
     iron::Iron::new(chain).http(format!("0.0.0.0:{}", http_port)).unwrap();

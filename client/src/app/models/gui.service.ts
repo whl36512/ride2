@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 
 import {DBService} from './remote.service'
+import { Constants } from './constants';
+
 
 //in order for require to work, change  src/tsconfig.app.json to read 
 //     "types": ["node"]
@@ -18,12 +20,38 @@ export class GuiService {
 export class UserService {
 	constructor(  ) {};
 
+/*
   	static get_user_from_cookie() : string {
   		let profile 		= CookieService.getCookie("profile") ;
 		let clear_profile 	= CryptoService.decrypt(profile) ;
 		console.info("201808181433 UserService.get_user_from_cookie() clear_profile=" + clear_profile) ;
 		return clear_profile;
   	}
+*/
+
+	static is_signed_in ():boolean
+	{
+        	let profile =  UserService.get_profile_from_session();
+        	let jwt = UserService.get_jwt_from_session();
+        	if ( profile == undefined || profile == null || profile == "")
+        	{
+                	return false;
+        	}
+        	if ( jwt == undefined || jwt == null || jwt == "" ) {
+                	return false;
+        	}
+        	return true;
+  	}
+
+	static get_profile_from_session(): string {
+        	let encrypted_profile = StorageService.getSession(Constants.PROFILE);
+		let profile = CryptoService.decrypt(encrypted_profile);
+		return profile;
+	}
+	static get_jwt_from_session(): string {
+        	let jwt = StorageService.getSession(Constants.JWT);
+		return jwt;
+	}
 }
 
 export class Util {
@@ -166,9 +194,10 @@ export class StorageService {
 	}
 
 	static getForm(key) : any{
+		console.debug('StorageService.getForm() 201809241133 key =' + key);
 		let form_value= StorageService.getLocal (key);
 		if (form_value== undefined || form_value == null) return null;
-		console.info('201809241133 form_value =' + form_value);
+		console.debug('StorageService.getForm() 201809241133 form_value =' + form_value);
 		let form_value1 = JSON.parse(form_value);
 
 		//console.info('201809241146 form_value1 =' + JSON.stringify(form_value1));
