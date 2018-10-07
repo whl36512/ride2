@@ -170,24 +170,28 @@ export class HttpService {
   providedIn: 'root'
 })
 export class DBService {
-	private static root_url  = window.location.protocol+ '//' +window.location.hostname + ":"+ Constants.SERVER_PORT ;
+	private static root_url  = window.location.protocol
+					+ '//' +window.location.hostname 
+					+ ":"+ Constants.SERVER_PORT ;
 
 	constructor(private httpService: HttpService){}
 
-	call_db(relative_url: String, payload: any) : Observable<any> {  // expect payload in JSON object. return also in JSON object
-		let response_body: any  ;
+	call_db(relative_url: String, payload: any) : Observable<any> {  
+		let response_body: any ;
 		console.info("201808190205 DBService.call_db payload=\n"+ payload);
 		// add jwt token to the payload
-		payload = this.add_token(relative_url, payload) ; 
-		console.info("201808190206 DBService.call_db after adding jwt and profile. payload=\n"+ JSON.stringify(payload));
+		let jwt=  UserService.get_jwt_from_session();
+		let profile = UserService.get_profile_from_session()
+		let combined_payload = {...payload, ...profile, ...jwt };  // add profile into the payload. server side must compare jwt and profile to make sure they match
+		//payload = this.add_token(relative_url, payload) ; 
+		console.info("201808190206 DBService.call_db after adding jwt and profile. combined_payload=\n"+ JSON.stringify(combined_payload));
 
-		if ( payload.error == undefined )
+		if ( combined_payload.error == undefined )
 		{
 			let complete_url = DBService.root_url + relative_url ;
-			//	this.httpService.subscribe(this.httpService.request(Constants.POST, complete_url , JSON.stringify(payload)));
-			response_body = this.httpService.request(Constants.POST, complete_url , JSON.stringify(payload));
+			response_body = this.httpService.request(Constants.POST, complete_url , JSON.stringify(combined_payload));
 		}
-		else response_body = of(payload) ; //return observable containing error
+		else response_body = of(combined_payload) ; //return observable containing error
 		return response_body;
 	}
 
@@ -205,48 +209,20 @@ export class DBService {
 
 
 
+/*
 	private add_token( relative_url: String, payload: any): any
 	{
 		var combined_payload: any;
-		console.log("201808190219 DBService.add_token() typeof(payload)="+ typeof(payload)) ;
+		console.debug("201808190219 DBService.add_token() typeof(payload)="+ typeof(payload)) ;
 		if (typeof(payload) == 'string' ) payload = JSON.parse(payload);
-		console.info("201808190230 DBService.add_token after JSON.parse. payload=\n"+ JSON.stringify(payload));
-
-
-		if (	   relative_url == Constants.GET_USER_URL
-			|| relative_url == Constants.SAVE_USER_URL
-			|| relative_url == Constants.UPD_TRIP_URL
-			|| relative_url == Constants.URL_BOOK
-			) 
-		{ 
-/*	
-			//let jwt=  CookieService.getCookie(Constants.JWT);
-			let jwt=  StorageService.getSession(Constants.JWT);
-			//let encrypted_profile =  CookieService.getCookie(Constants.PROFILE);
-			let encrypted_profile =  StorageService.getSession(Constants.PROFILE);
-			if (jwt == null || jwt =='') {
-				combined_payload = Constants.ERROR_NO_SESSION ;
-			}
-			else if (encrypted_profile==null || encrypted_profile == '')
-			{
-				combined_payload = Constants.ERROR_NOT_SIGNED_IN ;
-			}
-*/
-
-			if( UserService.is_signed_in() ){ 
-				let jwt=  UserService.get_jwt_from_session();
-				let profile = UserService.get_profile_from_session()
-				let profile_json=JSON.parse(profile);
-				combined_payload = {...payload, ...profile_json, "jwt": jwt };  // add profile into the payload. server side must compare jwt and profile to make sure they match
-				console.info("201808190230 DBService.add_token after combining. combined_payload=\n"+ JSON.stringify(combined_payload));
-			}
-			else {
-				combined_payload = Constants.ERROR_NOT_SIGNED_IN ;
-			}
-		}	
-		else combined_payload= payload;
+		console.debug("201808190230 DBService.add_token after JSON.parse. payload=\n"+ JSON.stringify(payload));
+		let jwt=  UserService.get_jwt_from_session();
+		let profile = UserService.get_profile_from_session()
+		combined_payload = {...payload, ...profile, ...jwt };  // add profile into the payload. server side must compare jwt and profile to make sure they match
+		console.debug("201810062319 DBService.add_token after combining. combined_payload=\n"+ JSON.stringify(combined_payload));
 		return combined_payload;
 	}
+*/
 }
 
 @Injectable({

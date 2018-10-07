@@ -76,7 +76,6 @@ pub fn runsql_one_row (conn: & PConnection , sql: &str, params: & [& ToSql]) -> 
 pub fn runsql_conn (conn: & PConnection , sql: &str, params: & [& ToSql], expected_count: u32) ->  Option<Vec<Json> > {
     //alway return json. sql must generate json
     fn print_error_then_none  (row_values: & Vec<Json>, expected_count:u32) -> Option<Vec<Json>>{
-        error!("ERROR 201808131155 find more rows than expected "      ) ;
         error!("ERROR 201808131155 expect {} rows ", expected_count      ) ;
         error!("ERROR 201808131155 returned {} rows ", row_values.len()) ;
         error!("ERROR 201808131155 row_values=\n{:?} ", row_values     ) ;

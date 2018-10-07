@@ -19,7 +19,8 @@
 						<td>{{seats_searched}}</td>
 						<td>{{calc_cost(i)}} </td>
 						<td>
-							<button *ngIf='is_signed_in' #j id={{journeys_from_db[i].journey_id}} type=submit (click)="book(j.id)">Book</button>
+							<button *ngIf='is_signed_in && journeys_from_db[i].balance>= calc_cost(i)' #j id={{journeys_from_db[i].journey_id}} type=submit (click)="book(j.id)">Book</button>
+							<span *ngIf='is_signed_in && journeys_from_db[i].balance < calc_cost(i)' >Insufficient Balance</span>
 						</td>
 				
 					</tr>

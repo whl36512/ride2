@@ -175,7 +175,7 @@ language plpgsql;
 
 
 
-create or replace function funcs.search( in_trip text)
+create or replace function funcs.search( in_trip text, in_user text)
   returns setof json
 as
 $body$
@@ -183,12 +183,19 @@ $body$
 	with trip0 as (
 		SELECT t.*, t.distance/600.0 degree10 FROM json_populate_record(NULL::trip , regexp_replace(in_trip, '": ?""', '":null', 'g')::json) t 
 	)
+	, user0  as ( 
+		SELECT * FROM json_populate_record(NULL::usr , regexp_replace(in_user, '": ?""', '":null', 'g')::json) t 
+	)
 	, a as (
 		select t.start_display_name, t.end_display_name ,t.distance 
 			, t.description
 			, j.*
-		from trip t, trip0, journey j
-		--join journey j on (t.trip_id=j.trip_id)
+			, u.balance
+		from trip t
+		join journey j on (t.trip_id=j.trip_id)
+		join trip0 on (1=1)
+		left outer join user0 on (1=1)
+		left outer join usr u on (u.usr_id= user0.usr_id)
 		where t.start_lat	between trip0.start_lat-trip0.degree10 	and trip0.start_lat+trip0.degree10
 		and   t.start_lon	between trip0.start_lon-trip0.degree10	and trip0.start_lon+trip0.degree10
 		and   t.end_lat		between trip0.end_lat-trip0.degree10 		and trip0.end_lat+trip0.degree10
@@ -199,7 +206,7 @@ $body$
 		and   ( trip0.departure_time is null  
 			or j.departure_time between trip0.departure_time- interval '1 hour' and trip0.departure_time + interval '1 hour'
 		)
-		and j.price <= trip0.price
+		and j.price <= trip0.price/1.2
 		and j.seats >= trip0.seats
 		and t.trip_id=j.trip_id
 		and j.status_code='A'
@@ -212,7 +219,7 @@ $body$
 language sql;
 
 
-select * from funcs.search('{"departure_time": null, "distance": 30.7, "end_date": null, "end_display_name": "Millennium Centre, 33, West Ontario Street, Magnificent Mile, Chicago, Cook County, Illinois, 60654, USA", "end_lat": "41.89285925", "end_loc": "33 w ontario st, chicago", "end_lon": "-87.6292175246499", "price": 0.2, "seats": 1, "start_date": null, "start_display_name": "2916, Colton Court, Lisle, DuPage County, Illinois, 60532, USA", "start_lat": "41.7944060204082", "start_loc": "2916 colton ct", "start_lon": "-88.1075615306122"}');
+--select * from funcs.search('{"departure_time": null, "distance": 30.7, "end_date": null, "end_display_name": "Millennium Centre, 33, West Ontario Street, Magnificent Mile, Chicago, Cook County, Illinois, 60654, USA", "end_lat": "41.89285925", "end_loc": "33 w ontario st, chicago", "end_lon": "-87.6292175246499", "price": 0.2, "seats": 1, "start_date": null, "start_display_name": "2916, Colton Court, Lisle, DuPage County, Illinois, 60532, USA", "start_lat": "41.7944060204082", "start_loc": "2916 colton ct", "start_lon": "-88.1075615306122"}');
 
 create or replace function funcs.book_count_of_trip ( in_trip_id text)
   returns bigint
@@ -232,51 +239,61 @@ as
 $body$
 DECLARE
   	user0 RECORD ;
+  	utj RECORD ;
   	user1 RECORD ;
   	book0 RECORD ;
   	book1 RECORD ;
+	factor decimal;
 BEGIN
 	SELECT * into user0 FROM json_populate_record(NULL::usr , in_user::json) ;
 	SELECT * into book0 FROM json_populate_record(NULL::book, in_book::json) ;
 
-	start transaction;
+	factor := 1.2 ;
+	
+	select u.usr_id, t.trip_id, j.journey_id 
+		, j.price * factor  rider_price
+		, round(j.price * t.distance * book0.seats * factor , 2) rider_cost
+	into utj	
+	from journey j, usr u , trip t
+	where j.journey_id=book0.journey_id
+	and   u.usr_id=user0.usr_id
+	and   t.trip_id=j.trip_id
+	and   u.balance >= round(j.price * t.distance * book0.seats * factor , 2)
+	and   j.seats >= book0.seats 
+	;
+
+	if utj is null or utj.journey_id is null then
+		return null::book;
+	end if;
 
 	insert into book ( journey_id, rider_id, seats, driver_price, rider_price, driver_cost, rider_cost   )
-	select j.journey_id
+	select 	j.journey_id
 		, user0.usr_id 
 		, book0.seats
 		, j.price
-		, book0.price
-		, j.price     *t.distance*book0.seats
-		, book0.price *t.distance*book0.seats
-	from jouney j
-	join trip t on (t.trip_id=j.trip_id)
-	where j.journey_id = book0.journey_id
-	and book0.price > j.price * 1.20
-	-- and book0.seats <= func.available_seats(book0.journey_id)
+		, utj.rider_price
+		, j.price * t.distance * book0.seats
+		, utj.rider_cost
+	from journey j, trip t
+	where j.journey_id = utj.journey_id
+	and   t.trip_id = j.trip_id
 	and book0.seats <= j.seats 
 	returning * into book1
 	;
-
+	
 	update journey j
 	set seats = j.seats- book1.seats
 	where j.journey_id= book1.journey_id
 	;
-
+	
 	update usr
-	set balance=balance - book1.rider_cost
+	set balance = balance - book1.rider_cost
 	where u.usr_id=book1.rider_id
 	and balance >= book1.rider_cost
 	returning * into user1
 	;
-
-	if user1.usr_id is not null then
-		commit;
-		return book1;
-	else
-		rollback;
-		return null::book;
-	end if;
+	
+	return book1;
 END
 $body$
 language plpgsql;

@@ -20,37 +20,28 @@ export class GuiService {
 export class UserService {
 	constructor(  ) {};
 
-/*
-  	static get_user_from_cookie() : string {
-  		let profile 		= CookieService.getCookie("profile") ;
-		let clear_profile 	= CryptoService.decrypt(profile) ;
-		console.info("201808181433 UserService.get_user_from_cookie() clear_profile=" + clear_profile) ;
-		return clear_profile;
-  	}
-*/
-
 	static is_signed_in ():boolean
 	{
         	let profile =  UserService.get_profile_from_session();
         	let jwt = UserService.get_jwt_from_session();
-        	if ( profile == undefined || profile == null || profile == "")
+        	if ( profile == null  || jwt == null)
         	{
-                	return false;
-        	}
-        	if ( jwt == undefined || jwt == null || jwt == "" ) {
                 	return false;
         	}
         	return true;
   	}
 
-	static get_profile_from_session(): string {
+	static get_profile_from_session(): object|null {
         	let encrypted_profile = StorageService.getSession(Constants.PROFILE);
 		let profile = CryptoService.decrypt(encrypted_profile);
-		return profile;
+		if ( profile == null) {return null;} ;
+		return JSON.parse(profile);
 	}
-	static get_jwt_from_session(): string {
+
+	static get_jwt_from_session(): object|null {
         	let jwt = StorageService.getSession(Constants.JWT);
-		return jwt;
+		if (jwt == undefined || jwt==null || jwt=='' ) { return null;} ;
+		return {'jwt' : jwt}
 	}
 }
 
