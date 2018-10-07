@@ -191,11 +191,16 @@ $body$
 			, t.description
 			, j.*
 			, u.balance
+			, round(j.price * t.distance * trip0.seats * 1.2 , 2) rider_cost
+			, coalesce (b.seats,0) seats_booked
+			, case when j.seats >= trip0.seats and u.balance >= round(j.price * t.distance * trip0.seats * 1.2 , 2) then true else false end bookable
+			, case when u.balance >= round(j.price * t.distance * trip0.seats * 1.2 , 2) then true else false end sufficient_balance
 		from trip t
 		join journey j on (t.trip_id=j.trip_id)
 		join trip0 on (1=1)
 		left outer join user0 on (1=1)
 		left outer join usr u on (u.usr_id= user0.usr_id)
+		left outer join book b on (b.rider_id = user0.usr_id and b.journey_id=j.journey_id)
 		where t.start_lat	between trip0.start_lat-trip0.degree10 	and trip0.start_lat+trip0.degree10
 		and   t.start_lon	between trip0.start_lon-trip0.degree10	and trip0.start_lon+trip0.degree10
 		and   t.end_lat		between trip0.end_lat-trip0.degree10 		and trip0.end_lat+trip0.degree10
@@ -207,7 +212,7 @@ $body$
 			or j.departure_time between trip0.departure_time- interval '1 hour' and trip0.departure_time + interval '1 hour'
 		)
 		and j.price <= trip0.price/1.2
-		and j.seats >= trip0.seats
+		--and j.seats >= trip0.seats
 		and t.trip_id=j.trip_id
 		and j.status_code='A'
 	)
@@ -286,7 +291,7 @@ BEGIN
 	where j.journey_id= book1.journey_id
 	;
 	
-	update usr
+	update usr u
 	set balance = balance - book1.rider_cost
 	where u.usr_id=book1.rider_id
 	and balance >= book1.rider_cost

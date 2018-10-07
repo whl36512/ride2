@@ -9,25 +9,27 @@
 						<th>Time</th>
 						<th>Seats</th>
 						<th>Price($)</th>
+						<th>Booked</th>
 						<th></th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
-						<td>{{journeys_from_db[i].journey_date}}</td>
-						<td>{{journeys_from_db[i].departure_time}}</td>
+						<td>{{journey.journey_date}}</td>
+						<td>{{journey.departure_time}}</td>
 						<td>{{seats_searched}}</td>
-						<td>{{calc_cost(i)}} </td>
+						<td>{{journey.rider_cost}} </td>
+						<td>{{journey.seats_booked}}</td>
 						<td>
-							<button *ngIf='is_signed_in && journeys_from_db[i].balance>= calc_cost(i)' #j id={{journeys_from_db[i].journey_id}} type=submit (click)="book(j.id)">Book</button>
-							<span *ngIf='is_signed_in && journeys_from_db[i].balance < calc_cost(i)' >Insufficient Balance</span>
+							<button *ngIf='is_signed_in && journey.bookable' #j type=buttom (click)="book(journey)">Book</button>
+							<span *ngIf='is_signed_in && !journey.sufficient_balance' >Insufficient Balance</span>
 						</td>
 				
 					</tr>
 				</tbody>
 			</table>
-			<div class=f08 >From: {{journeys_from_db[i].start_display_name}}</div>
-			<div class=f08 >To: {{journeys_from_db[i].end_display_name}}</div>
-			<div class=f08 >Description: {{journeys_from_db[i].description}}</div>
+			<div class=f08 >From: {{journey.start_display_name}}</div>
+			<div class=f08 >To: {{journey.end_display_name}}</div>
+			<div class=f08 >Description: {{journey.description}}</div>
 			<p>
 		</div>

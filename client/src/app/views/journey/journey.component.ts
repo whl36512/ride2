@@ -30,7 +30,7 @@ import { UserService } from '../../models/gui.service';
   selector	: 'app-journey'			,
   templateUrl	: './journey.component.html'	,
   styleUrls	: ['./journey.component.css']	,
-  changeDetection: ChangeDetectionStrategy.OnPush ,  // prevent change detection unless @Input reference is changed
+  //changeDetection: ChangeDetectionStrategy.OnPush ,  // prevent change detection unless @Input reference is changed
 })
 
 export class JourneyComponent implements OnInit,  OnDestroy{
@@ -88,15 +88,21 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 
 	}
 
-	book(journey_id: string): void {
-	    	console.debug("201809261901 JourneyComponent.book() journey_id=" + journey_id );
-		let book_to_db = { journey_id: journey_id, seats: this.seats_searched};
+	book(journey: any, index: number): void {
+	    	console.debug("201809261901 JourneyComponent.book() journey_id=" + journey.journey_id );
+		let book_to_db = { journey_id: journey.journey_id, seats: this.seats_searched};
 		let book_from_db_observable     = this.dbService.call_db(Constants.URL_BOOK, book_to_db);
 		book_from_db_observable.subscribe(
 	    		book_from_db => {
 				console.debug("201808201201 JourneyComponent.book() book_from_db =" + JSON.stringify(book_from_db));
-				alert('booked');
+				//this.journeys_from_db[index].bookable=false;
+				journey.bookable=false;
+				journey.seats_booked= journey.seats_booked
+							+ book_from_db.seats;
 				
+			},
+			_ => {
+				alert('Server error');
 			}
 		)
 		
