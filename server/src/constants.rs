@@ -13,6 +13,10 @@ pub static PG_USER 	: &str ="ride"    ;
 pub static PG_PASSWD 	: &str ="ride" ;
 pub static PG_DATABASE 	: &str ="ride" ;
 
+
+pub static SQL_MYOFFER 	: &str =  "select a from funcs.myoffers($1, $2) a " ;
+pub static SQL_SEARCH 	: &str =  "select a from funcs.search($1, $2) a " ;
+
 pub static CORS_ALLOWED_HOSTS : [&str; 9] 
 	= [
 		"http://rideshare.beegrove.com:4200", "rideshare.beegrove.com:4200", "rideshare.beegrove.com"

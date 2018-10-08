@@ -28,13 +28,13 @@ import { UserService } from '../../models/gui.service';
 
 
 @Component({
-  selector	: 'app-journey'			,
-  templateUrl	: './journey.component.html'	,
-  styleUrls	: ['./journey.component.css']	,
+  selector	: 'app-myofferjourney'			,
+  templateUrl	: './myofferjourney.component.html'	,
+  styleUrls	: ['./myofferjourney.component.css']	,
   changeDetection: ChangeDetectionStrategy.OnPush ,  // prevent change detection unless @Input reference is changed
 })
 
-export class JourneyComponent implements OnInit,  OnDestroy{
+export class MyofferjourneyComponent implements OnInit,  OnDestroy{
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
@@ -42,14 +42,16 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 	@Input()
     	journeys_from_db: any;
 
-	@Input()
-    	seats_searched: number;
+        error_msg : string;
+        warning_msg : string;
+        info_msg : string;
 
 	subscription1: Subscription ;
 	subscription2: Subscription ;
 	subscription3: Subscription ;
 
-	is_signed_in: boolean;
+        MAX_SEATS=Constants.MAX_SEATS;
+        MAX_PRICE=Constants.MAX_PRICE;
 
 	journey_forms: any =[];
 
@@ -60,19 +62,21 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 	//	, private communicationService	: CommunicationService
 	//	, private zone: NgZone
 	){ 
-  		console.debug("201809262245 JourneyComponent.constructor() enter")  ;
-		this.is_signed_in= UserService.is_signed_in();
-  		console.debug("201809262245 JourneyComponent.constructor() exit")  ;
+  		console.debug("201809262245 MyofferjourneyComponent.constructor() enter")  ;
+  		console.debug("201809262245 MyofferjourneyComponent.constructor() exit")  ;
   	} 
 
 	ngOnInit() {
-		console.debug("201809262246 JourneyComponent.ngOnInit() enter");
+		console.debug("201809262246 MyofferjourneyComponent.ngOnInit() enter");
+		console.debug("201809262246 MyofferjourneyComponent.ngOnInit() this.journeys_from_db = "
+			+ JSON.stringify(this.journeys_from_db) );
 		//this.subscription1 = this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		//this.subscription2 = this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
-		console.debug("201809262246 JourneyComponent.ngOnInit() exit");
-		for ( let journey in this.journeys_from_db) {
-			//add_form(journey);
+
+		for ( let index in this.journeys_from_db) { // for.. in.. creates index, not object
+			this.add_form(this.journeys_from_db[index]);
 		}
+		console.debug("201809262246 MyofferjourneyComponent.ngOnInit() exit");
   	}
 
 	ngOnDestroy() {
@@ -82,41 +86,38 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 	}
 
 	add_form (journey: any) : void {
+		console.debug("201810072302 MyofferjourneyComponent.add_form() journey = "
+			+ JSON.stringify(journey) );
 		let journey_form = this.form_builder.group({
-                                journey_id       : [journey.journey_id, []],
+                                journey_id  : [journey.journey_id, []],
+                                seats       : [journey.seats, []],
+                                price       : [journey.price, []],
                                 }
                         );
+		console.debug("201810072247 MyofferjourneyComponent.add_form() journey_form="+ JSON.stringify(journey_form.value));
+
 		this.journey_forms.push(journey_form);
 
 	}
 
-	book(journey: any, index: number): void {
-	    	console.debug("201809261901 JourneyComponent.book() journey_id=" + journey.journey_id );
-		let book_to_db = { journey_id: journey.journey_id, seats: this.seats_searched};
-		let book_from_db_observable     = this.dbService.call_db(Constants.URL_BOOK, book_to_db);
-		book_from_db_observable.subscribe(
-	    		book_from_db => {
-				console.debug("201808201201 JourneyComponent.book() book_from_db =" + JSON.stringify(book_from_db));
-				//this.journeys_from_db[index].bookable=false;
-				journey.bookable=false;
-				journey.seats_booked= journey.seats_booked
-							+ book_from_db.seats;
+	update(journey_form: any, index: number): void {
+	    	console.debug("201809261901 MyofferjourneyComponent.update() journey_form=" 
+			+ JSON.stringify(journey_form.value) );
+		let journey_to_db = journey_form.value;
+		let journey_from_db_observable     = this.dbService.call_db(Constants.URL_UPD_JOURNEY, journey_to_db);
+		journey_from_db_observable.subscribe(
+	    		journey_from_db => {
+				console.debug("201810072326 MyofferjourneyComponent.update() book_from_db =" + JSON.stringify(book_from_db));
+				this.journeys_from_db[index].is_updated=1;
 				this.changeDetectorRef.detectChanges()
 				
 			},
-			_ => {
-				alert('Server error');
+			error => {
+				this.error_msg=error;
+				this.journeys_from_db[index].is_updated=0;
+				this.changeDetectorRef.detectChanges()
 			}
 		)
 		
-	}
-	
-	calc_cost(item :number): number {
-		let cost = this.seats_searched
-			* this.journeys_from_db[item].price 
-			* this.journeys_from_db[item].distance;
-
-		return Math.round(cost*100)/100;
-
 	}
 }

@@ -15,11 +15,12 @@ export class Constants{
 	static URL_UPD_TRIP 	= '/upd_trip';
 	static URL_SEARCH 	= '/search';
 	static URL_BOOK 	= '/book';
+	static URL_MYOFFERS 	= '/myoffers';
 
 	static USER_PAGE 	= 'user';
 	static TRIP_PAGE 	= 'trip';
 	static SEARCH_PAGE 	= 'search';
-	static MYTRIPS_PAGE 	= 'mytrips';
+	static PAGE_MYOFFERS 	= 'myoffers';
 	static MY_BOOKINGS_PAGE = 'mybookings';
 	static DEPOSIT_PAGE 	= 'deposit';
 	static WITHDRAW_PAGE 	= 'withdraw';

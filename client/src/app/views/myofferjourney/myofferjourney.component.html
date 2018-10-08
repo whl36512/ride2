@@ -1,0 +1,52 @@
+<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
+<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
+<div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
+<div 
+	*ngFor="let journey of journey_forms ;let i=index;
+		let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
+		[ngClass]="{ odd: odd, even: even }">
+	<form [formGroup]="journey" (ngSubmit)="onSubmit()">
+      	<table>
+		<thead>
+			<tr >
+				<th>Date</th>
+				<th>Time</th>
+				<th>Seats</th>
+				<th>Price($)</th>
+				<th>Booked</th>
+				<th>Book<br/>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>{{journeys_from_db[i].journey_date}}</td>
+				<td>{{journeys_from_db[i].departure_time}}</td>
+				<td> 
+	<input type="number" formControlName="seats" min="0" max="{{MAX_SEATS}}" step=1 />
+				</td>
+				<td> 
+	<input type="number" formControlName="price" min="0" max="{{MAX_PRICE}}" step=0.01 />
+				</td>
+				<td>{{journeys_from_db[i].seats_booked}}</td>
+				<td>{{journeys_from_db[i].book_status_description}}</td>
+				<td>
+					<button type=button (click)="update(journey,i)">Update</button>
+				</td>
+				<td>
+					<span *ngIf='journeys_from_db[i].is_updated==1' class=info>
+						updated	
+					</span>
+					<span *ngIf='journeys_from_db[i].is_updated==0' class=error>
+						failed	
+					</span>
+				</td>
+				
+			</tr>
+		</tbody>
+	</table>
+	</form>
+	<div class=f08 >From: {{journeys_from_db[i].start_display_name}}</div>
+	<div class=f08 >To: {{journeys_from_db[i].end_display_name}}</div>
+	<div class=f08 >Description: {{journeys_from_db[i].description}}</div>
+	<p>
+</div>

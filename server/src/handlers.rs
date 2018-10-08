@@ -22,6 +22,28 @@ use constants;
 
 type Json = serde_json::Value;
 
+pub fn request_sql(req: & mut Request, sql : &str, expected_rows: u32) -> IronResult<Response> {
+    // user_from_session and user_from_cookie must match
+    let request_component = req.inspect();
+    let db_conn= req.db_conn() ;
+
+    if  expected_rows == 1 {
+	let row : Option<Json> 
+         = db::runsql_one_row (
+		&db_conn
+                , sql
+            	, &[&request_component.params.to_string(),  &request_component.user_from_token_string ]) ; 
+    	return Ok(Response::with((status::Ok, serde_json::to_string(&row.unwrap()).unwrap()))) ;
+    }
+    else {
+    	let rows :Vec<Json>  
+        	= db::runsql_conn (&db_conn
+            	, sql 
+            	, &[&request_component.params.to_string(),  &request_component.user_from_token_string ], 2) ; 
+    	return Ok(Response::with((status::Ok, serde_json::to_string(&rows).unwrap()))) ;
+    }
+}
+
 pub fn get_session (req : &mut Request) -> IronResult<Response> {
     //user 3party auth info comes in a json payload
     let request_component = req.inspect();
@@ -89,36 +111,41 @@ pub fn upd_trip(req: &mut Request) -> IronResult<Response> {
 
     if status  != SecurityStatus::SignedIn {  return Ok(Response::with((status::Unauthorized, constants::ERROR_NOT_SIGNED_IN ))) } 
 
-    let user_from_token_string = request_component.user_from_token.unwrap().to_string() ;
     let trip_from_param = validate_trip(&request_component.params);
 
     if trip_from_param == None { return Ok(Response::with((status::NotAcceptable, constants::ERROR_TRIP_VALIDATION)))}
     let trip_from_db_json: Option<Json>  
         = db::runsql_one_row (&db_conn
             , "select row_to_json(a) from funcs.upd_trip($1, $2) a "
-            , &[&trip_from_param.unwrap().to_string(), &user_from_token_string]) ;  //params has trip and user info
-            //, &[&request_component.params.to_string(), &user_from_token_string]) ;  //params has trip and user info
+            , &[&trip_from_param.unwrap().to_string(), &request_component.user_from_token_string]) ;  //params has trip and user info
     if trip_from_db_json == None { return Ok(Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)))} 
     return Ok(Response::with((status::Ok, trip_from_db_json.unwrap().to_string()))) ;
 }
 
 pub fn search(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_SEARCH, 2)
+
+}
+/*
+pub fn search(req: &mut Request) -> IronResult<Response> {
     // user_from_session and user_from_cookie must match
     let request_component = req.inspect();
     let _status = request_component.security_status();
-    let user_from_token_string = request_component.user_from_token
-				.map(|u| u.to_string())
-				.unwrap_or(constants::EMPTY_JSON_STRING.to_string()) ;
     let db_conn= req.db_conn() ;
 
-
-    let trips_from_db_json: Option<Vec<Json>>  
+    let trips_from_db_json: Vec<Json>  
         = db::runsql_conn (&db_conn
             , "select a from funcs.search($1, $2) a "
-            , &[&request_component.params.to_string(),  &user_from_token_string ], 2) ; //params has trip info
-    if trips_from_db_json == None { return Ok(Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)))} 
+            , &[&request_component.params.to_string(),  &request_component.user_from_token_string ], 2) ; //params has trip info
+    //if trips_from_db_json == None { return Ok(Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)))} 
 
-    return Ok(Response::with((status::Ok, serde_json::to_string(&trips_from_db_json.unwrap()).unwrap()))) ;
+    //return Ok(Response::with((status::Ok, serde_json::to_string(&trips_from_db_json.unwrap()).unwrap()))) ;
+    return Ok(Response::with((status::Ok, serde_json::to_string(&trips_from_db_json).unwrap()))) ;
+}
+*/
+
+pub fn myoffers(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_MYOFFER, 2)
 }
 
 pub fn book(req: &mut Request) -> IronResult<Response> {
@@ -126,16 +153,16 @@ pub fn book(req: &mut Request) -> IronResult<Response> {
     let status = request_component.security_status();
     if status  != SecurityStatus::SignedIn {  return Ok(Response::with((status::Unauthorized, constants::ERROR_NOT_SIGNED_IN ))) } 
 
-    let user_from_token_string = request_component.user_from_token.unwrap().to_string() ;
     let db_conn= req.db_conn() ;
     let book_from_db_json: Option<Json>  
         = db::runsql_one_row (&db_conn
             , "select row_to_json(a) from funcs.book($1, $2) a "
-            , &[&request_component.params.to_string(), &user_from_token_string]) ;  
+            , &[&request_component.params.to_string(), &request_component.user_from_token_string]) ;  
     if book_from_db_json == None { return Ok(Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)))} 
 
     return Ok(Response::with((status::Ok, serde_json::to_string(&book_from_db_json.unwrap()).unwrap()))) ;
 }
+
 
 pub fn echo(request: &mut Request) -> IronResult<Response> {
     let request_dump  = format!("{:?}", request);

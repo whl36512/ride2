@@ -271,10 +271,11 @@ BEGIN
 		return null::book;
 	end if;
 
-	insert into book ( journey_id, rider_id, seats, driver_price, rider_price, driver_cost, rider_cost   )
+	insert into book ( journey_id, rider_id, seats, status_cd, driver_price, rider_price, driver_cost, rider_cost   )
 	select 	j.journey_id
 		, user0.usr_id 
 		, book0.seats
+		, 'B'
 		, j.price
 		, utj.rider_price
 		, j.price * t.distance * book0.seats
@@ -341,3 +342,53 @@ BEGIN
 END
 $body$
 language plpgsql;
+
+
+create or replace function funcs.myoffers(in_trip text, in_user text)
+  returns setof json
+as
+$body$
+-- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
+	with trip0 as (
+		SELECT * 
+		FROM json_populate_record(NULL::trip , 
+			regexp_replace(in_trip, '": ?""', '":null', 'g')::json) t 
+	)
+	, user0  as ( 
+		SELECT * 
+		FROM json_populate_record(NULL::usr , 
+			regexp_replace(in_user, '": ?""', '":null', 'g')::json) t 
+	)
+	, a as (
+		select 
+			t.trip_id
+			, t.start_display_name
+			, t.end_display_name
+			, t.description
+			-- , t.distance
+			, j.journey_id
+			, j.journey_date
+			, j.departure_time
+			, j.status_code
+			, j.price
+			, j.seats
+			, b.book_id 
+			, coalesce(b.seats,0) seats_booked
+			, b.driver_cost 
+			, b.status_cd book_status_cd
+			, s.description book_status_description
+		from user0 u0
+		join trip0 t0 on (1=1)
+		join trip t on ( t.driver_id=u0.usr_id )
+		join journey j on (t.trip_id=j.trip_id)
+		left outer join book b on (b.journey_id=j.journey_id )
+		left outer join book_status s on (s.status_cd= b.status_cd)
+		where (t0.start_date is null or j.journey_date >= t0.start_date)
+		and   (t0.end_date   is null or j.journey_date <= t0.end_date)
+	)
+	select row_to_json(a) 
+	from a
+	order by a.journey_date desc, a.departure_time
+	;
+$body$
+language sql;

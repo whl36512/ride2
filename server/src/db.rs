@@ -64,24 +64,32 @@ pub fn db_conn(pool: & PPool) -> PConnection
     conn 
 }
 
-pub fn runsql (pool: & PPool , sql: &str, params: & [& ToSql], expected_count: u32) ->  Option<Vec<Json>>
+pub fn runsql (pool: & PPool , sql: &str, params: & [& ToSql]) ->  Vec<Json>
 {
     let conn = db_conn (pool);
-    runsql_conn(&conn, sql, params, expected_count) 
+    runsql_conn(&conn, sql, params, 2) 
 }
 pub fn runsql_one_row (conn: & PConnection , sql: &str, params: & [& ToSql]) ->  Option<Json>  {
-    let rows=runsql_conn(conn, sql, params, 1);
-    rows.map(|mut v|v.remove(0))
+    let mut rows=runsql_conn(conn, sql, params, 1);
+    if rows.len() == 1 { return  Some(rows.remove(0))}
+    else {return None} ;
+    //rows.map(|mut v|v.remove(0))
 }
-pub fn runsql_conn (conn: & PConnection , sql: &str, params: & [& ToSql], expected_count: u32) ->  Option<Vec<Json> > {
+pub fn runsql_conn (conn: & PConnection , sql: &str, params: & [& ToSql], _expected_count: u32) 
+    ->  Vec<Json>  {
     //alway return json. sql must generate json
-    fn print_error_then_none  (row_values: & Vec<Json>, expected_count:u32) -> Option<Vec<Json>>{
+/*
+    fn print_error_then_none  (row_values: & Vec<Json>, expected_count:u32) -> Vec<Json> {
         error!("ERROR 201808131155 expect {} rows ", expected_count      ) ;
         error!("ERROR 201808131155 returned {} rows ", row_values.len()) ;
         error!("ERROR 201808131155 row_values=\n{:?} ", row_values     ) ;
         None
     }
+*/
     debug!("201808051817 sql={}", &sql) ;
+    for p in params.iter() {
+    	debug!("201810072113 params={:?}", p) ;
+    }
     let mut row_values : Vec<Json> = Vec::new ();
     //let mut row_value : Option<Json> = None;
     let result=  conn.query(&sql, &params);
@@ -98,8 +106,11 @@ pub fn runsql_conn (conn: & PConnection , sql: &str, params: & [& ToSql], expect
         }
         Err(e) =>  { error!("ERROR 201808051746 {}", e); }
     }
+    return row_values;
 
-    let row_values_option = match (expected_count, row_values.len())   {
+
+/*
+    let _row_values_option = match (expected_count, row_values.len())   {
         (1, 1) => Some(row_values),
         (0, 0) => Some(row_values),
         (0, _) =>   print_error_then_none (&row_values, expected_count) ,
@@ -107,10 +118,11 @@ pub fn runsql_conn (conn: & PConnection , sql: &str, params: & [& ToSql], expect
         _       =>  Some(row_values),
     } ;
     return row_values_option;
+*/
 }
 
-pub fn test () ->  Option<Vec<Json>> {
+pub fn test () ->  Vec<Json>{
         let pool = db_pool(None) ;
         let sql= "select row_to_json(a, true) json from usr a limit 2" ;
-        runsql(&pool, &sql  , &[], 2) 
+        runsql(&pool, &sql  , &[]) 
 }

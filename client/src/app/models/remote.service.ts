@@ -207,6 +207,10 @@ export class DBService {
 		return this.call_db(Constants.UPD_TRIP_URL, trip);
 	}
 
+	get_journeys_from_db(trip:any): Observable<any> {
+		return this.call_db(Constants.URL_MYOFFERS, trip);
+	}
+
 
 
 /*

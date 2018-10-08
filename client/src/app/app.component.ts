@@ -43,7 +43,7 @@ export class AppComponent {
 		this.pages.user 	= false;
 		this.pages.trip 	= false;
 		this.pages.signout 	= false;
-		this.pages.mytrips	= false;
+		this.pages.myoffers	= false;
 		this.pages.mybookings 	= false;
 		this.pages.deposit 	= false ;
 		this.pages.withdraw	= false ;

@@ -35,7 +35,9 @@ import { SearchComponent } 	from './views/search/search.component' ;
 import { JourneyComponent } 	from './views/journey/journey.component';
 import { TouComponent } from './views/tou/tou.component';
 import { TosComponent } from './views/tos/tos.component';
-import { PrivacyComponent } from './views/privacy/privacy.component' ;
+import { PrivacyComponent } from './views/privacy/privacy.component';
+import { MyoffersComponent } from './views/myoffers/myoffers.component';
+import { MyofferjourneyComponent } from './views/myofferjourney/myofferjourney.component' ;
 
 
 const appRoutes: Routes = [
@@ -70,6 +72,8 @@ const appRoutes: Routes = [
     TouComponent,
     TosComponent,
     PrivacyComponent,
+    MyoffersComponent,
+    MyofferjourneyComponent,
   ],
   imports: [
     BrowserModule,

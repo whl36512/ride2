@@ -3,7 +3,7 @@ use typemap;
 use secure_session::middleware::{SessionMiddleware, SessionConfig};
 use secure_session::session::ChaCha20Poly1305SessionManager;
 use tables::Usr;
-//use constants;
+use constants;
 //
 use serde_json;
 type Json = serde_json::Value;
@@ -51,6 +51,7 @@ pub struct RequestComponent {
     pub user_from_session: Option<Usr> , // not used
     pub user_from_cookie: Option<Usr> ,
     pub user_from_token : Option<Usr> ,
+    pub user_from_token_string : String,
 }
 
 pub trait RideRequest {
@@ -97,7 +98,10 @@ impl<'a, 'b> RideRequest for Request<'a, 'b> {
         let user_from_token = Usr::from_token( & params) ; // token jwt string is in params
         debug!("201808131424 user_from_token ={:?}", user_from_token) ;
 
-        let request_c= RequestComponent { params, user_from_session, user_from_cookie, user_from_token} ;
+	let user_from_token_string = (&user_from_token).as_ref() .map(|u| u.to_string())
+                                .unwrap_or(constants::EMPTY_JSON_STRING.to_string());
+
+        let request_c= RequestComponent { params, user_from_session, user_from_cookie, user_from_token, user_from_token_string} ;
         request_c.security_status();
         request_c
     }

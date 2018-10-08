@@ -23,7 +23,7 @@ use unicase::UniCase;
 
 //use db;
 //use tables;
-use reqres;
+//use reqres;
 use handlers;
 use constants;
 
@@ -50,6 +50,7 @@ pub fn router_setup() -> iron::Chain  {
     router.post("/upd_trip", handlers::upd_trip, "upd_trip");
     router.post("/search", handlers::search, "search");
     router.post("/book", handlers::book, "book");
+    router.post("/myoffers", handlers::myoffers, "myoffers");
 
     let chain = iron::Chain::new(router);
     return chain ;
