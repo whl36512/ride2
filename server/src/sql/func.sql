@@ -6,7 +6,7 @@ create schema funcs ;
 grant all on schema funcs to ride;
 --grant all on all functions in schema funcs to ride;
 
-create or replace function funcs.updateusr( in_user text)
+create or replace function funcs.updateusr( in_user text, in_dummy text)
   returns usr
 as
 $body$
@@ -147,22 +147,23 @@ $body$
 $body$
 language sql;
 
-create or replace function funcs.upd_journey( in_journey text)
+create or replace function funcs.upd_journey( in_journey text, in_dummy text)
   returns journey
 as
 $body$
 DECLARE
   journey0 RECORD ;
-  usr0 RECORD ;
-  i1 RECORD ;
-  u1 RECORD ;
   journey1 RECORD ;
 BEGIN
-	SELECT * into journey0 FROM json_populate_record(NULL::journey , in_journey::json) ;
+	SELECT * into journey0
+	FROM json_populate_record(NULL::journey , 
+	regexp_replace(in_journey, '": ?""', '":null', 'g')::json) t 
+	;
 
 	update journey j
 	set seats = coalesce (journey0.seats, j.seats)
 	  , price = coalesce (journey0.price, j.price)
+	where j.journey_id=journey0.journey_id
 	returning * into journey1
 	;
 
@@ -170,10 +171,6 @@ BEGIN
 END
 $body$
 language plpgsql;
-
-
-
-
 
 create or replace function funcs.search( in_trip text, in_user text)
   returns setof json
@@ -348,6 +345,7 @@ create or replace function funcs.myoffers(in_trip text, in_user text)
   returns setof json
 as
 $body$
+-- in_trip has start_date and end_date
 -- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
 	with trip0 as (
 		SELECT * 
@@ -388,7 +386,58 @@ $body$
 	)
 	select row_to_json(a) 
 	from a
-	order by a.journey_date desc, a.departure_time
+	order by a.journey_date , a.departure_time
+	;
+$body$
+language sql;
+
+create or replace function funcs.mybooking(in_trip text, in_user text)
+  returns setof json
+as
+$body$
+-- in_trip has start_date and end_date
+-- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
+	with trip0 as (
+		SELECT * 
+		FROM json_populate_record(NULL::trip , 
+			regexp_replace(in_trip, '": ?""', '":null', 'g')::json) t 
+	)
+	, user0  as ( 
+		SELECT * 
+		FROM json_populate_record(NULL::usr , 
+			regexp_replace(in_user, '": ?""', '":null', 'g')::json) t 
+	)
+	, a as (
+		select 
+			t.trip_id
+			, t.start_display_name
+			, t.end_display_name
+			, t.description
+			-- , t.distance
+			, j.journey_id
+			, j.journey_date
+			, j.departure_time
+			, j.status_code
+			--, j.price
+			--, j.seats
+			, b.book_id 
+			, coalesce(b.seats,0) seats_booked
+			--, b.driver_cost 
+			, b.rider_cost 
+			, b.status_cd book_status_cd
+			, s.description book_status_description
+		from user0 u0
+		join trip0 t0 on (1=1)
+		join book b on (b.rider_id=u0.usr_id )
+		join journey j on (j.journey_id=b.journey_id)
+		join trip t on ( t.trip_id=j.trip_id )
+		join book_status s on (s.status_cd= b.status_cd)
+		where (t0.start_date is null or j.journey_date >= t0.start_date)
+		and   (t0.end_date   is null or j.journey_date <= t0.end_date)
+	)
+	select row_to_json(a) 
+	from a
+	order by a.journey_date , a.departure_time
 	;
 $body$
 language sql;

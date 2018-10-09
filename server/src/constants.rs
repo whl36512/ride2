@@ -14,8 +14,12 @@ pub static PG_PASSWD 	: &str ="ride" ;
 pub static PG_DATABASE 	: &str ="ride" ;
 
 
-pub static SQL_MYOFFER 	: &str =  "select a from funcs.myoffers($1, $2) a " ;
-pub static SQL_SEARCH 	: &str =  "select a from funcs.search($1, $2) a " ;
+pub static SQL_UPD_USER 	: &str =  "select row_to_json(a) from funcs.updateusr($1, $2) a " ;
+pub static SQL_MYOFFER 		: &str =  "select a from funcs.myoffers($1, $2) a " ;
+pub static SQL_SEARCH 		: &str =  "select a from funcs.search($1, $2) a " ;
+pub static SQL_BOOK 		: &str =  "select row_to_json(a) from funcs.book($1, $2) a " ;
+pub static SQL_UPD_JOURNEY 	: &str =  "select row_to_json(a) from funcs.upd_journey($1, $2) a " ;
+pub static SQL_MYBOKKING	: &str =  "select a from funcs.mybooking($1, $2) a " ;
 
 pub static CORS_ALLOWED_HOSTS : [&str; 9] 
 	= [

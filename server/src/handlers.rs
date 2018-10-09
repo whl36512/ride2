@@ -53,8 +53,8 @@ pub fn get_session (req : &mut Request) -> IronResult<Response> {
         Some(user)  => {
             let user_json_from_db: Option<Json>  
                 = db::runsql_one_row (&db_conn
-                                      , "select row_to_json(a) from funcs.updateusr($1) a "
-                                      , &[&user.to_string()]) ; //user_vec is an Option
+                                      , constants::SQL_UPD_USER
+                                      , &[&user.to_string(), &constants::EMPTY_JSON_STRING.to_string() ]) ; //user_vec is an Option
             debug!(" 201808121053 get_session() user_json_from_db=\n{:?}", user_json_from_db) ;
             let user_from_db = Usr::from_js(& user_json_from_db);
             //req.set_session(user_from_db); 
@@ -80,6 +80,10 @@ pub fn get_session (req : &mut Request) -> IronResult<Response> {
 }
 
 pub fn get_user(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_UPD_USER, 1)
+}
+/*
+pub fn get_user(req: &mut Request) -> IronResult<Response> {
     // user_from_session and user_from_cookie must match
     let request_component = req.inspect();
     let status = request_component.security_status();
@@ -102,6 +106,7 @@ pub fn get_user(req: &mut Request) -> IronResult<Response> {
     } ;
     Ok(response)
 }
+*/
 
 pub fn upd_trip(req: &mut Request) -> IronResult<Response> {
     // user_from_session and user_from_cookie must match
@@ -124,43 +129,19 @@ pub fn upd_trip(req: &mut Request) -> IronResult<Response> {
 
 pub fn search(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_SEARCH, 2)
-
 }
-/*
-pub fn search(req: &mut Request) -> IronResult<Response> {
-    // user_from_session and user_from_cookie must match
-    let request_component = req.inspect();
-    let _status = request_component.security_status();
-    let db_conn= req.db_conn() ;
-
-    let trips_from_db_json: Vec<Json>  
-        = db::runsql_conn (&db_conn
-            , "select a from funcs.search($1, $2) a "
-            , &[&request_component.params.to_string(),  &request_component.user_from_token_string ], 2) ; //params has trip info
-    //if trips_from_db_json == None { return Ok(Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)))} 
-
-    //return Ok(Response::with((status::Ok, serde_json::to_string(&trips_from_db_json.unwrap()).unwrap()))) ;
-    return Ok(Response::with((status::Ok, serde_json::to_string(&trips_from_db_json).unwrap()))) ;
-}
-*/
-
 pub fn myoffers(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_MYOFFER, 2)
 }
+pub fn upd_journey(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_UPD_JOURNEY, 1)
+}
 
 pub fn book(req: &mut Request) -> IronResult<Response> {
-    let request_component = req.inspect();
-    let status = request_component.security_status();
-    if status  != SecurityStatus::SignedIn {  return Ok(Response::with((status::Unauthorized, constants::ERROR_NOT_SIGNED_IN ))) } 
-
-    let db_conn= req.db_conn() ;
-    let book_from_db_json: Option<Json>  
-        = db::runsql_one_row (&db_conn
-            , "select row_to_json(a) from funcs.book($1, $2) a "
-            , &[&request_component.params.to_string(), &request_component.user_from_token_string]) ;  
-    if book_from_db_json == None { return Ok(Response::with((status::NotFound, constants::ERROR_ROW_NOT_FOUND)))} 
-
-    return Ok(Response::with((status::Ok, serde_json::to_string(&book_from_db_json.unwrap()).unwrap()))) ;
+	request_sql(req, constants::SQL_BOOK, 1)
+}
+pub fn mybooking(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_MYBOOKING, 2)
 }
 
 

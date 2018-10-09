@@ -68,6 +68,7 @@ export class MyoffersComponent implements OnInit, OnDestroy {
 
 	onChange()
 	{
+		this.journeys_from_db = [] ;	 //remove list of journeys
 	        let journeys_from_db_observable     
 			= this.dbService.call_db(Constants.URL_MYOFFERS, this.trip_form.value);
 		journeys_from_db_observable.subscribe(

@@ -75,6 +75,7 @@ export class MyofferjourneyComponent implements OnInit,  OnDestroy{
 
 		for ( let index in this.journeys_from_db) { // for.. in.. creates index, not object
 			this.add_form(this.journeys_from_db[index]);
+			this.journeys_from_db[index].is_updated=-1;
 		}
 		console.debug("201809262246 MyofferjourneyComponent.ngOnInit() exit");
   	}
@@ -107,7 +108,7 @@ export class MyofferjourneyComponent implements OnInit,  OnDestroy{
 		let journey_from_db_observable     = this.dbService.call_db(Constants.URL_UPD_JOURNEY, journey_to_db);
 		journey_from_db_observable.subscribe(
 	    		journey_from_db => {
-				console.debug("201810072326 MyofferjourneyComponent.update() book_from_db =" + JSON.stringify(book_from_db));
+				console.debug("201810072326 MyofferjourneyComponent.update() journey_from_db =" + JSON.stringify(journey_from_db));
 				this.journeys_from_db[index].is_updated=1;
 				this.changeDetectorRef.detectChanges()
 				

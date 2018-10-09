@@ -141,6 +141,9 @@ export class SearchComponent implements OnInit,  OnDestroy{
 		// combining data
 		let trip = { ...this.form.value, ...this.trip};
 		let journeys_from_db_observable     = this.dbService.call_db(Constants.URL_SEARCH, trip);
+
+		this.journeys_from_db =[]; // remove search result from screen
+
 		journeys_from_db_observable.subscribe(
 	    		journeys_from_db => {
 				console.info("201808201201 SearchComponent.constructor() journeys_from_db =" + JSON.stringify(journeys_from_db));
