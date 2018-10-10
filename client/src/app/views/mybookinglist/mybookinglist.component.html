@@ -1,0 +1,45 @@
+<div *ngIf='msg_error!=null' class=error>{{msg_error}}</div>
+<div *ngIf='msg_warning!=null' class=warning>{{msg_warning}}</div>
+<div *ngIf='msg_info!=null' class=info>{{msg_info}}</div>
+<div 
+	*ngFor="let booking of booking_forms ;let i=index;
+		let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
+		[ngClass]="{ odd: odd, even: even }">
+	<form [formGroup]="booking" (ngSubmit)="onSubmit()">
+      	<table>
+		<thead>
+			<tr >
+				<th>Date</th>
+				<th>Time</th>
+				<th>Seats</th>
+				<th>Price($)</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>{{bookings_from_db[i].journey_date}}</td>
+				<td>{{bookings_from_db[i].departure_time}}</td>
+				<td>{{bookings_from_db[i].seats}}</td>
+				<td>{{bookings_from_db[i].rider_cost}}</td>
+				<td>{{bookings_from_db[i].book_status_description}}</td>
+				<td *ngIf='bookings_from_db[i].is_updated!=1 
+					 && bookings_from_db[i].book_status_cd=="B"'>
+					<button type=button (click)="update(booking,i)">Cancel</button>
+				</td>
+				<td *ngIf='bookings_from_db[i].is_updated!=1 
+					 && bookings_from_db[i].book_status_cd=="B"'>
+					<button type=button (click)="finish(booking,i)">Finish TODO<
+				</td>
+				<td *ngIf='bookings_from_db[i].is_updated==1' class=info>cancelled</td>
+				<td *ngIf='bookings_from_db[i].is_updated==0' class=error>failed</td>
+				
+			</tr>
+		</tbody>
+	</table>
+	</form>
+	<div class=f08 >From: {{bookings_from_db[i].start_display_name}}</div>
+	<div class=f08 >To: {{bookings_from_db[i].end_display_name}}</div>
+	<div class=f08 >Description: {{bookings_from_db[i].description}}</div>
+	<p>
+</div>

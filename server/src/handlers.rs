@@ -140,8 +140,13 @@ pub fn upd_journey(req: &mut Request) -> IronResult<Response> {
 pub fn book(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_BOOK, 1)
 }
+
 pub fn mybooking(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_MYBOOKING, 2)
+}
+
+pub fn cancel_booking(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_CANCEL_BOOKING, 1)
 }
 
 

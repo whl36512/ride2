@@ -6,6 +6,22 @@ create schema funcs ;
 grant all on schema funcs to ride;
 --grant all on all functions in schema funcs to ride;
 
+create or replace function funcs.test1( )
+  returns book
+as
+$body$
+DECLARE
+  	book0 RECORD ;
+BEGIN
+	select * into book0
+	from book
+	where 1=2
+	;
+	return book0;
+END
+$body$
+language plpgsql;
+
 create or replace function funcs.updateusr( in_user text, in_dummy text)
   returns usr
 as
@@ -168,6 +184,100 @@ BEGIN
 	;
 
 	return journey1;
+END
+$body$
+language plpgsql;
+
+create or replace function funcs.cancel_booking( in_book text, in_user text)
+  returns book
+-- cancel either by driver or rider, depending on in_user.usr_id
+-- TODO: handle cases where driver and ride have the same usr_id
+as
+$body$
+DECLARE
+  user0 RECORD ;
+  book0 RECORD ;
+  book1 RECORD ;
+  journey1 RECORD ;
+  rider_id1 uuid;
+  jsonrow json;
+BEGIN
+	SELECT * into book0
+	FROM json_populate_record(NULL::book , 
+	regexp_replace(in_book, '": ?""', '":null', 'g')::json) t 
+	;
+
+	SELECT * into user0
+	FROM json_populate_record(NULL::usr , 
+	regexp_replace(in_user, '": ?""', '":null', 'g')::json) t 
+	;
+
+	select b.rider_id into rider_id1
+	from book b
+	where 	b.book_id = book0.book_id
+	and 	b.rider_id = user0.usr_id
+	;
+
+	
+	if rider_id1 is not null then -- cancel by rider
+		update book b
+		set 	status_cd 		= 'R'
+			, penalty_to_rider 	= round(rider_cost * 0.2,2)
+	  		, m_ts			= clock_timestamp()
+	  		, rider_cancel_ts 	= clock_timestamp()
+		where 	b.book_id=book0.book_id
+		and 	b.rider_id = user0.usr_id
+		and	b.status_cd='B'		-- make sure the booking is active
+		returning * into book1
+		;
+	else -- canel by driver
+		
+		update book b
+		set 	status_cd 		= 'D'
+			, penalty_to_driver 	= round(driver_cost * 0.5 , 2)
+	  		, m_ts			= clock_timestamp()
+	  		, driver_cancel_ts 	= clock_timestamp()
+		from journey j, trip t
+		where 	b.book_id= book0.book_id
+		and	j.journey_id=b.journey_id
+		and	t.trip_id=j.trip_id
+		and 	t.driver_id = user0.usr_id
+		and	b.status_cd='B'		-- make sure the booking is active
+		returning * into book1
+		;
+
+		-- apply penalty to driver if canceled by driver
+		update usr
+		set balance = balance - book1.penalty_to_driver
+		where 	book1 is not null		-- make sure update happened
+		and	rider_id1 is null		-- make sure it is cancelled by driver
+		and  	usr_id= user0.usr_id
+		;
+	end if;
+
+	
+	update journey j  -- return seats to journey
+	set seats = least ( seats + book1.seats, 6 ) -- make sure the max seats is 6
+	where	j.journey_id = book1.journey_id
+	and	j.status_code = 'A'       -- only when the journey is active
+	returning * into journey1
+	;
+
+	-- return money to rider and apply penalty to rider
+	update usr u
+	set balance = 	balance 
+			+ book1.rider_cost 
+			- book1.penalty_to_rider 
+	where	u.usr_id = book1.rider_id
+	;
+
+	--select row_to_json(book1) into jsonrow ;
+
+	--SELECT * into book1
+	--FROM json_populate_record(NULL::book , jsonrow)
+	--;
+	
+	return book1;
 END
 $body$
 language plpgsql;
@@ -421,7 +531,7 @@ $body$
 			--, j.price
 			--, j.seats
 			, b.book_id 
-			, coalesce(b.seats,0) seats_booked
+			, b.seats
 			--, b.driver_cost 
 			, b.rider_cost 
 			, b.status_cd book_status_cd

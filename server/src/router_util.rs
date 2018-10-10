@@ -53,6 +53,7 @@ pub fn router_setup() -> iron::Chain  {
     router.post("/myoffers", handlers::myoffers, "myoffers");
     router.post("/upd_journey", handlers::upd_journey, "upd_journey");
     router.post("/mybooking", handlers::mybooking, "mybooking");
+    router.post("/cancel_booking", handlers::cancel_booking, "cancel_booking");
 
     let chain = iron::Chain::new(router);
     return chain ;
