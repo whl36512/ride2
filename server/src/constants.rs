@@ -21,6 +21,7 @@ pub static SQL_BOOK 		: &str =  "select row_to_json(a) from funcs.book($1, $2) a
 pub static SQL_UPD_JOURNEY 	: &str =  "select row_to_json(a) from funcs.upd_journey($1, $2) a " ;
 pub static SQL_MYBOOKING	: &str =  "select a from funcs.mybooking($1, $2) a " ;
 pub static SQL_CANCEL_BOOKING	: &str =  "select row_to_json(a) from funcs.cancel_booking($1, $2) a " ;
+pub static SQL_FINISH		: &str =  "select row_to_json(a) from funcs.finish($1, $2) a " ;
 
 pub static CORS_ALLOWED_HOSTS : [&str; 9] 
 	= [

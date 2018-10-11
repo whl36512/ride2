@@ -282,6 +282,54 @@ END
 $body$
 language plpgsql;
 
+create or replace function funcs.finish( in_book text, in_user text)
+  returns book
+-- mark the booking is complete to the satisfaction of rider
+as
+$body$
+DECLARE
+  user0 RECORD ;
+  book0 RECORD ;
+  book1 RECORD ;
+  journey1 RECORD ;
+  rider_id1 uuid;
+  jsonrow json;
+BEGIN
+	SELECT * into book0
+	FROM json_populate_record(NULL::book , 
+	regexp_replace(in_book, '": ?""', '":null', 'g')::json) t 
+	;
+
+	SELECT * into user0
+	FROM json_populate_record(NULL::usr , 
+	regexp_replace(in_user, '": ?""', '":null', 'g')::json) t 
+	;
+
+	update book b
+	set 	status_cd 	= 'F'
+	  	, m_ts		= clock_timestamp()
+	  	, finish_ts	= clock_timestamp()
+	where 	b.book_id	=book0.book_id
+	and 	b.rider_id 	= user0.usr_id	--double sure to defeat hacking
+	and	b.status_cd	='B'		-- make sure the booking is active
+	returning * into book1
+	;
+	
+
+	-- assign money to driver
+	update usr u
+	set balance = 	balance + book1.driver_cost 
+	from journey j, trip t
+	where	j.journey_id	= book1.journey_id
+	and 	t.trip_id	= j.trip_id
+	and	u.usr_id 	= t.driver_id
+	;
+
+	return book1;
+END
+$body$
+language plpgsql;
+
 create or replace function funcs.search( in_trip text, in_user text)
   returns setof json
 as
@@ -534,7 +582,7 @@ $body$
 			, b.seats
 			--, b.driver_cost 
 			, b.rider_cost 
-			, b.status_cd book_status_cd
+			, b.status_cd status_cd
 			, s.description book_status_description
 		from user0 u0
 		join trip0 t0 on (1=1)

@@ -148,7 +148,9 @@ pub fn mybooking(req: &mut Request) -> IronResult<Response> {
 pub fn cancel_booking(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_CANCEL_BOOKING, 1)
 }
-
+pub fn finish(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_FINISH, 1)
+}
 
 pub fn echo(request: &mut Request) -> IronResult<Response> {
     let request_dump  = format!("{:?}", request);

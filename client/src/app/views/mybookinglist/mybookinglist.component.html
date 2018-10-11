@@ -23,16 +23,15 @@
 				<td>{{bookings_from_db[i].seats}}</td>
 				<td>{{bookings_from_db[i].rider_cost}}</td>
 				<td>{{bookings_from_db[i].book_status_description}}</td>
-				<td *ngIf='bookings_from_db[i].is_updated!=1 
-					 && bookings_from_db[i].book_status_cd=="B"'>
+				<td *ngIf='bookings_from_db[i].show_cancel_button' >
 					<button type=button (click)="update(booking,i)">Cancel</button>
 				</td>
-				<td *ngIf='bookings_from_db[i].is_updated!=1 
-					 && bookings_from_db[i].book_status_cd=="B"'>
-					<button type=button (click)="finish(booking,i)">Finish TODO<
+				<td *ngIf='bookings_from_db[i].show_finish_button'>
+					<button type=button (click)="finish(booking,i)">Finish</button>
 				</td>
-				<td *ngIf='bookings_from_db[i].is_updated==1' class=info>cancelled</td>
-				<td *ngIf='bookings_from_db[i].is_updated==0' class=error>failed</td>
+				<td *ngIf='bookings_from_db[i].show_cancel_msg' class=info>cancelled</td>
+				<td *ngIf='bookings_from_db[i].show_finish_msg' class=info>finished</td>
+				<td *ngIf='bookings_from_db[i].show_fail_msg' class=error>failed</td>
 				
 			</tr>
 		</tbody>

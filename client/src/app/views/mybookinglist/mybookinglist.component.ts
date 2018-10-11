@@ -75,7 +75,11 @@ export class MybookinglistComponent implements OnInit,  OnDestroy{
 
 		for ( let index in this.bookings_from_db) { // for.. in.. creates index, not object
 			this.add_form(this.bookings_from_db[index]);
-			this.bookings_from_db[index].is_updated=-1;
+
+			this.bookings_from_db[index].show_cancel_button
+				=this.bookings_from_db[index].status_cd=='B';
+			this.bookings_from_db[index].show_finish_button
+				=this.bookings_from_db[index].status_cd=='B';
 		}
 		console.debug("201810091835 MybookinglistComponent.ngOnInit() exit");
   	}
@@ -111,17 +115,56 @@ export class MybookinglistComponent implements OnInit,  OnDestroy{
 	    		booking_from_db => {
 				console.debug("201810091839 MybookinglistComponent.update() booking_from_db =" + JSON.stringify(booking_from_db));
 				if ( booking_from_db.status_cd == "R" ){ //cancel by rider
-					this.bookings_from_db[index].is_updated=1;
+					this.bookings_from_db[index].show_cancel_button=false;
+					this.bookings_from_db[index].show_finish_button=false;
+					this.bookings_from_db[index].show_finish_msg=false;
+					this.bookings_from_db[index].show_cancel_msg=true;
+					this.bookings_from_db[index].show_fail_msg=false; 
 					this.bookings_from_db[index].book_status_description=null;
 					
 				}
-				else {                                 this.bookings_from_db[index].is_updated=0; }
+				else { 
+					this.bookings_from_db[index].show_fail_msg=true; 
+				}
 				this.changeDetectorRef.detectChanges();
 				
 			},
 			error => {
 				this.msg_error=error;
-				this.bookings_from_db[index].is_updated=0;
+				this.bookings_from_db[index].show_fail_msg=true; 
+				this.changeDetectorRef.detectChanges();
+			}
+		)
+	}
+
+	finish(booking_form: any, index: number): void {
+	    	console.debug("201810091838 MybookinglistComponent.finish() booking_form=" 
+			+ JSON.stringify(booking_form.value) );
+		let booking_to_db = booking_form.value;
+		let booking_from_db_observable 
+			= this.dbService.call_db(Constants.URL_FINISH, booking_to_db);
+		booking_from_db_observable.subscribe(
+	    		booking_from_db => {
+				console.debug("201810091839 MybookinglistComponent.finsh() booking_from_db =" + JSON.stringify(booking_from_db));
+				if ( booking_from_db.status_cd == "F" ){ 
+					//booking is finished. only rider can finish a booking
+					this.bookings_from_db[index].show_cancel_button=false;
+					this.bookings_from_db[index].show_finish_button=false;
+					this.bookings_from_db[index].show_finish_msg=true;
+					this.bookings_from_db[index].show_cancel_msg=false;
+					this.bookings_from_db[index].show_fail_msg=false; 
+					this.bookings_from_db[index].book_status_description=null;
+					
+				}
+				else { 
+					this.bookings_from_db[index].show_fail_msg=true; 
+				}
+				this.changeDetectorRef.detectChanges();
+				
+			},
+			error => {
+				this.msg_error=error;
+				this.bookings_from_db[index].show_fail_msg=true; 
 				this.changeDetectorRef.detectChanges();
 			}
 		)
