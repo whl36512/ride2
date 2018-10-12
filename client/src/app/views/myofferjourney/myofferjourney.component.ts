@@ -75,7 +75,16 @@ export class MyofferjourneyComponent implements OnInit,  OnDestroy{
 
 		for ( let index in this.journeys_from_db) { // for.. in.. creates index, not object
 			this.add_form(this.journeys_from_db[index]);
-			this.journeys_from_db[index].is_updated=-1;
+			this.journeys_from_db[index].show_update_msg=false;
+			this.journeys_from_db[index].show_confirm_msg=false;
+			this.journeys_from_db[index].show_reject_msg=false;
+			this.journeys_from_db[index].show_fail_msg=false;
+
+			this.journeys_from_db[index].show_confirm_button
+				= this.journeys_from_db[index].status_cd == 'P' ;
+			this.journeys_from_db[index].show_reject_button
+				= this.journeys_from_db[index].status_cd == 'P'
+				||this.journeys_from_db[index].status_cd == 'B' ;
 		}
 		console.debug("201809262246 MyofferjourneyComponent.ngOnInit() exit");
   	}
@@ -91,6 +100,7 @@ export class MyofferjourneyComponent implements OnInit,  OnDestroy{
 			+ JSON.stringify(journey) );
 		let journey_form = this.form_builder.group({
                                 journey_id  : [journey.journey_id, []],
+                                book_id     : [journey.book_id, []],
                                 seats       : [journey.seats, []],
                                 price       : [journey.price, []],
                                 }
@@ -109,14 +119,94 @@ export class MyofferjourneyComponent implements OnInit,  OnDestroy{
 		journey_from_db_observable.subscribe(
 	    		journey_from_db => {
 				console.debug("201810072326 MyofferjourneyComponent.update() journey_from_db =" + JSON.stringify(journey_from_db));
-				this.journeys_from_db[index].is_updated=1;
-				this.changeDetectorRef.detectChanges()
+				this.journeys_from_db[index].show_update_msg=true;
+				this.journeys_from_db[index].show_confirm_msg=false;
+				this.journeys_from_db[index].show_reject_msg=false;
+				this.journeys_from_db[index].show_fail_msg=false;
+
+				this.changeDetectorRef.detectChanges() ;
 				
 			},
 			error => {
 				this.error_msg=error;
-				this.journeys_from_db[index].is_updated=0;
+				this.journeys_from_db[index].show_update_msg=false;
+				this.journeys_from_db[index].show_confirm_msg=false;
+				this.journeys_from_db[index].show_reject_msg=false;
+				this.journeys_from_db[index].show_fail_msg=true;
+				this.changeDetectorRef.detectChanges() ;
+			}
+		)
+		
+	}
+
+	reject(journey_form: any, index: number): void {
+	    	console.debug("201809261901 MyofferjourneyComponent.update() journey_form=" 
+			+ JSON.stringify(journey_form.value) );
+		let journey_to_db = journey_form.value;
+		let journey_from_db_observable     = this.dbService.call_db(Constants.URL_REJECT, journey_to_db);
+		journey_from_db_observable.subscribe(
+	    		journey_from_db => {
+				console.debug("201810072326 MyofferjourneyComponent.update() journey_from_db =" + JSON.stringify(journey_from_db));
+				
+				this.journeys_from_db[index].show_update_msg=false;
+				this.journeys_from_db[index].show_confirm_msg=false;
+				//this.journeys_from_db[index].show_reject_msg=false;
+				this.journeys_from_db[index].show_fail_msg=true;
+
+				this.journeys_from_db[index].show_reject_msg=journey_from_db.status_cd=='D';
+				this.journeys_from_db[index].show_fail_msg=journey_from_db.status_cd!='D' ;
+				this.journeys_from_db[index].show_confirm_button
+					=journey_from_db.status_cd == 'P';
+				this.journeys_from_db[index].show_reject_button
+					= journey_from_db.status_cd == 'P' ||journey_from_db.status_cd == 'B'
+				this.journeys_from_db[index].book_status_description=null;
+				this.changeDetectorRef.detectChanges();
+				
+			},
+			error => {
+				this.error_msg=error;
+				this.journeys_from_db[index].show_update_msg=false;
+				this.journeys_from_db[index].show_confirm_msg=false;
+				this.journeys_from_db[index].show_reject_msg=false;
+				this.journeys_from_db[index].show_fail_msg=true;
 				this.changeDetectorRef.detectChanges()
+			}
+		)
+		
+	}
+
+	confirm(journey_form: any, index: number): void {
+	    	console.debug("201809261901 MyofferjourneyComponent.update() journey_form=" 
+			+ JSON.stringify(journey_form.value) );
+		let journey_to_db = journey_form.value;
+		let journey_from_db_observable     = this.dbService.call_db(Constants.URL_CONFIRM, journey_to_db);
+		journey_from_db_observable.subscribe(
+	    		journey_from_db => {
+				console.debug("201810072326 MyofferjourneyComponent.update() journey_from_db =" + JSON.stringify(journey_from_db));
+				
+				this.journeys_from_db[index].show_update_msg=false;
+				//this.journeys_from_db[index].show_confirm_msg=false;
+				this.journeys_from_db[index].show_reject_msg=false;
+				this.journeys_from_db[index].show_fail_msg=journey_from_db.status_cd!='B';
+
+				this.journeys_from_db[index].show_confirm_msg=journey_from_db.status_cd=='B';
+
+				this.journeys_from_db[index].show_confirm_button
+					=journey_from_db.status_cd == 'P';
+				this.journeys_from_db[index].show_reject_button
+					= journey_from_db.status_cd == 'P' ||journey_from_db.status_cd == 'B'
+				this.journeys_from_db[index].book_status_description=null;
+				this.changeDetectorRef.detectChanges();
+				
+			},
+			error => {
+				this.error_msg=error;
+
+				this.journeys_from_db[index].show_update_msg=false;
+				this.journeys_from_db[index].show_confirm_msg=false;
+				this.journeys_from_db[index].show_reject_msg=false;
+				this.journeys_from_db[index].show_fail_msg=true;
+				this.changeDetectorRef.detectChanges();
 			}
 		)
 		

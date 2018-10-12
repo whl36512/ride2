@@ -14,7 +14,7 @@
 				<th>Seats</th>
 				<th>Price($)</th>
 				<th>Booked</th>
-				<th>Book<br/>Status</th>
+				<th>Booking Status</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -28,23 +28,27 @@
 	<input type="number" formControlName="price" min="0" max="{{MAX_PRICE}}" step=0.01 />
 				</td>
 				<td>{{journeys_from_db[i].seats_booked}}</td>
-				<td>{{journeys_from_db[i].book_status_description}}</td>
-				<td>
-					<button type=button (click)="update(journey,i)">Update</button>
-				</td>
-				<td>
-					<span *ngIf='journeys_from_db[i].is_updated==1' class=info>
-						updated	
-					</span>
-					<span *ngIf='journeys_from_db[i].is_updated==0' class=error>
-						failed	
-					</span>
-				</td>
+				<td class=warning>{{journeys_from_db[i].book_status_description}}</td>
+
 				
 			</tr>
 		</tbody>
 	</table>
 	</form>
+	<span>
+		<button type=button (click)="update(journey,i)">Update</button>
+	</span>
+	<span *ngIf='journeys_from_db[i].show_update_msg' class=info>updated</span>
+	<span *ngIf='journeys_from_db[i].show_confirm_button'>
+		<button type=button (click)="confirm(journey,i)">Confirm</button>
+	</span>
+	<span *ngIf='journeys_from_db[i].show_confirm_msg' class=info>confirmed</span>
+	<span *ngIf='journeys_from_db[i].show_reject_button'>
+		<button type=button (click)="reject(journey,i)">Reject</button>
+	</span>
+	<span *ngIf='journeys_from_db[i].show_reject_msg' class=info>rejected</span>
+	<span *ngIf='journeys_from_db[i].show_fail_msg' class=error>Action failed</span>
+
 	<div class=f08 >From: {{journeys_from_db[i].start_display_name}}</div>
 	<div class=f08 >To: {{journeys_from_db[i].end_display_name}}</div>
 	<div class=f08 >Description: {{journeys_from_db[i].description}}</div>

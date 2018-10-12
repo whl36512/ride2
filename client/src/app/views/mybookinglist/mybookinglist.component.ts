@@ -77,7 +77,8 @@ export class MybookinglistComponent implements OnInit,  OnDestroy{
 			this.add_form(this.bookings_from_db[index]);
 
 			this.bookings_from_db[index].show_cancel_button
-				=this.bookings_from_db[index].status_cd=='B';
+				=this.bookings_from_db[index].status_cd=='B' 
+				|| this.bookings_from_db[index].status_cd=='P';
 			this.bookings_from_db[index].show_finish_button
 				=this.bookings_from_db[index].status_cd=='B';
 		}

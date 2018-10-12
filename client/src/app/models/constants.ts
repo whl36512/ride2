@@ -18,8 +18,10 @@ export class Constants{
 	static URL_MYOFFERS 	= '/myoffers';
 	static URL_MYBOOKING 	= '/mybooking';
 	static URL_UPD_JOURNEY 	= '/upd_journey';
-	static URL_CANCEL_BOOKING = '/cancel_booking';
+	static URL_CANCEL_BOOKING = '/cancel_booking'; // cancel by rider
 	static URL_FINISH 	= '/finish'; 
+	static URL_CONFIRM 	= '/confirm'; 
+	static URL_REJECT 	= '/reject'; // cancel by driver
 
 	static USER_PAGE 	= 'user';
 	static TRIP_PAGE 	= 'trip';

@@ -22,7 +22,7 @@
 				<td>{{bookings_from_db[i].departure_time}}</td>
 				<td>{{bookings_from_db[i].seats}}</td>
 				<td>{{bookings_from_db[i].rider_cost}}</td>
-				<td>{{bookings_from_db[i].book_status_description}}</td>
+				<td class=warning>{{bookings_from_db[i].book_status_description}}</td>
 				<td *ngIf='bookings_from_db[i].show_cancel_button' >
 					<button type=button (click)="update(booking,i)">Cancel</button>
 				</td>

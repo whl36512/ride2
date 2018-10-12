@@ -120,9 +120,9 @@ create table book_status(
 
 insert into book_status 
 values 
-  ('C', 'Considering')
+  ('P', 'Pending confirmation')
 , ('I', 'Insufficient balance')
-, ('B', 'Booked')
+, ('B', 'Confirmed')
 , ('S', 'trip started')
 , ('R', 'cancelled by Rider')
 , ('D', 'cancelled by Driver')
@@ -141,7 +141,7 @@ create table book
 	, rider_cost		ridemoney not null default 0
 	, penalty_to_driver	ridemoney not null default 0    
 	, penalty_to_rider	ridemoney not null default 0
-	, status_cd		char(1) not null default  'C' -- Considering, Booked, trip Started, Finished, cancelled by Rider, cancelled by Driver
+	, status_cd		char(1) not null default  'P' -- Pending confirmation, Booked, trip Started, Finished, cancelled by Rider, cancelled by Driver
 	, rider_score		smallint  CHECK ( rider_score in (1,2,3,4,5))
 	, driver_score		smallint  CHECK ( rider_score in (1,2,3,4,5))
 	, rider_comment		text

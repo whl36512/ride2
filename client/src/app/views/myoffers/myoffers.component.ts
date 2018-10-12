@@ -51,7 +51,7 @@ export class MyoffersComponent implements OnInit, OnDestroy {
 
 	ngOnInit() {
                 this.trip_form = this.form_builder.group({
-                        start_date      : ['', [Validators.min]],
+                        start_date      : [Constants.TODAY(), [Validators.min]],
                         end_date        : ['', [Validators.min] ],
                 });
 

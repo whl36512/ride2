@@ -6,22 +6,16 @@
 <div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
 
 <form [formGroup]="trip_form" (ngSubmit)="onSubmit()">
-		<dt>
 			<label for="start_date">From </label>
-		</dt>
-		<dd>
 			<input  type="date"  formControlName="start_date" (change)='onChange()' />
-		</dd>
-		<dt>
+			<br/>
 			<label for="end_date">To </label>
-		</dt>
-		<dd>
 			<input  type="date" formControlName="end_date" min={{trip_form.value.start_date}}
 				(change)='onChange()'
 			/>
 			<span class="validity"></span>
-		</dd>
 </form>
+<p>
 <div *ngIf='journeys_from_db.length==0' class=warning>Nothing found</div>
 <app-myofferjourney *ngIf='journeys_from_db.length!=0'
                         [journeys_from_db]="journeys_from_db">

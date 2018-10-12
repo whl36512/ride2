@@ -22,6 +22,15 @@ END
 $body$
 language plpgsql;
 
+create or replace function funcs.json_populate_record(base anyelement, in_text text )
+  returns anyelement
+as
+$body$
+	select json_populate_record(base ,regexp_replace(in_text , '": ?""', '":null', 'g')::json) t 
+	;
+$body$
+language sql;
+
 create or replace function funcs.updateusr( in_user text, in_dummy text)
   returns usr
 as
@@ -32,7 +41,7 @@ DECLARE
   s1 RECORD ;
   u1 RECORD ;
 BEGIN
-	SELECT * into s0 FROM json_populate_record(NULL::usr, in_user::json) ;
+	SELECT * into s0 from funcs.json_populate_record(NULL::usr, in_user) ;
 	
 	insert into usr ( oauth_id) 
   	select  s0.oauth_id 
@@ -82,8 +91,9 @@ DECLARE
   u1 RECORD ;
   dummy RECORD ;
 BEGIN
-	SELECT * into s0   FROM json_populate_record(NULL::trip, in_trip::json) ;
-	SELECT * into usr0 FROM json_populate_record(NULL::usr , in_user::json) ;
+	SELECT * into s0   FROM funcs.json_populate_record(NULL::trip, in_trip) ;
+	SELECT * into usr0 FROM funcs.json_populate_record(NULL::usr , in_user) ;
+
 
   	insert into trip ( driver_id, start_date) 
   	select  usr0.usr_id, s0.start_date
@@ -171,13 +181,10 @@ DECLARE
   journey0 RECORD ;
   journey1 RECORD ;
 BEGIN
-	SELECT * into journey0
-	FROM json_populate_record(NULL::journey , 
-	regexp_replace(in_journey, '": ?""', '":null', 'g')::json) t 
-	;
+	SELECT * into journey0 FROM funcs.json_populate_record(NULL::journey , in_journey) ;
 
 	update journey j
-	set seats = coalesce (journey0.seats, j.seats)
+	set seats = least(coalesce (journey0.seats, j.seats), 6)
 	  , price = coalesce (journey0.price, j.price)
 	where j.journey_id=journey0.journey_id
 	returning * into journey1
@@ -190,27 +197,20 @@ language plpgsql;
 
 create or replace function funcs.cancel_booking( in_book text, in_user text)
   returns book
--- cancel either by driver or rider, depending on in_user.usr_id
--- TODO: handle cases where driver and ride have the same usr_id
+-- cancel by rider
 as
 $body$
 DECLARE
   user0 RECORD ;
   book0 RECORD ;
   book1 RECORD ;
+  ids	RECORD ;
   journey1 RECORD ;
   rider_id1 uuid;
   jsonrow json;
 BEGIN
-	SELECT * into book0
-	FROM json_populate_record(NULL::book , 
-	regexp_replace(in_book, '": ?""', '":null', 'g')::json) t 
-	;
-
-	SELECT * into user0
-	FROM json_populate_record(NULL::usr , 
-	regexp_replace(in_user, '": ?""', '":null', 'g')::json) t 
-	;
+	SELECT * into book0 FROM funcs.json_populate_record(NULL::book 	, in_book)  ;
+	SELECT * into user0 FROM funcs.json_populate_record(NULL::usr 	, in_user) ; 
 
 	select b.rider_id into rider_id1
 	from book b
@@ -218,48 +218,35 @@ BEGIN
 	and 	b.rider_id = user0.usr_id
 	;
 
-	
-	if rider_id1 is not null then -- cancel by rider
-		update book b
-		set 	status_cd 		= 'R'
-			, penalty_to_rider 	= round(rider_cost * 0.2,2)
-	  		, m_ts			= clock_timestamp()
-	  		, rider_cancel_ts 	= clock_timestamp()
-		where 	b.book_id=book0.book_id
-		and 	b.rider_id = user0.usr_id
-		and	b.status_cd='B'		-- make sure the booking is active
-		returning * into book1
-		;
-	else -- canel by driver
-		
-		update book b
-		set 	status_cd 		= 'D'
-			, penalty_to_driver 	= round(driver_cost * 0.5 , 2)
-	  		, m_ts			= clock_timestamp()
-	  		, driver_cancel_ts 	= clock_timestamp()
-		from journey j, trip t
-		where 	b.book_id= book0.book_id
-		and	j.journey_id=b.journey_id
-		and	t.trip_id=j.trip_id
-		and 	t.driver_id = user0.usr_id
-		and	b.status_cd='B'		-- make sure the booking is active
-		returning * into book1
-		;
-
-		-- apply penalty to driver if canceled by driver
-		update usr
-		set balance = balance - book1.penalty_to_driver
-		where 	book1 is not null		-- make sure update happened
-		and	rider_id1 is null		-- make sure it is cancelled by driver
-		and  	usr_id= user0.usr_id
-		;
-	end if;
+	select b.book_id, j.journey_id, t.trip_id, t.driver_id, b.rider_id
+	into ids
+	from book b
+	join journey j 	on ( j.journey_id = b.journey_id)
+	join trip t 	on ( t.trip_id = j.trip_id )
+	join usr u	on ( u.usr_id=t.driver_id )
+	where 	b.book_id	= book0.book_id
+	and	b.status_cd 	in ('P', 'B')  
+	and	b.rider_id	= user0.usr_id
+	;
 
 	
+	update book b
+	set 	status_cd 		= 'R'
+		, penalty_to_rider 	= case when b.status_cd = 'B' 
+						then round(b.rider_cost * 0.2,2)
+						when status_cd = 'P'
+						then 0
+						end
+	  	, m_ts			= clock_timestamp()
+	  	, rider_cancel_ts 	= clock_timestamp()
+	where 	b.book_id=ids.book_id
+	returning * into book1
+	;
+
 	update journey j  -- return seats to journey
 	set seats = least ( seats + book1.seats, 6 ) -- make sure the max seats is 6
 	where	j.journey_id = book1.journey_id
-	and	j.status_code = 'A'       -- only when the journey is active
+	-- and	j.status_code = 'A'       -- only when the journey is active
 	returning * into journey1
 	;
 
@@ -271,12 +258,105 @@ BEGIN
 	where	u.usr_id = book1.rider_id
 	;
 
-	--select row_to_json(book1) into jsonrow ;
+	return book1;
+END
+$body$
+language plpgsql;
 
-	--SELECT * into book1
-	--FROM json_populate_record(NULL::book , jsonrow)
-	--;
+create or replace function funcs.reject( in_book text, in_user text)
+  returns book
+-- reject or cancel by driver 
+as
+$body$
+DECLARE
+  user0 RECORD ;
+  book0 RECORD ;
+  book1 RECORD ;
+  ids  	RECORD ;
+  rider_id1 uuid;
+  journey1 RECORD ;
+  jsonrow json;
+BEGIN
+	SELECT * into book0 FROM funcs.json_populate_record(NULL::book , in_book) ;
+	SELECT * into user0 FROM funcs.json_populate_record(NULL::usr , in_user) ;
+
+	select b.book_id, j.journey_id, t.trip_id, t.driver_id, b.rider_id
+	into ids
+	from book b
+	join journey j 	on ( j.journey_id = b.journey_id)
+	join trip t 	on ( t.trip_id = j.trip_id and t.driver_id=user0.usr_id)
+	join usr u	on ( u.usr_id=t.driver_id )
+	where 	b.book_id	= book0.book_id
+	and	b.status_cd 	in ('P', 'B')  
+	;
+
+	update book b
+	set 	status_cd 		= 'D'
+		, penalty_to_driver 	= 
+			case when b.status_cd = 'B' 
+				then round(b.driver_cost * 0.5 , 2)
+				when b.status_cd = 'P'
+				then 0
+			end
+	  	, m_ts			= clock_timestamp()
+	  	, driver_cancel_ts 	= clock_timestamp()
+	where 	b.book_id = ids.book_id
+	returning * into book1
+	;
+
+
+	-- apply penalty to driver 
+	update usr u
+	set 	balance = u.balance - book1.penalty_to_driver
+	where  u.usr_id	= ids.driver_id
+	and    book1.book_id is not null -- make sure update happened
+	;
 	
+	update journey j  -- return seats to journey
+	set seats = least ( j.seats + book1.seats, 6 ) -- make sure the max seats is 6
+	where	j.journey_id = book1.journey_id
+	-- and	j.status_code = 'A'       -- only when the journey is active
+	returning * into journey1
+	;
+
+	-- return money to rider 
+	update usr u
+	set balance = 	balance 
+			+ book1.rider_cost 
+			-- - book1.penalty_to_rider 
+	where	u.usr_id = book1.rider_id
+	;
+
+	return book1;
+END
+$body$
+language plpgsql;
+
+create or replace function funcs.confirm( in_book text, in_user text)
+  returns book
+-- mark the booking is complete to the satisfaction of rider
+as
+$body$
+DECLARE
+  user0 RECORD ;
+  book0 RECORD ;
+  book1 RECORD ;
+BEGIN
+	SELECT * into book0 FROM funcs.json_populate_record(NULL::book 	, in_book) ;
+	SELECT * into user0 FROM funcs.json_populate_record(NULL::usr 	, in_user) ;
+
+	update book b
+	set 	status_cd 	= 'B'
+	  	, m_ts		= clock_timestamp()
+	from journey j, trip t
+	where 	b.book_id	= book0.book_id
+	and	j.journey_id	= b.journey_id
+	and	t.trip_id	= j.trip_id
+	--and 	t.driver_id 	= user0.usr_id	--double sure to defeat hacking
+	and	b.status_cd	= 'P'		-- make sure the booking is pending confirmation
+	returning b.* into book1
+	;
+
 	return book1;
 END
 $body$
@@ -295,15 +375,8 @@ DECLARE
   rider_id1 uuid;
   jsonrow json;
 BEGIN
-	SELECT * into book0
-	FROM json_populate_record(NULL::book , 
-	regexp_replace(in_book, '": ?""', '":null', 'g')::json) t 
-	;
-
-	SELECT * into user0
-	FROM json_populate_record(NULL::usr , 
-	regexp_replace(in_user, '": ?""', '":null', 'g')::json) t 
-	;
+	SELECT * into book0 FROM funcs.json_populate_record(NULL::book , in_book) ;
+	SELECT * into user0 FROM funcs.json_populate_record(NULL::usr , in_user) ;
 
 	update book b
 	set 	status_cd 	= 'F'
@@ -336,10 +409,10 @@ as
 $body$
 -- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
 	with trip0 as (
-		SELECT t.*, t.distance/600.0 degree10 FROM json_populate_record(NULL::trip , regexp_replace(in_trip, '": ?""', '":null', 'g')::json) t 
+		SELECT t.*, t.distance/600.0 degree10 FROM funcs.json_populate_record(NULL::trip , in_trip) t
 	)
 	, user0  as ( 
-		SELECT * FROM json_populate_record(NULL::usr , regexp_replace(in_user, '": ?""', '":null', 'g')::json) t 
+		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user) t 
 	)
 	, a as (
 		select t.start_display_name, t.end_display_name ,t.distance 
@@ -355,7 +428,10 @@ $body$
 		join trip0 on (1=1)
 		left outer join user0 on (1=1)
 		left outer join usr u on (u.usr_id= user0.usr_id)
-		left outer join book b on (b.rider_id = user0.usr_id and b.journey_id=j.journey_id)
+		left outer join book b on (b.rider_id = user0.usr_id 
+						and b.journey_id=j.journey_id
+						and b.status_cd in ('P', 'B')
+					)
 		where t.start_lat	between trip0.start_lat-trip0.degree10 	and trip0.start_lat+trip0.degree10
 		and   t.start_lon	between trip0.start_lon-trip0.degree10	and trip0.start_lon+trip0.degree10
 		and   t.end_lat		between trip0.end_lat-trip0.degree10 		and trip0.end_lat+trip0.degree10
@@ -367,7 +443,7 @@ $body$
 			or j.departure_time between trip0.departure_time- interval '1 hour' and trip0.departure_time + interval '1 hour'
 		)
 		and j.price <= trip0.price/1.2
-		--and j.seats >= trip0.seats
+		and j.seats >= trip0.seats
 		and t.trip_id=j.trip_id
 		and j.status_code='A'
 	)
@@ -405,11 +481,12 @@ DECLARE
   	book1 RECORD ;
 	factor decimal;
 BEGIN
-	SELECT * into user0 FROM json_populate_record(NULL::usr , in_user::json) ;
-	SELECT * into book0 FROM json_populate_record(NULL::book, in_book::json) ;
+	SELECT * into user0 FROM funcs.json_populate_record(NULL::usr , in_user) ;
+	SELECT * into book0 FROM funcs.json_populate_record(NULL::book, in_book) ;
 
 	factor := 1.2 ;
 	
+	-- make sure enough balance and seats
 	select u.usr_id, t.trip_id, j.journey_id 
 		, j.price * factor  rider_price
 		, round(j.price * t.distance * book0.seats * factor , 2) rider_cost
@@ -426,11 +503,11 @@ BEGIN
 		return null::book;
 	end if;
 
-	insert into book ( journey_id, rider_id, seats, status_cd, driver_price, rider_price, driver_cost, rider_cost   )
+	insert into book ( journey_id, rider_id, seats, status_cd, driver_price, rider_price, driver_cost, rider_cost )
 	select 	j.journey_id
 		, user0.usr_id 
 		, book0.seats
-		, 'B'
+		, 'P'
 		, j.price
 		, utj.rider_price
 		, j.price * t.distance * book0.seats
@@ -438,7 +515,7 @@ BEGIN
 	from journey j, trip t
 	where j.journey_id = utj.journey_id
 	and   t.trip_id = j.trip_id
-	and book0.seats <= j.seats 
+	--and book0.seats <= j.seats 
 	returning * into book1
 	;
 	
@@ -469,7 +546,7 @@ DECLARE
   	i1 RECORD ;
   	u1 RECORD ;
 BEGIN
-	SELECT * into s0 FROM json_populate_record(NULL::money_trnx, trnx::json) ;
+	SELECT * into s0 FROM funcs.json_populate_record(NULL::money_trnx, trnx) ;
 
 	insert into money_trnx ( usr_id, trnx_cd) 
 	select  s0.usr_id, s0.trnx_cd
@@ -506,14 +583,10 @@ $body$
 -- in_trip has start_date and end_date
 -- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
 	with trip0 as (
-		SELECT * 
-		FROM json_populate_record(NULL::trip , 
-			regexp_replace(in_trip, '": ?""', '":null', 'g')::json) t 
+		SELECT * FROM funcs.json_populate_record(NULL::trip , in_trip)
 	)
 	, user0  as ( 
-		SELECT * 
-		FROM json_populate_record(NULL::usr , 
-			regexp_replace(in_user, '": ?""', '":null', 'g')::json) t 
+		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user)
 	)
 	, a as (
 		select 
@@ -531,7 +604,7 @@ $body$
 			, b.book_id 
 			, coalesce(b.seats,0) seats_booked
 			, b.driver_cost 
-			, b.status_cd book_status_cd
+			, b.status_cd 
 			, s.description book_status_description
 		from user0 u0
 		join trip0 t0 on (1=1)
@@ -556,14 +629,10 @@ $body$
 -- in_trip has start_date and end_date
 -- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
 	with trip0 as (
-		SELECT * 
-		FROM json_populate_record(NULL::trip , 
-			regexp_replace(in_trip, '": ?""', '":null', 'g')::json) t 
+		SELECT * FROM funcs.json_populate_record(NULL::trip , in_trip)
 	)
 	, user0  as ( 
-		SELECT * 
-		FROM json_populate_record(NULL::usr , 
-			regexp_replace(in_user, '": ?""', '":null', 'g')::json) t 
+		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user)
 	)
 	, a as (
 		select 
