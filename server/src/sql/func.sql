@@ -419,7 +419,13 @@ as
 $body$
 -- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
 	with trip0 as (
-		SELECT t.*, t.distance/600.0 degree10 FROM funcs.json_populate_record(NULL::trip , in_trip) t
+		SELECT t.*
+			, distance/600.0 degree10 
+			, start_lat	+ (start_lat	- end_lat) 	*0.03 adjusted_start_lat 
+			, start_lon	+ (start_lon	- end_lon) 	*0.03 adjusted_start_lon 
+			, end_lat	+ (end_lat	- start_lat) 	*0.03 adjusted_end_lat 
+			, end_lon	+ (end_lon	- start_lon) 	*0.03 adjusted_end_lon 
+		FROM funcs.json_populate_record(NULL::trip , in_trip) 
 		where 	t.distance is not null -- make sure the distance is already found at client side
 		and	t.distance <> 0 -- make sure the distance is already found at client side
 	)
@@ -453,10 +459,14 @@ $body$
 						and b.journey_id=j.journey_id
 						and b.status_cd in ('P', 'B')
 					)
-		where t.start_lat	between trip0.start_lat-trip0.degree10 	and trip0.start_lat+trip0.degree10
-		and   t.start_lon	between trip0.start_lon-trip0.degree10	and trip0.start_lon+trip0.degree10
-		and   t.end_lat		between trip0.end_lat-trip0.degree10 		and trip0.end_lat+trip0.degree10
-		and   t.end_lon		between trip0.end_lon-trip0.degree10		and trip0.end_lon+trip0.degree10
+		where t.start_lat	between trip0.adjusted_start_lat-trip0.degree10 	
+					and 	trip0.adjusted_start_lat+trip0.degree10
+		and   t.start_lon	between trip0.adjusted_start_lon-trip0.degree10	
+					and 	trip0.adjusted_start_lon+trip0.degree10
+		and   t.end_lat		between trip0.adjusted_end_lat-trip0.degree10 		
+					and 	trip0.adjusted_end_lat+trip0.degree10
+		and   t.end_lon		between trip0.adjusted_end_lon-trip0.degree10		
+					and 	trip0.adjusted_end_lon+trip0.degree10
 		and   j.journey_date	between trip0.start_date and coalesce ( trip0.end_date, '3000-01-01')
 		and   ( trip0.departure_time is null  
 			or j.departure_time between trip0.departure_time- interval '1 hour' and trip0.departure_time + interval '1 hour'
