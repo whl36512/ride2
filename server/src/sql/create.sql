@@ -134,6 +134,15 @@ create table book
 	book_id			sys_id not null
 	, journey_id		sys_id not null
 	, rider_id		sys_id  not null
+	, pickup_loc		textwithdefault not null
+	, pickup_display_name	textwithdefault not null
+	, pickup_lat		decimal(18,14) not null default 0
+	, pickup_lon		decimal(18,14) not null default 0
+	, dropoff_loc		textwithdefault not null
+	, dropoff_display_name	textwithdefault not null
+	, dropoff_lat		decimal(18,14) not null default 0
+	, dropoff_lon		decimal(18,14) not null default 0
+        , distance              decimal(8,2)   not null default 0
 	, seats			integer not null default 1
 	, driver_price		ridemoney not null default 0
 	, driver_cost		ridemoney not null default 0

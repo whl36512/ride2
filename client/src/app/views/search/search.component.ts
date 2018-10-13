@@ -51,7 +51,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 	today : any;
 	step=1;
 	journeys_from_db: any = [];
-	seats_searched: number=0;
+	//seats_searched: number=0;
 
 	changed_times: number =0;
 
@@ -79,7 +79,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 		, "distance": null
 		};
 
-		this.today = new Date().toJSON().slice(0,10) ; // today is in the form of 2018-09-11
+		this.today = Constants.TODAY();
   		console.log("201809081034 TripComponent.constructor() exit")  ;
   	} 
 
@@ -91,8 +91,8 @@ export class SearchComponent implements OnInit,  OnDestroy{
 				// initilaized as ''. Deleted value in UX becomes ''
 				start_loc	: ['', [Validators.required]],
 				end_loc		: ['', [Validators.required]], 
-				start_date	: ['', [Validators.min]],     
-				end_date	: ['', [Validators.min]], 
+				start_date	: [Constants.TODAY(), [Validators.min, Validators.required]],     
+				end_date	: [Constants.TODAY(), [Validators.min]], 
 				departure_time	: ['', []], 
 				seats		: [1, []], 
 				price		: [this.MAX_PRICE, []], 
@@ -104,7 +104,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 			this.form = this.form_builder.group({
 				start_loc	: [form_value_from_storage.start_loc, [Validators.required]],
 				end_loc		: [form_value_from_storage.end_loc, [Validators.required]], 
-				start_date	: [form_value_from_storage.start_date, [Validators.min]], 
+				start_date	: [form_value_from_storage.start_date, [Validators.min,Validators.required]], 
 				end_date	: [form_value_from_storage.end_date, [Validators.min]], 
 				departure_time	: [form_value_from_storage.departure_time, []], 
 				seats		: [form_value_from_storage.seats, []], 
@@ -134,50 +134,24 @@ export class SearchComponent implements OnInit,  OnDestroy{
 
 	onSubmit() {
 	    	console.debug("201809231416 SearchComponent.onSubmit() this.form.value=" + JSON.stringify(this.form.value) );
-		StorageService.storeForm(Constants.KEY_FORM_SEARCH, this.form);
-
-		this.seats_searched= this.form.value.seats;
-
 		// combining data
 		let trip = { ...this.form.value, ...this.trip};
+		StorageService.storeForm(Constants.KEY_FORM_SEARCH, trip); // save search parameters for later
+
+		//this.seats_searched= trip.seats;
+
 		let journeys_from_db_observable     = this.dbService.call_db(Constants.URL_SEARCH, trip);
 
-		this.journeys_from_db =[]; // remove search result from screen
+		this.journeys_from_db =[]; // remove previous search result from screen
 
 		journeys_from_db_observable.subscribe(
 	    		journeys_from_db => {
 				console.info("201808201201 SearchComponent.constructor() journeys_from_db =" + JSON.stringify(journeys_from_db));
 				this.journeys_from_db = journeys_from_db;
-/*
-				this.form_journeys = this.form_builder.group({
-					journeys: this.form_builder.array([ ]),
-				});
-				
-
-				for ( var journey in this.journeys_from_db)
-				{
-					let journey_json = JSON.parse(journey);
-					this.add_journey_to_form(journey_json.journey_id);
-				}
-*/
 			}
 		)
 	}
 
-	book(journey_id: string): void {
-	    	console.debug("201809261901 SearchComponent.book() journey_id=" + journey_id );
-		let book_to_db = { journey_id: journey_id, seats: this.seats_searched};
-		let book_from_db_observable     = this.dbService.call_db(Constants.URL_BOOK, book_to_db);
-		book_from_db_observable.subscribe(
-	    		book_from_db => {
-				console.debug("201808201201 SearchComponent.book() book_from_db =" + JSON.stringify(book_from_db));
-				alert('booked');
-				
-			}
-		)
-		
-	}
-	
 	geocode(element_id: string) {
 		var loc: string =null;
 		var lat: number =null;
@@ -247,6 +221,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 		} else this.trip.distance=Constants.ERROR_NO_ROUTE;
 	}
 
+/*
 	calc_cost(item :number): number {
 		let cost = this.seats_searched
 			* this.journeys_from_db[item].price 
@@ -255,6 +230,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 		return Math.round(cost*100)/100;
 
 	}
+*/
 
 	get start_loc		() { return this.form.get('start_loc'	); }  // the getter is required for reactive form validation to work 
 	get end_loc		() { return this.form.get('end_loc'	); }  

@@ -19,6 +19,8 @@ import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 import { Constants } from '../../models/constants';
+import { StorageService } from '../../models/gui.service';
+
 
 
 @Component({
@@ -39,7 +41,6 @@ export class TripComponent implements OnInit,  OnDestroy{
 
 	trip:any;
 	trip_form: any;
-	today : any;
 	step=1;
 
 	constructor(
@@ -58,44 +59,82 @@ export class TripComponent implements OnInit,  OnDestroy{
 		, "end_display_name":null
 		, "distance": null
 		};
-  		console.log("201809081033 TripComponent.constructor() this.trip="+ this.trip)  ;
-		//this.today = new Date().toJSON().slice(0,10).replace(/-/g,'/') ;
-		this.today = new Date().toJSON().slice(0,10) ;
-		console.log("201809081032 TripComponent.constructor() this.today=" + this.today )  ;
-  		console.log("201809081034 TripComponent.constructor() exit")  ;
+  		console.debug("201809081033 TripComponent.constructor() this.trip="+ this.trip)  ;
+  		console.debug("201809081034 TripComponent.constructor() exit")  ;
   	} 
 
 	ngOnInit() {
-		console.info("TripComponent.ngOnInit() enter");
-		this.trip_form = this.form_builder.group({
-			start_loc	: ['', [Validators.required]],     // sync validators must be in an array
-			//start_lat	: ['', []],     
-			//start_lon	: ['', []],     
-			//start_display_name	: ['', []], 
-			end_loc		: ['', [Validators.required]], 
-			//end_lat		: ['', []], 
-			//end_lon		: ['', []],
-			//end_display_name	: ['', []],
-			start_date	: [this.today, [Validators.required, Validators.min]], 
-			departure_time	: ['10:00', [Validators.required]], 
-			seats		: [3, [Validators.required]], 
-			price		: [0.1, [Validators.required]], 
-			recur_ind	: [false, []], 
-			end_date	: [null,[Validators.min] ], 
-			day0_ind	: [false, ], 
-			day1_ind	: [false, ], 
-			day2_ind	: [false, ], 
-			day3_ind	: [false, ], 
-			day4_ind	: [false, ], 
-			day5_ind	: [false, ], 
-			day6_ind	: [false, ], 
-			description	: ['', ], 
-			}, 
-			{ 
-				validator: this.validate_trip
-			}
-		);
+		console.debug("201810122335 TripComponent.ngOnInit() enter");
+                let form_value_from_storage = StorageService.getForm(Constants.KEY_FORM_TRIP);
+		console.debug("201810122336 TripComponent.ngOnInit() form_value_from_storage=");
+		console.debug(JSON.stringify(form_value_from_storage));
 
+		if( form_value_from_storage == null ) {
+			this.trip_form = this.form_builder.group(
+				{
+				start_loc	: ['', [Validators.required]], //sync validators must be in an array
+				//start_lat	: ['', []],     
+				//start_lon	: ['', []],     
+				//start_display_name	: ['', []], 
+				end_loc		: ['', [Validators.required]], 
+				//end_lat		: ['', []], 
+				//end_lon		: ['', []],
+				//end_display_name	: ['', []],
+				start_date	: [Constants.TODAY(), [Validators.required, Validators.min]], 
+				departure_time	: ['10:00', [Validators.required]], 
+				seats		: [3, [Validators.required]], 
+				price		: [0.1, [Validators.required]], 
+				recur_ind	: [false, []], 
+				end_date	: [null,[Validators.min] ], 
+				day0_ind	: [false, ], 
+				day1_ind	: [false, ], 
+				day2_ind	: [false, ], 
+				day3_ind	: [false, ], 
+				day4_ind	: [false, ], 
+				day5_ind	: [false, ], 
+				day6_ind	: [false, ], 
+				description	: ['', ], 
+				}, 
+				{ 
+					validator: this.validate_trip
+				}
+			);
+		}
+		else {
+			this.trip_form = this.form_builder.group(
+				{
+				start_loc	: [form_value_from_storage.start_loc, [Validators.required]], //sync validators must be in an array
+				//start_lat	: ['', []],     
+				//start_lon	: ['', []],     
+				//start_display_name	: ['', []], 
+				end_loc		: [form_value_from_storage.end_loc, [Validators.required]], 
+				//end_lat		: ['', []], 
+				//end_lon		: ['', []],
+				//end_display_name	: ['', []],
+				start_date	: [Constants.TODAY(), [Validators.required, Validators.min]], 
+				departure_time	: [form_value_from_storage.departure_time, [Validators.required]], 
+				seats		: [form_value_from_storage.seats, [Validators.required]], 
+				price		: [form_value_from_storage.price, [Validators.required]], 
+				recur_ind	: [false, []], 
+				end_date	: [null,[Validators.min] ], 
+				day0_ind	: [false, ], 
+				day1_ind	: [false, ], 
+				day2_ind	: [false, ], 
+				day3_ind	: [false, ], 
+				day4_ind	: [false, ], 
+				day5_ind	: [false, ], 
+				day6_ind	: [false, ], 
+				description	: ['', ], 
+				}, 
+				{ 
+					validator: this.validate_trip
+				}
+			);
+		}
+		this.geocode('start_loc');
+                this.geocode('end_loc');
+
+	
 		this.subscription1 = this.trip_form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		this.subscription2 = this.trip_form.statusChanges.subscribe(data => console.log('Form status changes', data));
 		console.info("TripComponent.ngOnInit() exit");
@@ -113,11 +152,13 @@ export class TripComponent implements OnInit,  OnDestroy{
 
 	onSubmit() {
 	  	// TODO: Use EventEmitter with form value
-	    	console.warn("201808201534 TripComponent.onSubmit() this.trip_form.value=" + this.trip_form.value );
+	    	console.warn("201808201534 TripComponent.onSubmit() this.trip_form.value=" + JSON.stringify(this.trip_form.value) );
 		// save trip to db
 		// combining data
-		this.trip = { ...this.trip_form.value, ...this.trip};
-		let trip_from_db_observable     = this.dbService.call_db(Constants.UPD_TRIP_URL, this.trip);
+		//this.trip = { ...this.trip_form.value, ...this.trip};
+		let trip = { ...this.trip_form.value, ...this.trip};
+		StorageService.storeForm(Constants.KEY_FORM_TRIP, trip);
+		let trip_from_db_observable     = this.dbService.call_db(Constants.UPD_TRIP_URL, trip);
 		trip_from_db_observable.subscribe(
 	    		trip_from_db => {
 				console.info("201808201201 TripComponent.constructor() trip_from_db =" + JSON.stringify(trip_from_db));

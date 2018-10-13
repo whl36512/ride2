@@ -88,7 +88,7 @@ DECLARE
   s0 RECORD ;
   usr0 RECORD ;
   i1 RECORD ;
-  u1 RECORD ;
+  trip1 RECORD ;
   dummy RECORD ;
 BEGIN
 	SELECT * into s0   FROM funcs.json_populate_record(NULL::trip, in_trip) ;
@@ -131,12 +131,22 @@ BEGIN
     		, m_ts                = clock_timestamp()
     		, c_usr               = coalesce(s0.c_usr               , t.c_usr             )
   	where t.trip_id in ( s0.trip_id, i1.trip_id)
-  	returning t.* into u1 
+  	returning t.* into trip1 
   	;
 
-	select funcs.create_journey(u1.trip_id) into dummy;
+	if trip1.recur_ind = true then
+		select funcs.create_journey(trip1.trip_id) into dummy;
+	else
+		insert into journey (trip_id, journey_date, departure_time, seats, price)
+		select 	trip1.trip_id
+			, trip1.start_date
+			, trip1.departure_time
+			, trip1.seats
+			, trip1.price
+		;
+	end if ;
 
-  	return u1;
+  	return trip1;
 END
 $body$
 language plpgsql;
@@ -410,19 +420,30 @@ $body$
 -- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
 	with trip0 as (
 		SELECT t.*, t.distance/600.0 degree10 FROM funcs.json_populate_record(NULL::trip , in_trip) t
+		where 	t.distance is not null -- make sure the distance is already found at client side
+		and	t.distance <> 0 -- make sure the distance is already found at client side
 	)
 	, user0  as ( 
 		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user) t 
 	)
 	, a as (
-		select t.start_display_name, t.end_display_name ,t.distance 
+		select t.start_display_name, t.end_display_name 
+			--, t.distance 
 			, t.description
-			, j.*
+			, j.journey_id        
+ 			, j.trip_id         
+ 			, j.journey_date    
+ 			, j.departure_time  
 			, u.balance
-			, round(j.price * t.distance * trip0.seats * 1.2 , 2) rider_cost
+			, trip0.seats
+			, round(j.price * trip0.distance * trip0.seats * 1.2 , 2) rider_cost
 			, coalesce (b.seats,0) seats_booked
-			, case when j.seats >= trip0.seats and u.balance >= round(j.price * t.distance * trip0.seats * 1.2 , 2) then true else false end bookable
-			, case when u.balance >= round(j.price * t.distance * trip0.seats * 1.2 , 2) then true else false end sufficient_balance
+			--, case when j.seats >= trip0.seats 
+				--and u.balance >= round(j.price * trip0.distance * trip0.seats * 1.2 , 2) 
+			  --then true else false end bookable
+			, case when u.balance >= round(j.price * trip0.distance * trip0.seats * 1.2 , 2) 
+			  then true else false 
+			  end sufficient_balance
 		from trip t
 		join journey j on (t.trip_id=j.trip_id)
 		join trip0 on (1=1)
@@ -436,9 +457,7 @@ $body$
 		and   t.start_lon	between trip0.start_lon-trip0.degree10	and trip0.start_lon+trip0.degree10
 		and   t.end_lat		between trip0.end_lat-trip0.degree10 		and trip0.end_lat+trip0.degree10
 		and   t.end_lon		between trip0.end_lon-trip0.degree10		and trip0.end_lon+trip0.degree10
-		and   ( trip0.start_date is null  
-			or j.journey_date   between trip0.start_date and coalesce ( trip0.end_date, trip0.start_date)
-		)
+		and   j.journey_date	between trip0.start_date and coalesce ( trip0.end_date, '3000-01-01')
 		and   ( trip0.departure_time is null  
 			or j.departure_time between trip0.departure_time- interval '1 hour' and trip0.departure_time + interval '1 hour'
 		)
@@ -487,35 +506,56 @@ BEGIN
 	factor := 1.2 ;
 	
 	-- make sure enough balance and seats
-	select u.usr_id, t.trip_id, j.journey_id 
+	select 	u.usr_id, t.trip_id, j.journey_id 
+		, j.price driver_price
+		, round(j.price * book0.distance * book0.seats,2) driver_cost
 		, j.price * factor  rider_price
-		, round(j.price * t.distance * book0.seats * factor , 2) rider_cost
-	into utj	
-	from journey j, usr u , trip t
-	where j.journey_id=book0.journey_id
-	and   u.usr_id=user0.usr_id
-	and   t.trip_id=j.trip_id
-	and   u.balance >= round(j.price * t.distance * book0.seats * factor , 2)
-	and   j.seats >= book0.seats 
+		, round(j.price * book0.distance * book0.seats * factor  , 2) rider_cost
+	into 	utj	
+	from 	journey j, usr u , trip t
+	where	j.journey_id=book0.journey_id
+	and	u.usr_id=user0.usr_id
+	and	t.trip_id=j.trip_id
+	and	u.balance >= round(j.price * book0.distance * book0.seats * factor , 2)
+	and	j.seats >= book0.seats 
+	and	book0.distance > 0
 	;
 
-	if utj is null or utj.journey_id is null then
+	if  utj.journey_id is null then
 		return null::book;
 	end if;
 
-	insert into book ( journey_id, rider_id, seats, status_cd, driver_price, rider_price, driver_cost, rider_cost )
-	select 	j.journey_id
-		, user0.usr_id 
+	insert into book ( 
+		journey_id
+		, rider_id 
+		, pickup_loc          
+        	, pickup_display_name
+        	, pickup_lat
+        	, pickup_lon
+        	, dropoff_loc
+        	, dropoff_display_name
+        	, dropoff_lat
+        	, dropoff_lon
+        	, distance              
+		, seats, status_cd, driver_price, rider_price, driver_cost, rider_cost )
+	select 	utj.journey_id
+		, utj.usr_id 
+		, book0.pickup_loc
+        	, book0.pickup_display_name
+        	, book0.pickup_lat
+        	, book0.pickup_lon
+        	, book0.dropoff_loc
+        	, book0.dropoff_display_name
+        	, book0.dropoff_lat
+        	, book0.dropoff_lon           
+        	, book0.distance              
 		, book0.seats
 		, 'P'
-		, j.price
+		, utj.driver_price
 		, utj.rider_price
-		, j.price * t.distance * book0.seats
+		, utj.driver_cost
 		, utj.rider_cost
-	from journey j, trip t
-	where j.journey_id = utj.journey_id
-	and   t.trip_id = j.trip_id
-	--and book0.seats <= j.seats 
+	where utj.journey_id is not null
 	returning * into book1
 	;
 	
@@ -527,7 +567,6 @@ BEGIN
 	update usr u
 	set balance = balance - book1.rider_cost
 	where u.usr_id=book1.rider_id
-	and balance >= book1.rider_cost
 	returning * into user1
 	;
 	

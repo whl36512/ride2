@@ -23,7 +23,7 @@ import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 import { Constants } from '../../models/constants';
-//import { StorageService } from '../../models/gui.service';
+import { StorageService } from '../../models/gui.service';
 import { UserService } from '../../models/gui.service';
 
 
@@ -40,10 +40,10 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
 
 	@Input()
-    	journeys_from_db: any;
+    	journeys_from_db: any ;
 
-	@Input()
-    	seats_searched: number;
+	//@Input()
+    	//seats_searched: number;
 
 	subscription1: Subscription ;
 	subscription2: Subscription ;
@@ -70,7 +70,11 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 		//this.subscription1 = this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		//this.subscription2 = this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
 		console.debug("201809262246 JourneyComponent.ngOnInit() exit");
-		for ( let journey in this.journeys_from_db) {
+		for ( let index in this.journeys_from_db) {
+			this.journeys_from_db[index].show_fail_msg=false;
+			this.journeys_from_db[index].show_book_msg=false;
+			this.journeys_from_db[index].show_balance_msg=!this.journeys_from_db[index].sufficient_balance;
+			this.journeys_from_db[index].show_book_button=this.journeys_from_db[index].sufficient_balance;
 			//add_form(journey);
 		}
   	}
@@ -81,6 +85,7 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 		//this.subscription2.unsubscribe();
 	}
 
+/*
 	add_form (journey: any) : void {
 		let journey_form = this.form_builder.group({
                                 journey_id       : [journey.journey_id, []],
@@ -89,28 +94,48 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 		this.journey_forms.push(journey_form);
 
 	}
+*/
 
-	book(journey: any, index: number): void {
-	    	console.debug("201809261901 JourneyComponent.book() journey_id=" + journey.journey_id );
-		let book_to_db = { journey_id: journey.journey_id, seats: this.seats_searched};
+	book(journey: any): void {
+		let search_form_value_from_storage = StorageService.getForm(Constants.KEY_FORM_SEARCH);
+
+		let book_to_db = { journey_id	: journey.journey_id
+				,pickup_loc	: search_form_value_from_storage.start_loc
+				,pickup_lat	: search_form_value_from_storage.start_lat
+				,pickup_lon	: search_form_value_from_storage.start_lon
+				,pickup_display_name: search_form_value_from_storage.start_display_name
+				,dropoff_loc	: search_form_value_from_storage.end_loc
+				,dropoff_lat	: search_form_value_from_storage.end_lat
+				,dropoff_lon	: search_form_value_from_storage.end_lon
+				,dropoff_display_name: search_form_value_from_storage.end_display_name
+				,distance	: search_form_value_from_storage.distance
+				,seats		: search_form_value_from_storage.seats
+				} ;
+	    	console.debug("2018102208 JourneyComponent.book() book_to_db=" +JSON.stringify(book_to_db ));
 		let book_from_db_observable     = this.dbService.call_db(Constants.URL_BOOK, book_to_db);
 		book_from_db_observable.subscribe(
 	    		book_from_db => {
 				console.debug("201808201201 JourneyComponent.book() book_from_db =" + JSON.stringify(book_from_db));
-				//this.journeys_from_db[index].bookable=false;
-				journey.bookable=false;
+				journey.show_book_msg= book_from_db.status_cd=='P';
+				journey.show_fail_msg= book_from_db.status_cd!='P';
+				//journey.show_balance_msg=!journey.sufficient_balance;
+
+				journey.show_book_botton= book_from_db.status_cd!='P';
 				journey.seats_booked= journey.seats_booked
 							+ book_from_db.seats;
-				this.changeDetectorRef.detectChanges()
+				this.changeDetectorRef.detectChanges();
 				
 			},
 			_ => {
-				alert('Server error');
+				journey.show_book_msg=false;
+				journey.show_fail_msg=true;
+				this.changeDetectorRef.detectChanges();
 			}
 		)
 		
 	}
 	
+/*
 	calc_cost(item :number): number {
 		let cost = this.seats_searched
 			* this.journeys_from_db[item].price 
@@ -119,4 +144,5 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 		return Math.round(cost*100)/100;
 
 	}
+*/
 }

@@ -4,7 +4,7 @@
 	<form [formGroup]="form" (ngSubmit)="onSubmit()">
 		<dl *ngIf="step==1"> 
           		<dt>
-				<label for="start_loc">From
+				<label for="start_loc">Pickup
 				</label>
 			</dt>
           		<dd>
@@ -26,7 +26,7 @@
 
         	<dl *ngIf="step==2">
           		<dt>
-				<label for="end_loc">To</label>
+				<label for="end_loc">Dropoff</label>
 			</dt>
           		<dd>
 	   			<input  type="text"  id="end_loc" formControlName="end_loc" placeholder="To" required
@@ -51,14 +51,13 @@
         	</dl>
 
         	<dl *ngIf="step==3">
-          		<dt><label for="start_date">From Date</label></dt>
-          		<dd> <input type="date" formControlName="start_date" min={{today}} /> 
-				{{this.form.value.start_date}}
+          		<dt><label for="start_date">Search from</label></dt>
+          		<dd> <input type="date" formControlName="start_date" min={{today}} required/> 
+				<span class="validity"></span>
 			</dd>
-          		<dt><label for="end_date">To Date</label></dt>
+          		<dt><label for="end_date">Search to</label></dt>
           		<dd> <input type="date" formControlName="end_date" min={{this.form.value.start_date}} /> 
 				<span class="validity"></span>
-				{{this.form.value.end_date}}
 			</dd>
 
           		<dt><label for="departure_time">Departure Time</label></dt>
@@ -80,7 +79,7 @@
 		<button  type="button" *ngIf="step>1" (click)="step=step-1">&lt; Back</button> &nbsp; &nbsp;
 		<button  type="button" *ngIf="step<4" (click)="step=step+1">Next &gt;</button>
         	<span *ngIf="step==4">
-			<button  type="submit" [disabled]="form.invalid || trip.distance==null || trip.distance=='no route' " >Search</button>
+			<button  type="submit" [disabled]="form.invalid || trip.distance==null || trip.distance=='no route' " >Search</button> 
 		</span>
       	</form>
 	<p>
@@ -89,6 +88,6 @@
 	</div>
       	<app-journey *ngIf='journeys_from_db.length!=0' 
 			[journeys_from_db]="journeys_from_db" 
-			[seats_searched]="seats_searched">
+			>
 	</app-journey>
 </div>

@@ -17,12 +17,14 @@
 			<tr>
 				<td>{{journey.journey_date}}</td>
 				<td>{{journey.departure_time}}</td>
-				<td>{{seats_searched}}</td>
+				<td>{{journey.seats}}</td>
 				<td>{{journey.rider_cost}} </td>
 				<td>{{journey.seats_booked}}</td>
 				<td>
-					<button *ngIf='is_signed_in && journey.bookable' #j type=buttom (click)="book(journey)">Book</button>
+					<button *ngIf='is_signed_in && journey.show_book_button' #j type=buttom (click)="book(journey)">Book</button>
 					<span *ngIf='is_signed_in && !journey.sufficient_balance' class=warning >Insufficient Balance</span>
+					<span *ngIf='journey.show_fail_msg' class=error >failed</span>
+					<span *ngIf='journey.show_book_msg' class=info >booked</span>
 				</td>
 				
 			</tr>

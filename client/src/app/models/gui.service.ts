@@ -180,8 +180,8 @@ export class StorageService {
 		return value;
 	}
 
-	static storeForm(key, form) {
-		StorageService.setLocal(key, JSON.stringify(form.value));
+	static storeForm(key, json_value) {
+		StorageService.setLocal(key, JSON.stringify(json_value));
 	}
 
 	static getForm(key) : any{
