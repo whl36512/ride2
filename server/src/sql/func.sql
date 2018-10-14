@@ -301,7 +301,9 @@ BEGIN
 	;
 
 	update book b
-	set 	status_cd 		= 'D'
+	set 	status_cd 		= case when b.status_cd='P' then 'J'
+						when b.status_cd='B' then 'D'
+						end
 		, penalty_to_driver 	= 
 			case when b.status_cd = 'B' 
 				then round(b.driver_cost * 0.5 , 2)
@@ -420,12 +422,12 @@ $body$
 -- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
 	with trip0 as (
 		SELECT t.*
-			, distance/600.0 degree10 
+			, t.distance/600.0 degree10 
 			, start_lat	+ (start_lat	- end_lat) 	*0.03 adjusted_start_lat 
 			, start_lon	+ (start_lon	- end_lon) 	*0.03 adjusted_start_lon 
 			, end_lat	+ (end_lat	- start_lat) 	*0.03 adjusted_end_lat 
 			, end_lon	+ (end_lon	- start_lon) 	*0.03 adjusted_end_lon 
-		FROM funcs.json_populate_record(NULL::trip , in_trip) 
+		FROM funcs.json_populate_record(NULL::trip , in_trip) t
 		where 	t.distance is not null -- make sure the distance is already found at client side
 		and	t.distance <> 0 -- make sure the distance is already found at client side
 	)

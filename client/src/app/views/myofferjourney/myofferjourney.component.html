@@ -39,15 +39,17 @@
 		<button type=button (click)="update(journey,i)">Update</button>
 	</span>
 	<span *ngIf='journeys_from_db[i].show_update_msg' class=info>updated</span>
+
 	<span *ngIf='journeys_from_db[i].show_confirm_button'>
-		<button type=button (click)="confirm(journey,i)">Confirm</button>
+		<button type=button (click)="action(journey,i, Constants.URL_CONFIRM)">Confirm</button>
 	</span>
-	<span *ngIf='journeys_from_db[i].show_confirm_msg' class=info>confirmed</span>
 	<span *ngIf='journeys_from_db[i].show_reject_button'>
-		<button type=button (click)="reject(journey,i)">Reject</button>
+		<button type=button (click)="action(journey,i, Constants.URL_REJECT)">Reject</button>
 	</span>
-	<span *ngIf='journeys_from_db[i].show_reject_msg' class=info>rejected</span>
-	<span *ngIf='journeys_from_db[i].show_fail_msg' class=error>Action failed</span>
+	<span *ngIf='journeys_from_db[i].show_cancel_button'>
+		<button type=button (click)="action(journey,i, Constants.URL_REJECT)">Cancel</button>
+	</span>
+	<span *ngIf='journeys_from_db[i].show_fail_msg' class=error>Action Failed</span>
 
 	<div class=f08 >From: {{journeys_from_db[i].start_display_name}}</div>
 	<div class=f08 >To: {{journeys_from_db[i].end_display_name}}</div>

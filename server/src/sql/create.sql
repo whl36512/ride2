@@ -127,6 +127,7 @@ values
 , ('R', 'cancelled by Rider')
 , ('D', 'cancelled by Driver')
 , ('F', 'Finished')
+, ('J', 'Rejected by driver')
 ;
 
 create table book
