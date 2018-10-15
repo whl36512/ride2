@@ -42,6 +42,9 @@ export class MyofferjourneyComponent implements OnInit,  OnDestroy{
 	@Input()
     	journeys_from_db: any;
 
+	@Input()
+    	filter: any;
+
         error_msg : string;
         warning_msg : string;
         info_msg : string;
@@ -152,87 +155,6 @@ export class MyofferjourneyComponent implements OnInit,  OnDestroy{
 		
 	}
 
-	reject(journey_form: any, index: number): void {
-	    	console.debug("201809261901 MyofferjourneyComponent.update() journey_form=" 
-			+ JSON.stringify(journey_form.value) );
-		let journey_to_db = journey_form.value;
-		let journey_from_db_observable     = this.dbService.call_db(Constants.URL_REJECT, journey_to_db);
-		journey_from_db_observable.subscribe(
-	    		journey_from_db => {
-				console.debug("201810072326 MyofferjourneyComponent.update() journey_from_db =" + JSON.stringify(journey_from_db));
-				
-				this.reset_msg(index);
-				
-				// failure if status_cd doesn't change
-				if ( journey_from_db.status_cd==this.journeys_from_db[index].status_cd){
-					this.reset_msg(index);
-					this.journeys_from_db[index].show_fail_msg =true;
-				}
-				else if (journey_from_db.status_cd=='J') {
-					this.reset_msg(index);
-					this.reset_button(index);
-
-					this.journeys_from_db[index].status_cd= journey_from_db.status_cd;
-					this.journeys_from_db[index].show_reject_msg=true;
-					this.journeys_from_db[index].book_status_description=null;
-				}
-				else if ( journey_from_db.status_cd == 'D') {
-					this.reset_msg(index);
-					this.reset_button(index);
-					this.journeys_from_db[index].status_cd= journey_from_db.status_cd;
-					this.journeys_from_db[index].show_cancel_msg=true;
-
-					this.journeys_from_db[index].book_status_description=null;
-				}
-						
-
-				this.changeDetectorRef.detectChanges();
-				
-			},
-			error => {
-				this.error_msg=error;
-				this.reset_msg(index);
-				this.journeys_from_db[index].show_fail_msg=true;
-				this.changeDetectorRef.detectChanges()
-			}
-		)
-		
-	}
-
-	confirm(journey_form: any, index: number): void {
-	    	console.debug("201809261901 MyofferjourneyComponent.update() journey_form=" 
-			+ JSON.stringify(journey_form.value) );
-		let journey_to_db = journey_form.value;
-		let journey_from_db_observable     = this.dbService.call_db(Constants.URL_CONFIRM, journey_to_db);
-		journey_from_db_observable.subscribe(
-	    		journey_from_db => {
-				console.debug("201810072326 MyofferjourneyComponent.update() journey_from_db =" + JSON.stringify(journey_from_db));
-				
-				this.reset_msg(index);
-				
-				if ( journey_from_db.status_cd==this.journeys_from_db[index].status_cd){
-					this.journeys_from_db[index].show_faile_msg=true;
-				}
-				else if ( journey_from_db.status_cd == 'B') {
-					this.journeys_from_db[index].status_cd= journey_from_db.status_cd;
-					this.reset_button(index);
-					this.journeys_from_db[index].show_confirm_msg=true ;
-					this.journeys_from_db[index].show_cancel_button=true ;
-					this.journeys_from_db[index].book_status_description=null;
-				}
-				this.changeDetectorRef.detectChanges();
-				
-			},
-			error => {
-				this.reset_msg(index);
-				this.error_msg=error;
-				this.journeys_from_db[index].show_fail_msg=true;
-				this.changeDetectorRef.detectChanges();
-			}
-		)
-		
-	}
-
 	action(journey_form: any, index: number, action : string): void {
 	    	console.debug("201809261901 MyofferjourneyComponent.action() journey_form=" 
 			+ JSON.stringify(journey_form.value) );
@@ -277,5 +199,27 @@ export class MyofferjourneyComponent implements OnInit,  OnDestroy{
 			}
 		)
 		
+	}
+
+	show_this(journey: any, index: number): boolean {
+  		console.debug("201810131007 MyofferjourneyComponent.show_this() journey.status_cd="+ journey.status_cd)  ;
+  		console.debug("201810131007 MyofferjourneyComponent.show_this() this.filter"+ JSON.stringify(this.filter))  ;
+		let status  =false;
+		if 	(journey.status_cd =='P' && this.filter.show_pending 		) status=true;
+		else if (journey.status_cd =='B' && this.filter.show_confirmed 		) status=true;
+		else if (journey.status_cd =='J' && this.filter.show_rejected 		) status=true;
+		else if (journey.status_cd =='D' && this.filter.show_cancelled_by_driver) status=true;
+		else if (journey.status_cd =='R' && this.filter.show_cancelled_by_rider ) status=true;
+		else if (journey.status_cd =='F' && this.filter.show_finished 		) status=true;
+		else if (journey.status_cd =='S' && this.filter.show_seats_available 	) status=true;
+		else if (journey.status_cd ==null && this.filter.show_seats_available 	) status=true;
+		
+		let ret=false;
+		if ( journey.is_rider && this.filter.show_rider && status) ret= true;
+		else if ( journey.is_driver && this.filter.show_driver && status) ret= true;
+		
+  		console.debug("201810131045 MyofferjourneyComponent.show_this() ret="+ ret)  ;
+
+		return ret;
 	}
 }

@@ -23,17 +23,17 @@ import { Constants } from '../../models/constants';
 import { UserService } from '../../models/gui.service';
 
 @Component({
-  selector: 'app-myoffers',
-  templateUrl: './myoffers.component.html',
-  styleUrls: ['./myoffers.component.css']
+  selector: 'app-activity',
+  templateUrl: './activity.component.html',
+  styleUrls: ['./activity.component.css']
   //changeDetection: ChangeDetectionStrategy.OnPush ,  // prevent change detection unless @Input reference is changed
 })
 
-export class MyoffersComponent implements OnInit, OnDestroy {
+export class ActivityComponent implements OnInit, OnDestroy {
 	error_msg : string;
 	warning_msg : string;
 	info_msg : string;
-	journeys_from_db: any= [];
+	bookings_from_db: any= [];
 	trip_form: FormGroup;
 	filter:any ;
 	
@@ -45,8 +45,8 @@ export class MyoffersComponent implements OnInit, OnDestroy {
         	, private communicationService  : CommunicationService
         //      , private zone: NgZone
         ){
-                console.debug("201809262245 MyoffersComponent.constructor() enter")  ;
-                console.debug("201809262245 MyoffersComponent.constructor() exit")  ;
+                console.debug("201809262245 ActivityComponent.constructor() enter")  ;
+                console.debug("201809262245 ActivityComponent.constructor() exit")  ;
         }
 
 
@@ -74,18 +74,19 @@ export class MyoffersComponent implements OnInit, OnDestroy {
                 //this.subscription2.unsubscribe();
         }
         close_page() {
-                this.communicationService.close_page(Constants.PAGE_MYOFFERS);
+                this.communicationService.close_page(Constants.PAGE_ACTIVITY);
         }
 
 	onChange()
 	{
-		this.journeys_from_db = [] ;	 //remove list of journeys
-	        let journeys_from_db_observable     
-			= this.dbService.call_db(Constants.URL_MYOFFERS, this.trip_form.value);
-		journeys_from_db_observable.subscribe(
-			journeys_from_db => {
-				console.debug("201810071557 MyoffersComponent.onChange() journeys_from_db =" + JSON.  stringify(journeys_from_db));
-				this.journeys_from_db = journeys_from_db ;	
+		this.bookings_from_db = [] ;	 //remove list of journeys
+	        let bookings_from_db_observable     
+			= this.dbService.call_db(Constants.URL_ACTIVITY, this.trip_form.value);
+		bookings_from_db_observable.subscribe(
+			bookings_from_db => {
+				console.debug("201810071557 ActivityComponent.onChange() bookings_from_db =" + JSON.  stringify(bookings_from_db));
+				this.bookings_from_db = bookings_from_db ;	
+				this.set_filter();
 			},
 			error	=> { this.error_msg= error;
 			}
@@ -96,7 +97,38 @@ export class MyoffersComponent implements OnInit, OnDestroy {
 	set_filter()
 	{
 		this.filter= this.trip_form.value;
+
+		for ( let index in this.bookings_from_db) {
+			this.bookings_from_db[index].show_booking
+				=this.show_booking(this.bookings_from_db[index], Number(index));
+			
+		}
 	}
+
+        show_booking(booking: any, index: number): boolean {
+                console.debug("201810131007 BookingsComponent.show_this() booking.status_cd="
+			, booking.status_cd)  ;
+                console.debug("201810131007 BookingsComponent.show_this() index=", index)  ;
+                console.debug("201810131007 BookingsComponent.show_this() this.filter"
+			, this.filter)  ;
+                let status  =false;
+                if      (booking.status_cd =='P' && this.filter.show_pending            ) status=true;
+                else if (booking.status_cd =='B' && this.filter.show_confirmed          ) status=true;
+                else if (booking.status_cd =='J' && this.filter.show_rejected           ) status=true;
+                else if (booking.status_cd =='D' && this.filter.show_cancelled_by_driver) status=true;
+                else if (booking.status_cd =='R' && this.filter.show_cancelled_by_rider ) status=true;
+                else if (booking.status_cd =='F' && this.filter.show_finished           ) status=true;
+                else if (booking.status_cd =='S' && this.filter.show_seats_available    ) status=true;
+                else if (booking.status_cd ==null && this.filter.show_seats_available   ) status=true;
+
+                let ret=false;
+                if ( booking.is_rider && this.filter.show_rider && status) ret= true;
+                else if ( booking.is_driver && this.filter.show_driver && status) ret= true;
+
+                console.debug("201810131045 BookingsComponent.show_this() ret="+ ret)  ;
+
+                return ret;
+        }
 }
 
 

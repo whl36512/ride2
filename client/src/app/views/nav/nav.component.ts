@@ -14,6 +14,9 @@ import { CommunicationService } from '../../models/communication.service';
 })
 export class NavComponent implements OnInit {
   signed_in = false;
+
+  Constants = Constants;
+
   show_nav=false ;
   public constructor(
 	private communicationService: CommunicationService

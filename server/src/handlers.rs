@@ -130,6 +130,9 @@ pub fn upd_trip(req: &mut Request) -> IronResult<Response> {
 pub fn search(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_SEARCH, 2)
 }
+pub fn activity(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_ACTIVITY, 2)
+}
 pub fn myoffers(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_MYOFFER, 2)
 }

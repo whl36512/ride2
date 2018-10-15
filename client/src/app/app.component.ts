@@ -39,12 +39,13 @@ export class AppComponent {
 
 	setFalse ()
 	{
-		this.pages.search 	= false;
-		this.pages.user 	= false;
-		this.pages.trip 	= false;
-		this.pages.signout 	= false;
-		this.pages.myoffers	= false;
-		this.pages.mybooking 	= false;
+		this.pages.search 	= false ;
+		this.pages.user 	= false ;
+		this.pages.trip 	= false ;
+		this.pages.signout 	= false ;
+		this.pages.activity	= false ;
+		this.pages.myoffers	= false ;
+		this.pages.mybooking 	= false ;
 		this.pages.deposit 	= false ;
 		this.pages.withdraw	= false ;
 		this.pages.contact_us	= false ;

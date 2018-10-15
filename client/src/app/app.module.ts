@@ -39,7 +39,9 @@ import { PrivacyComponent } from './views/privacy/privacy.component';
 import { MyoffersComponent } from './views/myoffers/myoffers.component';
 import { MyofferjourneyComponent } from './views/myofferjourney/myofferjourney.component';
 import { MybookingComponent } from './views/mybooking/mybooking.component';
-import { MybookinglistComponent } from './views/mybookinglist/mybookinglist.component' ;
+import { MybookinglistComponent } from './views/mybookinglist/mybookinglist.component';
+import { ActivityComponent } from './views/activity/activity.component';
+import { BookingsComponent } from './views/bookings/bookings.component' ;
 
 
 const appRoutes: Routes = [
@@ -78,6 +80,8 @@ const appRoutes: Routes = [
     MyofferjourneyComponent,
     MybookingComponent,
     MybookinglistComponent,
+    ActivityComponent,
+    BookingsComponent,
   ],
   imports: [
     BrowserModule,

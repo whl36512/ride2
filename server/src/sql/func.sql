@@ -399,6 +399,11 @@ BEGIN
 	and	b.status_cd	='B'		-- make sure the booking is active
 	returning * into book1
 	;
+
+	update usr u
+	set u.trips_completed = u.trips_completed+1
+	where u.usr_id=book1.rider_id
+	;
 	
 
 	-- assign money to driver
@@ -627,6 +632,71 @@ $body$
 language plpgsql;
 
 
+create or replace function funcs.activity(in_trip text, in_user text)
+  returns setof json
+as
+$body$
+-- in_trip has start_date and end_date
+-- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
+	with trip0 as (
+		SELECT * FROM funcs.json_populate_record(NULL::trip , in_trip)
+	)
+	, user0  as ( 
+		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user)
+	)
+	, a as (
+		select 
+			t.trip_id
+			, t.driver_id
+			, b.rider_id
+			, j.journey_id
+			, b.book_id 
+			, t.start_display_name
+			, t.end_display_name
+			, t.description
+			-- , t.distance
+			, j.journey_date
+			, j.departure_time
+			, j.status_code
+			, case 
+				when u0.usr_id = t.driver_id and b.driver_price is not null then b.driver_price 
+				when u0.usr_id = t.driver_id and b.driver_price is null then j.price 
+				when u0.usr_id= b.rider_id 				then b.rider_price  
+				else null
+			  end price
+			, case 
+				when u0.usr_id = t.driver_id and b.driver_cost is not null then b.driver_cost 
+				when u0.usr_id = t.driver_id and b.driver_cost is null	then null 
+				when u0.usr_id = b.rider_id 				then b.rider_cost  
+				else null
+			  end unified_cost
+			, j.seats
+			, coalesce(b.seats,0) seats_booked
+			, case when u0.usr_id = t.driver_id then b.driver_cost else null end driver_cost
+			, case when u0.usr_id = b.rider_id then b.rider_cost else null end rider_cost
+			, b.status_cd 
+			, case when s.description is null then 'Seats Available'
+				else s.description
+			  end book_status_description
+			, case when u0.usr_id = t.driver_id then true else false end is_driver
+			, case when u0.usr_id = b.rider_id then true else false end is_rider
+			, b.pickup_display_name
+			, b.dropoff_display_name
+		from user0 u0
+		join trip0 t0 on (1=1)
+		join trip t on ( t.driver_id=u0.usr_id )
+		join journey j on (t.trip_id=j.trip_id)
+		left outer join book b on (b.journey_id=j.journey_id )
+		left outer join book_status s on (s.status_cd= b.status_cd)
+		where (t0.start_date is null or j.journey_date >= t0.start_date)
+		and   (t0.end_date   is null or j.journey_date <= t0.end_date)
+	)
+	select row_to_json(a) 
+	from a
+	order by a.journey_date , a.departure_time
+	;
+$body$
+language sql;
 create or replace function funcs.myoffers(in_trip text, in_user text)
   returns setof json
 as
@@ -642,21 +712,26 @@ $body$
 	, a as (
 		select 
 			t.trip_id
+			, t.driver_id
+			, b.rider_id
+			, j.journey_id
+			, b.book_id 
 			, t.start_display_name
 			, t.end_display_name
 			, t.description
 			-- , t.distance
-			, j.journey_id
 			, j.journey_date
 			, j.departure_time
 			, j.status_code
-			, j.price
+			, case when u0.usr_id = t.driver_id then j.price else null end price
 			, j.seats
-			, b.book_id 
 			, coalesce(b.seats,0) seats_booked
-			, b.driver_cost 
+			, case when u0.usr_id = t.driver_id then b.driver_cost else null end driver_cost
+			, case when u0.usr_id = b.rider_id then b.rider_cost else null end rider_cost
 			, b.status_cd 
 			, s.description book_status_description
+			, case when u0.usr_id = t.driver_id then true else false end is_driver
+			, case when u0.usr_id = b.rider_id then true else false end is_rider
 		from user0 u0
 		join trip0 t0 on (1=1)
 		join trip t on ( t.driver_id=u0.usr_id )

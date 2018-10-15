@@ -5,7 +5,8 @@
 	*ngFor="let journey of journey_forms ;let i=index;
 		let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
 		[ngClass]="{ odd: odd, even: even }">
-	<form [formGroup]="journey" (ngSubmit)="onSubmit()">
+	<form [formGroup]="journey" (ngSubmit)='onSubmit()'
+		*ngIf='show_this(journeys_from_db[i])'>
       	<table>
 		<thead>
 			<tr >
@@ -34,7 +35,6 @@
 			</tr>
 		</tbody>
 	</table>
-	</form>
 	<span>
 		<button type=button (click)="update(journey,i)">Update</button>
 	</span>
@@ -54,5 +54,6 @@
 	<div class=f08 >From: {{journeys_from_db[i].start_display_name}}</div>
 	<div class=f08 >To: {{journeys_from_db[i].end_display_name}}</div>
 	<div class=f08 >Description: {{journeys_from_db[i].description}}</div>
+	</form>
 	<p>
 </div>

@@ -3,15 +3,16 @@
 
 
         <ul class="nav" *ngIf="show_nav"  >
-            	<li                   (click)="select('search')" 	>Search</li>
-	    	<li *ngIf="signed_in" (click)="select('trip')" 		>Post a Trip</li>
-		<li *ngIf="signed_in" (click)="select('myoffers')"  	>My Offers</li>
-		<li *ngIf="signed_in" (click)="select('mybooking')"  	>My Booking</li>
-		<li *ngIf="signed_in" (click)="select('user')" 		>My Profile</li>
-		<li                   (click)="select('deposit')"  	>Deposit</li>
-		<li                   (click)="select('withdraw')"  	>Withdraw</li>
-		<li                   (click)="select('contact_us')"  	>Contact Us</li>
-		<li                   (click)="select('tou')"  		>Terms of Use</li>
+            	<li                   (click)="select(Constants.PAGE_SEARCH)" 		>Search</li>
+	    	<li *ngIf="signed_in" (click)="select(Constants.PAGE_TRIP)" 		>Post a Trip</li>
+	    	<li *ngIf="signed_in" (click)="select(Constants.PAGE_ACTIVITY)"		>My Activities</li>
+		<li *ngIf="signed_in" (click)="select(Constants.PAGE_MYOFFERS)"  	>My Offers</li>
+		<li *ngIf="signed_in" (click)="select(Constants.PAGE_MYBOOKING)"  	>My Booking</li>
+		<li *ngIf="signed_in" (click)="select(Constants.PAGE_USER)" 		>My Profile</li>
+		<li                   (click)="select(Constants.PAGE_DEPOSIT)"  	>Deposit</li>
+		<li                   (click)="select(Constants.PAGE_WITHDRAW)"  	>Withdraw</li>
+		<li                   (click)="select(Constants.PAGE_CONTACT_US)"  	>Contact Us</li>
+		<li                   (click)="select(Constants.PAGE_TOU)"  		>Terms of Use</li>
         </ul>
 </div>
 

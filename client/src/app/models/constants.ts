@@ -15,6 +15,7 @@ export class Constants{
 	static URL_UPD_TRIP 	= '/upd_trip';
 	static URL_SEARCH 	= '/search';
 	static URL_BOOK 	= '/book';
+	static URL_ACTIVITY 	= '/activity';
 	static URL_MYOFFERS 	= '/myoffers';
 	static URL_MYBOOKING 	= '/mybooking';
 	static URL_UPD_JOURNEY 	= '/upd_journey';
@@ -30,6 +31,7 @@ export class Constants{
 	static PAGE_USER	= 'user';
 	static PAGE_TRIP	= 'trip';
 	static PAGE_SEARCH	= 'search';
+	static PAGE_ACTIVITY 	= 'activity';
 	static PAGE_MYOFFERS 	= 'myoffers';
 	static PAGE_MYBOOKING 	= 'mybooking';
 	static PAGE_DEPOSIT	= 'deposit';
@@ -55,8 +57,13 @@ export class Constants{
 	static KEY_FORM_TRIP	= 'form_trip';
 	static KEY_MYOFFERS	= 'form_myoffers';
 	static KEY_MYBOOKING	= 'form_mybooking';
+	static KEY_ACTIVITY	= 'form_activity';
 
-        static TODAY() { return new Date().toJSON().slice(0,10) } ; // today is in the form of 2018-09-11
+        static TODAY() { 
+		console.debug ( '201810142022 Constants.TODAY()=', new Date().toJSON());
+
+		return new Date().toJSON().slice(0,10) 
+	} ; // today is in the form of 2018-09-11
 
 
 	constructor (){} 
