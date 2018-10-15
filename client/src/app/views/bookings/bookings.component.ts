@@ -89,15 +89,26 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 		for ( let index in this.bookings_from_db) { // for.. in.. creates index, not object
 			this.add_form(this.bookings_from_db[index]);
 			this.reset_msg(Number(index));
+			this.reset_button(Number(index));
 
-			this.bookings_from_db[index].show_update_button
-				= this.bookings_from_db[index].book_id == null ;
-			this.bookings_from_db[index].show_confirm_button
-				= this.bookings_from_db[index].status_cd == 'P' ;
-			this.bookings_from_db[index].show_reject_button
-				= this.bookings_from_db[index].status_cd == 'P' ;
-			this.bookings_from_db[index].show_cancel_button	
-				= this.bookings_from_db[index].status_cd == 'B' ;
+			if (  this.bookings_from_db[index].is_driver){
+				this.bookings_from_db[index].show_update_button
+					= this.bookings_from_db[index].book_id == null ;
+				this.bookings_from_db[index].show_confirm_button
+					= this.bookings_from_db[index].status_cd == 'P' ;
+				this.bookings_from_db[index].show_reject_button
+					= this.bookings_from_db[index].status_cd == 'P' ;
+				this.bookings_from_db[index].show_cancel_button	
+					= this.bookings_from_db[index].status_cd == 'B' ;
+			}
+			if ( this.bookings_from_db[index].is_rider) {
+				this.bookings_from_db[index].show_cancel_button	
+					= this.bookings_from_db[index].status_cd == 'B' 
+					|| this.bookings_from_db[index].status_cd == 'P' ;
+
+				this.bookings_from_db[index].show_finish_button	
+					= this.bookings_from_db[index].status_cd == 'B' ;
+			}
 		}
 		console.debug("201809262246 BookingsComponent.ngOnInit() exit");
   	}
@@ -135,6 +146,7 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 		this.bookings_from_db[index].show_cancel_button=false;
 		this.bookings_from_db[index].show_reject_button=false;
 		this.bookings_from_db[index].show_confirm_button=false;
+		this.bookings_from_db[index].show_finish_button=false;
 	}
 
 	update(booking_form: any, index: number): void {

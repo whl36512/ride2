@@ -9,8 +9,7 @@
 				<th>Time</th>
 				<th>Seats</th>
 				<th>Price($)</th>
-				<th>Booked</th>
-				<th></th>
+				<th *ngIf='is_signed_in'>Booked</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -19,7 +18,7 @@
 				<td>{{journey.departure_time}}</td>
 				<td>{{journey.seats}}</td>
 				<td>{{journey.rider_cost}} </td>
-				<td>{{journey.seats_booked}}</td>
+				<td *ngIf='is_signed_in'>{{journey.seats_booked}}</td>
 				<td>
 					<button *ngIf='is_signed_in && journey.show_book_button' #j type=buttom (click)="book(journey)">Book</button>
 					<span *ngIf='is_signed_in && !journey.sufficient_balance' class=warning >Insufficient Balance</span>
@@ -30,8 +29,8 @@
 			</tr>
 		</tbody>
 	</table>
-	<div class=f08 >From: {{journey.start_display_name}}</div>
-	<div class=f08 >To: {{journey.end_display_name}}</div>
+	<div class=f08 ><span class=from>Driver from:</span>{{journey.start_display_name}}</div>
+	<div class=f08 ><span class=to>Driver to:</span>{{journey.end_display_name}}</div>
 	<div class=f08 >Description: {{journey.description}}</div>
 	<p>
 </div>

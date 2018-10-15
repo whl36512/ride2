@@ -56,12 +56,12 @@ export class ActivityComponent implements OnInit, OnDestroy {
                         end_date		: ['', [Validators.min] ],
                         show_driver		: [true, [] ],
                         show_rider		: [true, [] ],
-                        show_seats_available	: [true, [] ],
-                        show_pending		: [true, [] ],
+                        show_seats_available	: [false, [] ],
+                        show_pending		: [false, [] ],
                         show_confirmed		: [true, [] ],
-                        show_rejected		: [true, [] ],
-                        show_cancelled_by_driver: [true, [] ],
-                        show_cancelled_by_rider	: [true, [] ],
+                        show_rejected		: [false, [] ],
+                        show_cancelled_by_driver: [false, [] ],
+                        show_cancelled_by_rider	: [false, [] ],
                         show_finished		: [true, [] ],
                 });
 		this.filter= this.trip_form.value;

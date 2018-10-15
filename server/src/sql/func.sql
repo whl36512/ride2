@@ -31,6 +31,32 @@ $body$
 $body$
 language sql;
 
+create or replace function funcs.calc_cost(price numeric 
+					, distance  numeric
+					, seats integer
+					, is_rider boolean)
+  returns numeric
+as
+$body$
+DECLARE
+	booking_fee numeric; 
+	margin_factor numeric ;
+	the_cost numeric ;
+BEGIN
+	booking_fee:= 0.2	;
+	margin_factor := 1.2	;
+	
+	if is_rider then
+		the_cost :=  round(price * distance * seats * 1.2 + booking_fee , 2) ;
+	else	
+		the_cost :=  round(price * distance * seats  , 2) ;
+	end if;
+
+	return the_cost;
+END
+$body$
+language plpgsql;
+
 create or replace function funcs.updateusr( in_user text, in_dummy text)
   returns usr
 as
@@ -243,7 +269,7 @@ BEGIN
 	update book b
 	set 	status_cd 		= 'R'
 		, penalty_to_rider 	= case when b.status_cd = 'B' 
-						then round(b.rider_cost * 0.2,2)
+						then round(b.rider_cost * 0.2 ,2)
 						when status_cd = 'P'
 						then 0
 						end
@@ -400,9 +426,9 @@ BEGIN
 	returning * into book1
 	;
 
-	update usr u
-	set u.trips_completed = u.trips_completed+1
-	where u.usr_id=book1.rider_id
+	update usr 
+	set trips_completed = trips_completed+1
+	where usr_id=book1.rider_id
 	;
 	
 
@@ -447,20 +473,17 @@ $body$
  			, j.trip_id         
  			, j.journey_date    
  			, j.departure_time  
-			, u.balance
+		--	, u.balance
 			, trip0.seats
-			, round(j.price * trip0.distance * trip0.seats * 1.2 , 2) rider_cost
+			, funcs.calc_cost(j.price, trip0.distance , trip0.seats , true) rider_cost
 			, coalesce (b.seats,0) seats_booked
-			--, case when j.seats >= trip0.seats 
-				--and u.balance >= round(j.price * trip0.distance * trip0.seats * 1.2 , 2) 
-			  --then true else false end bookable
-			, case when u.balance >= round(j.price * trip0.distance * trip0.seats * 1.2 , 2) 
+			, case when u.balance >=  funcs.calc_cost(j.price , trip0.distance , trip0.seats , true)
 			  then true else false 
 			  end sufficient_balance
 		from trip t
 		join journey j on (t.trip_id=j.trip_id)
 		join trip0 on (1=1)
-		left outer join user0 on (1=1)
+		left outer join user0 on (1=1)  -- usr0 may not ba available because of not signed in
 		left outer join usr u on (u.usr_id= user0.usr_id)
 		left outer join book b on (b.rider_id = user0.usr_id 
 						and b.journey_id=j.journey_id
@@ -476,12 +499,14 @@ $body$
 					and 	trip0.adjusted_end_lon+trip0.degree10
 		and   j.journey_date	between trip0.start_date and coalesce ( trip0.end_date, '3000-01-01')
 		and   ( trip0.departure_time is null  
-			or j.departure_time between trip0.departure_time- interval '1 hour' and trip0.departure_time + interval '1 hour'
+			or j.departure_time between trip0.departure_time - interval '1 hour' 
+					        and trip0.departure_time + interval '1 hour'
 		)
 		and j.price <= trip0.price/1.2
 		and j.seats >= trip0.seats
 		and t.trip_id=j.trip_id
 		and j.status_code='A'
+		and ( user0.usr_id is null or t.driver_id != user0.usr_id)
 	)
 	select row_to_json(a) 
 	from a
@@ -525,15 +550,15 @@ BEGIN
 	-- make sure enough balance and seats
 	select 	u.usr_id, t.trip_id, j.journey_id 
 		, j.price driver_price
-		, round(j.price * book0.distance * book0.seats,2) driver_cost
+		, funcs.calc_cost(j.price , book0.distance , book0.seats, false) driver_cost
 		, j.price * factor  rider_price
-		, round(j.price * book0.distance * book0.seats * factor  , 2) rider_cost
+		, funcs.calc_cost(j.price , book0.distance , book0.seats , true) rider_cost
 	into 	utj	
 	from 	journey j, usr u , trip t
 	where	j.journey_id=book0.journey_id
 	and	u.usr_id=user0.usr_id
 	and	t.trip_id=j.trip_id
-	and	u.balance >= round(j.price * book0.distance * book0.seats * factor , 2)
+	and	u.balance >= funcs.calc_cost(j.price , book0.distance , book0.seats , true)
 	and	j.seats >= book0.seats 
 	and	book0.distance > 0
 	;
@@ -644,13 +669,46 @@ $body$
 	, user0  as ( 
 		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user)
 	)
+	, ids as (
+		select  t.trip_id, j.journey_id, b.book_id, t.driver_id, b.rider_id, u0.usr_id
+		from user0 u0
+		join trip0 t0 on (1=1)
+		join trip t on ( t.driver_id=u0.usr_id )
+		join journey j on (t.trip_id=j.trip_id
+					and (t0.start_date is null or j.journey_date >= t0.start_date)
+					and (t0.end_date   is null or j.journey_date <= t0.end_date)
+				)
+		join book b on (b.journey_id=j.journey_id )
+		join book_status s on (s.status_cd= b.status_cd)
+		union
+		select  t.trip_id, j.journey_id, b.book_id, t.driver_id, b.rider_id, u0.usr_id
+		from user0 u0
+		join trip0 t0 on (1=1)
+		join book 	b on ( b.rider_id= u0.usr_id)
+		join journey 	j on ( j.journey_id = b.journey_id
+					and (t0.start_date is null or j.journey_date >= t0.start_date)
+					and (t0.end_date   is null or j.journey_date <= t0.end_date)
+					)
+		join trip 	t on ( t.trip_id = j.trip_id)
+		union 
+		-- get bookable journeys to allow its driver to change seats and price
+		select  t.trip_id, j.journey_id, null book_id, t.driver_id, null rider_id, u0.usr_id
+		from user0 u0
+		join trip0 t0 on (1=1)
+		join trip t on ( t.driver_id=u0.usr_id )
+		join journey j on (t.trip_id=j.trip_id
+					and (t0.start_date is null or j.journey_date >= t0.start_date)
+					and (t0.end_date   is null or j.journey_date <= t0.end_date)
+					and j.status_code = 'A'
+				)
+	)
 	, a as (
 		select 
-			t.trip_id
-			, t.driver_id
-			, b.rider_id
-			, j.journey_id
-			, b.book_id 
+			ids.trip_id
+			, ids.driver_id
+			, ids.rider_id
+			, ids.journey_id
+			, ids.book_id 
 			, t.start_display_name
 			, t.end_display_name
 			, t.description
@@ -659,37 +717,31 @@ $body$
 			, j.departure_time
 			, j.status_code
 			, case 
-				when u0.usr_id = t.driver_id and b.driver_price is not null then b.driver_price 
-				when u0.usr_id = t.driver_id and b.driver_price is null then j.price 
-				when u0.usr_id= b.rider_id 				then b.rider_price  
+				when ids.usr_id = t.driver_id	then coalesce(b.driver_price, j.price)
+				when ids.usr_id	= b.rider_id 	then b.rider_price  
 				else null
 			  end price
 			, case 
-				when u0.usr_id = t.driver_id and b.driver_cost is not null then b.driver_cost 
-				when u0.usr_id = t.driver_id and b.driver_cost is null	then null 
-				when u0.usr_id = b.rider_id 				then b.rider_cost  
+				when ids.usr_id = t.driver_id	then b.driver_cost 
+				when ids.usr_id = b.rider_id	then b.rider_cost  
 				else null
-			  end unified_cost
-			, j.seats
-			, coalesce(b.seats,0) seats_booked
-			, case when u0.usr_id = t.driver_id then b.driver_cost else null end driver_cost
-			, case when u0.usr_id = b.rider_id then b.rider_cost else null end rider_cost
+			  end unified_cost -- either driver's cost or rider's cost
+			, coalesce(b.seats , j.seats) seats  -- either seats available or seats booked
+			--, case when ids.usr_id = t.driver_id then b.driver_cost else null end driver_cost
+			--, case when ids.usr_id = b.rider_id then b.rider_cost else null end rider_cost
 			, b.status_cd 
 			, case when s.description is null then 'Seats Available'
 				else s.description
 			  end book_status_description
-			, case when u0.usr_id = t.driver_id then true else false end is_driver
-			, case when u0.usr_id = b.rider_id then true else false end is_rider
+			, case when ids.usr_id = t.driver_id then true else false end is_driver
+			, case when ids.usr_id = b.rider_id then true else false end is_rider
 			, b.pickup_display_name
 			, b.dropoff_display_name
-		from user0 u0
-		join trip0 t0 on (1=1)
-		join trip t on ( t.driver_id=u0.usr_id )
-		join journey j on (t.trip_id=j.trip_id)
-		left outer join book b on (b.journey_id=j.journey_id )
+		from ids 
+		join trip t on ( t.trip_id=ids.trip_id )
+		join journey j on (j.journey_id= ids.journey_id) 
+		left outer join book b on (b.book_id= ids.book_id )
 		left outer join book_status s on (s.status_cd= b.status_cd)
-		where (t0.start_date is null or j.journey_date >= t0.start_date)
-		and   (t0.end_date   is null or j.journey_date <= t0.end_date)
 	)
 	select row_to_json(a) 
 	from a

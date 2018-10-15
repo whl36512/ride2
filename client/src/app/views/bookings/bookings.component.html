@@ -30,7 +30,7 @@
 				<td *ngIf='bookings_from_db[i].book_id == null' > 
 	<input type="number" formControlName="price" min="0" max="{{Constants.MAX_PRICE}}" step=0.01 />
 				</td>
-				<td *ngIf='bookings_from_db[i].book_id != null'>{{bookings_from_db[i].seats_booked}}</td>
+				<td *ngIf='bookings_from_db[i].book_id != null'>{{bookings_from_db[i].seats}}</td>
 				<td *ngIf='bookings_from_db[i].book_id != null'>{{bookings_from_db[i].unified_cost}}</td>
 				<td class=warning>{{bookings_from_db[i].book_status_description}}</td>
 
@@ -57,10 +57,10 @@
 	</span>
 	<span *ngIf='bookings_from_db[i].show_fail_msg' class=error>Action Failed</span>
 
-	<div class=f08 >Driver Start: {{bookings_from_db[i].start_display_name}}</div>
-	<div class=f08 >Driver End: {{bookings_from_db[i].end_display_name}}</div>
-	<div class=f08 *ngIf='bookings_from_db[i].book_id!=null'>Passenger Pickup: {{bookings_from_db[i].pickup_display_name}}</div>
-	<div class=f08 *ngIf='bookings_from_db[i].book_id!=null'>Passenger Dropoff: {{bookings_from_db[i].dropoff_display_name}}</div>
+	<div class=f08 ><span class=from>Driver from:</span> {{bookings_from_db[i].start_display_name}}</div>
+	<div class=f08 ><span class=to>Driver to:</span> {{bookings_from_db[i].end_display_name}}</div>
+	<div class=f08 *ngIf='bookings_from_db[i].book_id!=null'><span class=from>Passenger Pickup:</span> {{bookings_from_db[i].pickup_display_name}}</div>
+	<div class=f08 *ngIf='bookings_from_db[i].book_id!=null'><span class=to>Passenger Dropoff:</span> {{bookings_from_db[i].dropoff_display_name}}</div>
 	<div class=f08 >Description: {{bookings_from_db[i].description}}</div>
 	</form>
 	<p>
