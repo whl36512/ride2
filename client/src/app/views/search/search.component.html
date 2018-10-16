@@ -4,7 +4,7 @@
 	<form [formGroup]="form" (ngSubmit)="onSubmit()">
 		<dl *ngIf="step==1"> 
           		<dt>
-				<label for="start_loc">Pickup
+				<label for="start_loc">Exact Pickup Location
 				</label>
 			</dt>
           		<dd>
@@ -26,7 +26,7 @@
 
         	<dl *ngIf="step==2">
           		<dt>
-				<label for="end_loc">Dropoff</label>
+				<label for="end_loc">Exact Dropoff Location</label>
 			</dt>
           		<dd>
 	   			<input  type="text"  id="end_loc" formControlName="end_loc" placeholder="To" required

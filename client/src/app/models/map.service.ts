@@ -12,6 +12,8 @@ export class MapService {
 	private markerFrom: any;
 	private markerTo: any;
 
+	private marker_arr: any =[];
+
 	constructor() {
 		const osmAttr =
 			"&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, " +
@@ -56,7 +58,14 @@ export class MapService {
 		)
 		};
 	}
-		
+
+	clear_markers(){
+		for (let index in this.marker_arr){
+			this.map.removeLayer(this.marker_arr[index]);
+		}
+		this.marker_arr=[];
+	}
+
 	disableMouseEvent(elementId: string) {
 		const element = <HTMLElement>document.getElementById(elementId);
 		
@@ -103,7 +112,70 @@ export class MapService {
 		marker.on("click", () => marker.remove());
 	}
 	*/
+
+	search_marker(lat, lon): number{
+		for ( let index in this.marker_arr) {
+			let latlon= this.marker_arr[index].getLatLng();
+			let found = latlon.equals(L.latLng(lat, lon));
+			if ( found) return Number(index);
+		}
+		return -1;
+	}
+
+	place_marker(lat: number, lon: number, popup_string:string
+			, icon_type: any, color: string, text: string):boolean {
 	
+	  	if (lat == null || lon == null ) return false	; // failed to place marker
+		if (this.search_marker(lat,lon) != -1) return true;
+		if (icon_type== undefined || icon_type== null ) icon_type= PinIcon;
+		if (color== undefined || icon_type== null ) color= 'blue';
+
+		let popup = `<div>${lat} ${lon}</div><div>${popup_string}<div>`;
+		let marker=   L.marker([lat,lon], {icon:icon_type.get(color,text)} )
+				.addTo(this.map).bindPopup(popup) ;
+		this.marker_arr.push(marker);
+		return true; // success
+	}
+
+	place_marker_pair(start_lat	, start_lon	, start_display_name
+			, end_lat	, end_lon	, end_display_name
+			, icon_type
+			, color:string
+			, text: string ):boolean
+	{
+		let color1 ='green';
+		let color2 ='red';
+
+		if ( color == undefined || color == null)
+		{
+		}
+		else if ( color == 'random') {
+			color1 = this.getRandomColor();
+			color2 = this.getRandomColor()
+		}
+		else if (  color == 'random_same' ) {
+			color1 = this.getRandomColor();
+			color2 = color1;
+		}
+		else {
+			color1=color;
+			color2=color;
+		}
+		let ok=this.place_marker( start_lat, start_lon,start_display_name,icon_type, color1, text);
+		if (! ok) return ok
+		ok = this.place_marker( end_lat, end_lon,end_display_name,icon_type, color2, text);
+		return ok;
+	}
+
+ 	getRandomColor():string {
+  		var letters = '23456789AB';
+  		var color = '#';
+  		for (var i = 0; i < 6; i++) {
+    		color += letters[Math.floor(Math.random() * 10)];
+  		}
+  		return color;
+	}
+
 	createMap(mapTag: string, lat: number, long: number, zoom: number)
 	{
 		//map = L.map('map').setView([lat, long], zoom);
@@ -113,33 +185,55 @@ export class MapService {
 		return this.map;
 	}
 
-	flyTo(lat,lon,display_name){ // display_name will be shown in popup
-		console.log("flyTo");
+	flyTo(lat,lon,display_name, icon_type, color:string): boolean{ // display_name will be shown in popup
+		console.debug("flyTo");
+		this.clear_markers();
+		let ok = this.place_marker(lat,lon, display_name, icon_type, color, '') ;
+		if (!ok) return ok;
 		this.map.setView([lat,lon],12);
 		//this.map.flyTo([lat,lon],12);
-		if(this.marker) {         this.map.removeLayer(this.marker); }
-		if(this.markerTo) {         this.map.removeLayer(this.markerTo); }
-		if(this.markerFrom) {         this.map.removeLayer(this.markerFrom); }
-		//marker1= L.marker([lat,lon]).addTo(map).bindPopup(display_name) ;
-		this.marker= L.marker([lat,lon], {icon:MyIcon.get('#583470')}).addTo(this.map).bindPopup(display_name) ;
+		return true;
 	}
 
 
-	flyToBounds(start_lat, start_lon, start_display_name, end_lat, end_lon, end_display_name)
+	flyToBounds(start_lat, start_lon, start_display_name, end_lat, end_lon, end_display_name, icon_type)
+		: boolean
 	{
 		console.debug("flyToBounds");
+		this.clear_markers();
+		let ok = this.place_marker_pair( start_lat, start_lon, start_display_name
+						, end_lat, end_lon, end_display_name, icon_type, null, '');
+	 	if (!ok) return ok;	
+
 		let corner1 = L.latLng(start_lat, start_lon);
 		let corner2 = L.latLng(end_lat, end_lon);
 		let bounds = L.latLngBounds(corner1, corner2);
 
-		if(this.marker)     {     this.map.removeLayer(this.marker); }
-		if(this.markerTo)   {     this.map.removeLayer(this.markerTo); }
-		if(this.markerFrom) {     this.map.removeLayer(this.markerFrom); }
+
+		//if(this.marker)     {     this.map.removeLayer(this.marker); }
+		//if(this.markerTo)   {     this.map.removeLayer(this.markerTo); }
+		//if(this.markerFrom) {     this.map.removeLayer(this.markerFrom); }
 		this.map.fitBounds(bounds);
 		this.map.flyToBounds(bounds);
-		this.markerFrom= L.marker([start_lat,start_lon], {icon:MyIcon.get('green')} ).addTo(this.map).bindPopup(start_display_name) ;
-		this.markerTo=   L.marker([end_lat,end_lon], {icon:MyIcon.get('red')} ).addTo(this.map).bindPopup(end_display_name) ;
+		return true;
 	}
+
+        tryFlyTo (trip: any, icon_type: any): boolean
+        {
+                let ok= this.flyToBounds(trip.start_lat, trip.start_lon, trip.start_display_name
+                                , trip.end_lat, trip.end_lon, trip.end_display_name
+                                , icon_type 
+                        )
+                if (ok) return ok;
+
+                ok = this.flyTo(trip.start_lat, trip.start_lon, trip.start_display_name
+                                                , icon_type, 'green'
+                        );
+                if (ok) return ok;
+                ok=     this.flyTo(trip.end_lat, trip.end_lon, trip.end_display_name, icon_type, 'red');
+                return ok
+        }
+
 	
 	
 	routingUrl(start_lat, start_lon, end_lat, end_lon){
@@ -153,10 +247,11 @@ export class MapService {
 
 }
 
-class MyIcon {
+
+export class PinIcon {
 		//var myCustomColour = '#583470' ;
 		
- 	public static get (myCustomColour) {
+ 	public static get (myCustomColour: string, text: string) {
 		let markerHtmlStyles = 
 		'background-color: ' + myCustomColour + ';' 				+
 		'width: 3rem;' 				+
@@ -182,7 +277,7 @@ class MyIcon {
 		'border: 1px solid #FFFFFF; '   ;
 		
 		let html= 	''  ;
-		html +='<span class="mapiconfrom" style="background: radial-gradient(red,white, red 70%); width:1.5rem;height:1.5rem;display: block; left: -0.75rem;top: -1.5rem;position: absolute; border: 0px solid white; border-radius: 20rem" ></span>'  ;
+		html +=`<span class="mapicon" style="background: radial-gradient(red,white, red 70%); width:1.5rem;height:1.5rem;display: block; left: -0.75rem;top: -1.5rem;position: absolute; border: 0px solid white; border-radius: 20rem" >${text}</span>`  ;
 		//html +='<span class="mapiconcenter" style="background: linear-gradient(to bottom right, white, white);; width:0.5rem;height: 0.5rem;display: block; left: -0.25rem;top: -1.0rem;position: absolute; border: 0rem solid red; border-radius: 20rem" ></span>' ;
 		html +='<span class="mapiconstemfrom" style=" background-color: red; width: 0.2rem;height: 1.5rem;display: block; left: -0.1rem;top: -0.1rem;position: absolute; border: 0rem solid red; border-radius: 8rem" ></span> ' ;
 		html = html.replace(/red/g, myCustomColour);
@@ -194,6 +289,58 @@ class MyIcon {
 		
 		let colorIcon = L.divIcon({
 		className: "my-custom-pin",
+		//className: "",
+		iconAnchor: [0, 24],
+		//labelAnchor: [-6, 0],
+		popupAnchor: [0, -36],
+		//html: '<span style="'+ markerHtmlStylesSmall+ '" />'
+		html: html
+		})   ;
+		return colorIcon;
+	}
+}
+
+export class DotIcon {
+		//var myCustomColour = '#583470' ;
+		
+ 	public static get (myCustomColour: string, text: string) {
+		let markerHtmlStyles = 
+		'background-color: ' + myCustomColour + ';' 				+
+		'width: 3rem;' 				+
+		'height: 3rem;' 				+
+		'display: block;' 				+
+		'left: -1.5rem;' 				+
+		'top: -1.5rem;' 				+
+		'position: relative;' 				+
+		'border-radius: 3rem 3rem 0;' 				+
+		'transform: rotate(45deg);' 				+
+		'border: 1px solid #FFFFFF; '   ;
+		
+		let markerHtmlStylesSmall = 
+		'background-color: ' + myCustomColour + ';' 				+
+		'width: 2rem;' 				+
+		'height: 2rem;' 				+
+		'display: block;' 				+
+		'left: -1rem;' 				+
+		'top: -1rem;' 				+
+		'position: relative;' 				+
+		'border-radius: 2rem 2rem 0;' 				+
+		'transform: rotate(45deg);' 				+
+		'border: 1px solid #FFFFFF; '   ;
+		
+		let html= 	''  ;
+		html +=`<span class="mapicon" style="background: radial-gradient(white, red ); width:1rem;height:1rem;display: block; left: -0.5rem;top: 0.5rem;position: absolute; border: 0px solid white; border-radius: 20rem" >${text}</span>`  ;
+		//html +='<span class="mapiconcenter" style="background: linear-gradient(to bottom right, white, white);; width:0.5rem;height: 0.5rem;display: block; left: -0.25rem;top: -1.0rem;position: absolute; border: 0rem solid red; border-radius: 20rem" ></span>' ;
+		//html +='<span class="mapiconstemfrom" style=" background-color: red; width: 0.2rem;height: 1.5rem;display: block; left: -0.1rem;top: -0.1rem;position: absolute; border: 0rem solid red; border-radius: 8rem" ></span> ' ;
+		html = html.replace(/red/g, myCustomColour);
+		
+		
+		
+		
+		//console.log ("DEBUG 201807181726 markerHtmlStyles= " + markerHtmlStyles) ;
+		
+		let colorIcon = L.divIcon({
+		className: "my-custom-dot",
 		//className: "",
 		iconAnchor: [0, 24],
 		//labelAnchor: [-6, 0],

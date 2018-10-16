@@ -467,6 +467,10 @@ $body$
 	)
 	, a as (
 		select t.start_display_name, t.end_display_name 
+			, t.start_lat
+			, t.start_lon
+			, t.end_lat
+			, t.end_lon
 			--, t.distance 
 			, t.description
 			, j.journey_id        

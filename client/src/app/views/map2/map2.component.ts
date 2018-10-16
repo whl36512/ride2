@@ -6,6 +6,8 @@ import * as L from "leaflet";
 
 import {MapService} from "../../models/map.service"
 import {CommunicationService} from "../../models/communication.service"
+import {DotIcon} from "../../models/map.service"
+import {PinIcon} from "../../models/map.service"
 
 
 @Component({
@@ -16,16 +18,32 @@ import {CommunicationService} from "../../models/communication.service"
 
 })
 export class Map2Component implements OnInit , OnDestroy {
-	subscription: Subscription;
+	subscription1: Subscription;
+	subscription2: Subscription;
+	subscription3: Subscription;
 
 	constructor(private communicationService: CommunicationService
 		, private mapService: MapService) { 
-		this.subscription =this.communicationService.trip_msg.subscribe(
+		this.subscription1 =this.communicationService.trip_msg.subscribe(
       			trip  => {
-				console.info("201808222332 Map2Component.constructor.  subscription got message. trip="+ JSON.stringify(trip));
-				this.flyTo(trip);
+				console.debug("201808222332 Map2Component.constructor. trip="
+					, JSON.stringify(trip));
+				mapService.tryFlyTo(trip, PinIcon);
 			}
-    		);	  
+    		);
+		this.subscription2 =this.communicationService.marker_pair_msg.subscribe(
+      			pair  => {
+				console.debug("201808222332 Map2Component.constructor. pair="
+					, JSON.stringify(pair));
+				mapService.place_marker_pair(
+					pair.start_lat, pair.start_lon, pair.start_display_name
+					, pair.end_lat, pair.end_lon  , pair.end_display_name
+					, DotIcon
+					, 'random_same'
+					, pair.markertext
+					);
+			}
+    		);
 	}
 
 	ngOnInit() {
@@ -34,23 +52,7 @@ export class Map2Component implements OnInit , OnDestroy {
 
 	ngOnDestroy() {
 	    // prevent memory leak when component destroyed
-		this.subscription.unsubscribe();
-	}
-
-	flyTo (trip: any)
-	{
-		if (trip.start_lat && trip.end_lat) {
-			this.mapService.flyToBounds(trip.start_lat, trip.start_lon, trip.start_display_name
-				, trip.end_lat, trip.end_lon, trip.end_display_name
-			)
-			
-		}
-		else if ( trip.start_lat) {
-			this.mapService.flyTo(trip.start_lat, trip.start_lon, trip.start_display_name);
-		}
-		else if (trip.end_lat) {
-			this.mapService.flyTo(trip.end_lat, trip.end_lon, trip.end_display_name);
-		}
-		else {} 
+		this.subscription1.unsubscribe();
+		this.subscription2.unsubscribe();
 	}
 }

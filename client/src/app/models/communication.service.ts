@@ -25,6 +25,13 @@ export class CommunicationService {
 	    	this.trip_msg_subject.next(message) ;
 	}
 
+	private marker_pair_msg_subject = new BehaviorSubject<any> ('default message');
+	marker_pair_msg = this.marker_pair_msg_subject.asObservable();  // all components subscribing to this message will get the message
+	send_marker_pair_msg(message: any) {
+		console.info("201808230806 CommunicationService.sendMessage() message=" + JSON.stringify(message));
+	    	this.marker_pair_msg_subject.next(message) ;
+	}
+
 	private menu_msg_subject = new BehaviorSubject<string> ('default message');
 	menu_msg = this.menu_msg_subject.asObservable();  // all components subscribing to this message will get the message
 	send_selected_menu(message: string) {

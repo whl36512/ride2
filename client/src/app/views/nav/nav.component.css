@@ -25,7 +25,7 @@ selected {
   background-color: #BBD8DC !important;
   color: white;
 }
-.nav li:hover {
+.nav li:hover, #navicon:hover {
   color: #607D8B;
   background-color: #DDD;
   left: .1rem;
@@ -64,6 +64,7 @@ div.topnav {
 }
 
 div#navicon{   
+    cursor: pointer;
     float: right;
     clear: both;
     font-size: 1.5rem;

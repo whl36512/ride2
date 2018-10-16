@@ -25,6 +25,7 @@ import { AppComponent } from '../../app.component';
 import { Constants } from '../../models/constants';
 import { StorageService } from '../../models/gui.service';
 import { UserService } from '../../models/gui.service';
+import { MapService } from '../../models/map.service';
 
 
 @Component({
@@ -57,7 +58,7 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 		  private dbService		: DBService
 		, private form_builder		: FormBuilder
 		, private changeDetectorRef	: ChangeDetectorRef
-	//	, private communicationService	: CommunicationService
+		, private communicationService	: CommunicationService
 	//	, private zone: NgZone
 	){ 
   		console.debug("201809262245 JourneyComponent.constructor() enter")  ;
@@ -75,7 +76,9 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 			this.journeys_from_db[index].show_book_msg=false;
 			this.journeys_from_db[index].show_balance_msg=!this.journeys_from_db[index].sufficient_balance;
 			this.journeys_from_db[index].show_book_button=this.journeys_from_db[index].sufficient_balance;
+			this.journeys_from_db[index].markertext=Number(index)+1;
 			//add_form(journey);
+			this.communicationService.send_marker_pair_msg( this.journeys_from_db[index]);
 		}
   	}
 
