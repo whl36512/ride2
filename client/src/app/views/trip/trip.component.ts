@@ -43,6 +43,8 @@ export class TripComponent implements OnInit,  OnDestroy{
 	trip_form: any;
 	step=1;
 
+	show_body='show';
+
 	constructor(
 		  private geoService		: GeoService
 		, private dbService		: DBService

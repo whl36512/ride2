@@ -1,8 +1,15 @@
 <div *ngIf="false"> https://material.angular.io/components/menu/overview </div>
 <div class="trip main" >
+        <span class=hide-unhide>
+                <button  type="button" (click)="show_body='noshow'" > &#xfe3f; </button>
+                <button  type="button" (click)="show_body='show'" > &#xfe40; </button>
+        </span>
+	<button  type="button" class="close-button" (click)="close_page()" >X</button>
+
 	<div class="center f12" *ngIf="!form_saved_to_db" >New Trip Information</div>
 	<div class="center f12" *ngIf="form_saved_to_db" >Trip Information Saved</div>
-	<button  type="button" class="close-button" (click)="close_page()" >X</button>
+	<div class={{show_body}} >
+
 	<form [formGroup]="trip_form" (ngSubmit)="onSubmit()">
 		<dl *ngIf="step==1||form_saved_to_db"> 
           		<dt>
@@ -141,4 +148,5 @@
 		<button  type="button" *ngIf="step>1&&!form_saved_to_db" (click)="step=step-1">&lt; Back</button> &nbsp; &nbsp;
 		<button  type="button" *ngIf="step<6&&!form_saved_to_db" (click)="step=step+1">Next &gt;</button>
       </form>
+	</div>
 </div>

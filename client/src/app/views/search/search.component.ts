@@ -53,6 +53,8 @@ export class SearchComponent implements OnInit,  OnDestroy{
 	journeys_from_db: any = [];
 	//seats_searched: number=0;
 
+	show_body='show';
+
 	changed_times: number =0;
 
 	change_detect(): number{

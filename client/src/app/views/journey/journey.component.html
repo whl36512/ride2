@@ -21,12 +21,12 @@
 				<td>{{journey.seats}}</td>
 				<td>{{journey.rider_cost}} </td>
 				<td *ngIf='is_signed_in'>{{journey.seats_booked}}</td>
-				<td>
-					<button *ngIf='is_signed_in && journey.show_book_button' #j type=buttom (click)="book(journey)">Book</button>
-					<span *ngIf='is_signed_in && !journey.sufficient_balance' class=warning >Insufficient Balance</span>
-					<span *ngIf='journey.show_fail_msg' class=error >failed</span>
-					<span *ngIf='journey.show_book_msg' class=info >booked</span>
+				<td *ngIf='is_signed_in && journey.show_book_button'>
+					<button #j type=buttom (click)="book(journey)">Book</button>
 				</td>
+				<td *ngIf='is_signed_in && !journey.sufficient_balance' class=warning >Insufficient Balance</td>
+				<td *ngIf='journey.show_fail_msg' class=error >failed</td>
+				<td *ngIf='journey.show_book_msg' class=info >booked</td>
 				
 			</tr>
 		</tbody>

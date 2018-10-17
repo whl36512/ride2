@@ -1,7 +1,7 @@
 div#map {
         height: 100%;
         width: 100%;
-        border: 1px solid #AAA;
+        border: 0px solid #AAA;
         z-index: 0;
         position: absolute;
         left: 0px;

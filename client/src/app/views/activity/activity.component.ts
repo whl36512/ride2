@@ -36,6 +36,8 @@ export class ActivityComponent implements OnInit, OnDestroy {
 	bookings_from_db: any= [];
 	trip_form: FormGroup;
 	filter:any ;
+        show_body='show';
+
 	
 
 

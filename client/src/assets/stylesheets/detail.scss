@@ -90,3 +90,21 @@ th {
 	text-align:center;
 	vertical-align: middle;
 }
+
+.close-button {
+        /* use absolute to position child relative to its parent. 
+	parent must have absolue of fixed position */
+        position: absolute;
+        width: auto;
+        top: 0.2rem ;
+        right: 3rem;
+}
+.hide-unhide {
+        /* use absolute to position child relative to its parent. 
+	parent must have absolue of fixed position */
+        position: absolute;
+        width: auto;
+        top: 0.2rem ;
+        left: 0.2rem;
+}
+
