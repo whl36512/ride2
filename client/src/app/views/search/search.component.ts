@@ -103,10 +103,15 @@ export class SearchComponent implements OnInit,  OnDestroy{
 		}
 		else {
 			// pre-populate search form
+			let start_date 	= Constants.TODAY();
+
+			if ( form_value_from_storage.start_date > start_date)  
+				start_date = form_value_from_storage.start_date;
+
 			this.form = this.form_builder.group({
 				start_loc	: [form_value_from_storage.start_loc, [Validators.required]],
 				end_loc		: [form_value_from_storage.end_loc, [Validators.required]], 
-				start_date	: [form_value_from_storage.start_date, [Validators.min,Validators.required]], 
+				start_date	: [start_date, [Validators.min,Validators.required]], 
 				end_date	: [form_value_from_storage.end_date, [Validators.min]], 
 				departure_time	: [form_value_from_storage.departure_time, []], 
 				seats		: [form_value_from_storage.seats, []], 

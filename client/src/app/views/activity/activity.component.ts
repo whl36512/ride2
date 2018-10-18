@@ -19,7 +19,7 @@ import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 import { Constants } from '../../models/constants';
-//import { StorageService } from '../../models/gui.service';
+import { StorageService } from '../../models/gui.service';
 import { UserService } from '../../models/gui.service';
 
 @Component({
@@ -53,7 +53,9 @@ export class ActivityComponent implements OnInit, OnDestroy {
 
 
 	ngOnInit() {
-                this.trip_form = this.form_builder.group({
+		let form_value_from_storage = StorageService.getForm(Constants.KEY_FORM_ACTIVITY);
+		if ( form_value_from_storage == null) {
+                	this.trip_form = this.form_builder.group({
                         start_date		: [Constants.TODAY(), [Validators.min]],
                         end_date		: ['', [Validators.min] ],
                         show_driver		: [true, [] ],
@@ -65,7 +67,23 @@ export class ActivityComponent implements OnInit, OnDestroy {
                         show_cancelled_by_driver: [false, [] ],
                         show_cancelled_by_rider	: [false, [] ],
                         show_finished		: [true, [] ],
-                });
+                	});
+		}
+		else {
+                	this.trip_form = this.form_builder.group({
+                        start_date		: [form_value_from_storage.start_date, [Validators.min]],
+                        end_date		: [form_value_from_storage.end_date, [Validators.min] ],
+                        show_driver		: [form_value_from_storage.show_driver, [] ],
+                        show_rider		: [form_value_from_storage.show_rider, [] ],
+                        show_seats_available	: [form_value_from_storage.show_seats_available, [] ],
+                        show_pending		: [form_value_from_storage.show_pending, [] ],
+                        show_confirmed		: [form_value_from_storage.show_confirmed, [] ],
+                        show_rejected		: [form_value_from_storage.show_rejected, [] ],
+                        show_cancelled_by_driver: [form_value_from_storage.show_cancelled_by_driver, [] ],
+                        show_cancelled_by_rider	: [form_value_from_storage.show_cancelled_by_rider, [] ],
+                        show_finished		: [form_value_from_storage.show_finished, [] ],
+                	});
+		}
 		this.filter= this.trip_form.value;
 
 		this.onChange();
@@ -81,6 +99,7 @@ export class ActivityComponent implements OnInit, OnDestroy {
 
 	onChange()
 	{
+		StorageService.storeForm(Constants.KEY_FORM_ACTIVITY, this.trip_form.value); 
 		this.bookings_from_db = [] ;	 //remove list of journeys
 	        let bookings_from_db_observable     
 			= this.dbService.call_db(Constants.URL_ACTIVITY, this.trip_form.value);
@@ -99,6 +118,7 @@ export class ActivityComponent implements OnInit, OnDestroy {
 	set_filter()
 	{
 		this.filter= this.trip_form.value;
+		StorageService.storeForm(Constants.KEY_FORM_ACTIVITY, this.trip_form.value); 
 
 		for ( let index in this.bookings_from_db) {
 			this.bookings_from_db[index].show_booking

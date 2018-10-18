@@ -39,7 +39,8 @@ export class Map2Component implements OnInit , OnDestroy {
 					pair.start_lat, pair.start_lon, pair.start_display_name
 					, pair.end_lat, pair.end_lon  , pair.end_display_name
 					, DotIcon
-					, 'random_same'
+					//, 'random_same'
+					, null // default green and red color
 					, pair.markertext
 					);
 			}

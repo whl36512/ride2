@@ -108,3 +108,49 @@ th {
         left: 0.2rem;
 }
 
+button {
+	background-color: #44e;
+	color: white;
+	border: 0 none;
+  	border-radius: 0.3rem;
+	margin:0.1rem;
+	padding:0.3rem;
+
+
+
+	&:hover {
+    	transition: all 150ms linear;
+	
+    	opacity: .85;
+  	}
+  
+  	&:active {
+    		transition: all 150ms linear;
+    		opacity: .75;
+  	}
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0%;
+  }
+}
+
+.fade {
+  opacity: 0;
+  animation-name: fadeInOut;
+  animation-delay: 0s;
+  animation-duration: 9s;
+}
+
+input[type="range"] {
+	width : 4rem;
+}

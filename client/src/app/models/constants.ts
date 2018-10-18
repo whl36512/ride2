@@ -57,12 +57,15 @@ export class Constants{
 	static KEY_FORM_TRIP	= 'form_trip';
 	static KEY_MYOFFERS	= 'form_myoffers';
 	static KEY_MYBOOKING	= 'form_mybooking';
-	static KEY_ACTIVITY	= 'form_activity';
+	static KEY_FORM_ACTIVITY= 'form_activity';
 
         static TODAY() { 
-		console.debug ( '201810142022 Constants.TODAY()=', new Date().toJSON());
+		let utc = new Date();
+		let d = new Date(utc.getTime() - utc.getTimezoneOffset() * 60000)
+		let s = d.toJSON() ;
+		console.debug ( '201810142022 Constants.TODAY()=', s  );
 
-		return new Date().toJSON().slice(0,10) 
+		return s.slice(0,10) 
 	} ; // today is in the form of 2018-09-11
 
 

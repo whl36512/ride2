@@ -11,8 +11,7 @@
       	<table>
 		<thead>
 			<tr >
-				<th>Date</th>
-				<th>Time</th>
+				<th>Date/Time</th>
 				<th *ngIf='bookings_from_db[i].book_id == null' >Seats</th>
 				<th *ngIf='bookings_from_db[i].book_id == null' >Price($/mile)</th>
 				<th *ngIf='bookings_from_db[i].book_id != null'>Booked</th>
@@ -22,13 +21,15 @@
 		</thead>
 		<tbody>
 			<tr>
-				<td>{{bookings_from_db[i].journey_date}}</td>
-				<td>{{bookings_from_db[i].departure_time}}</td>
+				<td>{{bookings_from_db[i].journey_date}}<br/>
+					{{bookings_from_db[i].departure_time}}</td>
 				<td *ngIf='bookings_from_db[i].book_id == null' > 
-	<input type="number" formControlName="seats" min="0" max="{{Constants.MAX_SEATS}}" step=1 />
+					{{booking.value.seats}}<br/>
+	<input type="range" formControlName="seats" min="0" max="{{Constants.MAX_SEATS}}" step=1 />
 				</td>
 				<td *ngIf='bookings_from_db[i].book_id == null' > 
-	<input type="number" formControlName="price" min="0" max="{{Constants.MAX_PRICE}}" step=0.01 />
+					{{booking.value.price}}<br/>
+	<input type="range" formControlName="price" min="0" max="{{Constants.MAX_PRICE}}" step=0.01 />
 				</td>
 				<td *ngIf='bookings_from_db[i].book_id != null'>{{bookings_from_db[i].seats}}</td>
 				<td *ngIf='bookings_from_db[i].book_id != null'>{{bookings_from_db[i].unified_cost}}</td>
@@ -38,23 +39,25 @@
 			</tr>
 		</tbody>
 	</table>
-	<span >
-		<button type=button (click)="update(booking,i)" *ngIf='bookings_from_db[i].show_update_button'>Update</button>
-	</span>
-	<span *ngIf='bookings_from_db[i].show_update_msg' class=info>updated</span>
+	<button (click)="update(booking,i)" *ngIf='bookings_from_db[i].show_update_button'>Update</button>
+	<span *ngIf='bookings_from_db[i].show_update_msg' class="info fade">updated</span>
 
-	<span *ngIf='bookings_from_db[i].show_confirm_button'>
-		<button type=button (click)="action(booking,i, Constants.URL_CONFIRM)">Confirm</button>
-	</span>
-	<span *ngIf='bookings_from_db[i].show_reject_button'>
-		<button type=button (click)="action(booking,i, Constants.URL_REJECT)">Reject</button>
-	</span>
-	<span *ngIf='bookings_from_db[i].show_cancel_button'>
-		<button type=button (click)="action(booking,i, Constants.URL_REJECT)">Cancel</button>
-	</span>
-	<span *ngIf='bookings_from_db[i].show_finish_button'>
-		<button type=button (click)="action(booking,i, Constants.URL_FINISH)">Finish</button>
-	</span>
+	<button *ngIf='bookings_from_db[i].show_confirm_button' 
+		(click)="action(booking,i, Constants.URL_CONFIRM)">Confirm
+	</button>
+	<button *ngIf='bookings_from_db[i].show_reject_button'
+		(click)="action(booking,i, Constants.URL_REJECT)">Reject
+	</button>
+	
+	<button *ngIf='bookings_from_db[i].show_drive_cancel_button' 
+		(click)="action(booking,i, Constants.URL_REJECT)">Cancel
+	</button>
+	<button *ngIf='bookings_from_db[i].show_rider_cancel_button'
+		(click)="action(booking,i, Constants.URL_CANCEL_BOOKING)">Cancel
+	</button>
+	<button *ngIf='bookings_from_db[i].show_finish_button'
+		(click)="action(booking,i, Constants.URL_FINISH)">Finish
+	</button>
 	<span *ngIf='bookings_from_db[i].show_fail_msg' class=error>Action Failed</span>
 
 	<div class=f08 ><span class=from>Driver from:</span> {{bookings_from_db[i].start_display_name}}</div>

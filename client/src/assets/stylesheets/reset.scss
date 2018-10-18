@@ -72,17 +72,17 @@ textarea {
 	/* use absolute tp the main page can scroll */
 	position: absolute;
 	height: auto;
-	width: 95%;
+	width: 100%;
 	top: 0rem;
 	left: 0rem;
 	overflow: visible;
 	z-index:200;
-	border: 1px solid #AAA;
+	border: 0px solid #AAA;
 	font-size: 1rem;
 	background-color: #eee; 
 	border-radius: 4px 4px 4px 4px;
-	padding: 0.5rem;
-	margin: 0.5rem, 0rem;
+	padding: 0.2rem;
+	margin: 0.0rem, 0rem;
 }
 
 .signinout {

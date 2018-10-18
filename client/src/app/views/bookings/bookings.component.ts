@@ -98,11 +98,11 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 					= this.bookings_from_db[index].status_cd == 'P' ;
 				this.bookings_from_db[index].show_reject_button
 					= this.bookings_from_db[index].status_cd == 'P' ;
-				this.bookings_from_db[index].show_cancel_button	
+				this.bookings_from_db[index].show_driver_cancel_button	
 					= this.bookings_from_db[index].status_cd == 'B' ;
 			}
 			if ( this.bookings_from_db[index].is_rider) {
-				this.bookings_from_db[index].show_cancel_button	
+				this.bookings_from_db[index].show_rider_cancel_button	
 					= this.bookings_from_db[index].status_cd == 'B' 
 					|| this.bookings_from_db[index].status_cd == 'P' ;
 
@@ -118,6 +118,8 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 		//this.subscription1.unsubscribe();
 		//this.subscription2.unsubscribe();
 	}
+
+	onSubmit(){}
 
 	add_form (booking: any) : void {
 		console.debug("201810072302 BookingsComponent.add_form() booking = "
@@ -143,7 +145,8 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 	}
 
 	reset_button(index: number) : void{
-		this.bookings_from_db[index].show_cancel_button=false;
+		this.bookings_from_db[index].show_driver_cancel_button=false;
+		this.bookings_from_db[index].show_rider_cancel_button=false;
 		this.bookings_from_db[index].show_reject_button=false;
 		this.bookings_from_db[index].show_confirm_button=false;
 		this.bookings_from_db[index].show_finish_button=false;
@@ -152,6 +155,7 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 	update(booking_form: any, index: number): void {
 	    	console.debug("201809261901 BookingsComponent.update() booking_form=" 
 			+ JSON.stringify(booking_form.value) );
+		this.bookings_from_db[index].show_update_msg=false; // remove msg, so animation will work
 		let booking_to_db = booking_form.value;
 		let booking_from_db_observable     = this.dbService.call_db(Constants.URL_UPD_JOURNEY, booking_to_db);
 		booking_from_db_observable.subscribe(
@@ -192,8 +196,11 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 				else if ( booking_from_db.status_cd == 'B') {
 					this.bookings_from_db[index].status_cd= booking_from_db.status_cd;
 					this.reset_button(index);
-					this.bookings_from_db[index].show_cancel_button=true;
 					this.bookings_from_db[index].book_status_description='Confirmed';
+					if(this.bookings_from_db[index].is_rider)
+						this.bookings_from_db[index].show_rider_cancel_button=true;
+					if(this.bookings_from_db[index].is_driver)
+						this.bookings_from_db[index].show_driver_cancel_button=true;
 				}
 				else if ( booking_from_db.status_cd == 'J') {
 					this.bookings_from_db[index].status_cd= booking_from_db.status_cd;
@@ -201,6 +208,11 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 					this.bookings_from_db[index].book_status_description='Rejected';
 				}
 				else if ( booking_from_db.status_cd == 'D') {
+					this.bookings_from_db[index].status_cd= booking_from_db.status_cd;
+					this.reset_button(index);
+					this.bookings_from_db[index].book_status_description='Cancelled'
+				}
+				else if ( booking_from_db.status_cd == 'R') {
 					this.bookings_from_db[index].status_cd= booking_from_db.status_cd;
 					this.reset_button(index);
 					this.bookings_from_db[index].book_status_description='Cancelled'

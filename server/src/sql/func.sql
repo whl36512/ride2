@@ -47,7 +47,7 @@ BEGIN
 	margin_factor := 1.2	;
 	
 	if is_rider then
-		the_cost :=  round(price * distance * seats * 1.2 + booking_fee , 2) ;
+		the_cost :=  round(price * distance * seats * 1.2 + seats*booking_fee , 2) ;
 	else	
 		the_cost :=  round(price * distance * seats  , 2) ;
 	end if;
@@ -453,11 +453,11 @@ $body$
 -- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
 	with trip0 as (
 		SELECT t.*
-			, t.distance/600.0 degree10 
-			, start_lat	+ (start_lat	- end_lat) 	*0.03 adjusted_start_lat 
-			, start_lon	+ (start_lon	- end_lon) 	*0.03 adjusted_start_lon 
-			, end_lat	+ (end_lat	- start_lat) 	*0.03 adjusted_end_lat 
-			, end_lon	+ (end_lon	- start_lon) 	*0.03 adjusted_end_lon 
+			, t.distance/600.0 degree10  -- one tenth of the distance, in degree
+			, start_lat	+ (start_lat	- end_lat) 	*0.05 adjusted_start_lat 
+			, start_lon	+ (start_lon	- end_lon) 	*0.05 adjusted_start_lon 
+			, end_lat	+ (end_lat	- start_lat) 	*0.05 adjusted_end_lat 
+			, end_lon	+ (end_lon	- start_lon) 	*0.05 adjusted_end_lon 
 		FROM funcs.json_populate_record(NULL::trip , in_trip) t
 		where 	t.distance is not null -- make sure the distance is already found at client side
 		and	t.distance <> 0 -- make sure the distance is already found at client side
@@ -683,7 +683,7 @@ $body$
 					and (t0.end_date   is null or j.journey_date <= t0.end_date)
 				)
 		join book b on (b.journey_id=j.journey_id )
-		join book_status s on (s.status_cd= b.status_cd)
+		-- join book_status s on (s.status_cd= b.status_cd)
 		union
 		select  t.trip_id, j.journey_id, b.book_id, t.driver_id, b.rider_id, u0.usr_id
 		from user0 u0
@@ -737,6 +737,8 @@ $body$
 			, case when s.description is null then 'Seats Available'
 				else s.description
 			  end book_status_description
+			--, case when ids.usr_id = ids.driver_id then true else false end is_driver
+			--, case when ids.usr_id = ids.rider_id then true else false end is_rider
 			, case when ids.usr_id = t.driver_id then true else false end is_driver
 			, case when ids.usr_id = b.rider_id then true else false end is_rider
 			, b.pickup_display_name
@@ -753,100 +755,4 @@ $body$
 	;
 $body$
 language sql;
-create or replace function funcs.myoffers(in_trip text, in_user text)
-  returns setof json
-as
-$body$
--- in_trip has start_date and end_date
--- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
-	with trip0 as (
-		SELECT * FROM funcs.json_populate_record(NULL::trip , in_trip)
-	)
-	, user0  as ( 
-		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user)
-	)
-	, a as (
-		select 
-			t.trip_id
-			, t.driver_id
-			, b.rider_id
-			, j.journey_id
-			, b.book_id 
-			, t.start_display_name
-			, t.end_display_name
-			, t.description
-			-- , t.distance
-			, j.journey_date
-			, j.departure_time
-			, j.status_code
-			, case when u0.usr_id = t.driver_id then j.price else null end price
-			, j.seats
-			, coalesce(b.seats,0) seats_booked
-			, case when u0.usr_id = t.driver_id then b.driver_cost else null end driver_cost
-			, case when u0.usr_id = b.rider_id then b.rider_cost else null end rider_cost
-			, b.status_cd 
-			, s.description book_status_description
-			, case when u0.usr_id = t.driver_id then true else false end is_driver
-			, case when u0.usr_id = b.rider_id then true else false end is_rider
-		from user0 u0
-		join trip0 t0 on (1=1)
-		join trip t on ( t.driver_id=u0.usr_id )
-		join journey j on (t.trip_id=j.trip_id)
-		left outer join book b on (b.journey_id=j.journey_id )
-		left outer join book_status s on (s.status_cd= b.status_cd)
-		where (t0.start_date is null or j.journey_date >= t0.start_date)
-		and   (t0.end_date   is null or j.journey_date <= t0.end_date)
-	)
-	select row_to_json(a) 
-	from a
-	order by a.journey_date , a.departure_time
-	;
-$body$
-language sql;
 
-create or replace function funcs.mybooking(in_trip text, in_user text)
-  returns setof json
-as
-$body$
--- in_trip has start_date and end_date
--- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
-	with trip0 as (
-		SELECT * FROM funcs.json_populate_record(NULL::trip , in_trip)
-	)
-	, user0  as ( 
-		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user)
-	)
-	, a as (
-		select 
-			t.trip_id
-			, t.start_display_name
-			, t.end_display_name
-			, t.description
-			-- , t.distance
-			, j.journey_id
-			, j.journey_date
-			, j.departure_time
-			, j.status_code
-			--, j.price
-			--, j.seats
-			, b.book_id 
-			, b.seats
-			--, b.driver_cost 
-			, b.rider_cost 
-			, b.status_cd status_cd
-			, s.description book_status_description
-		from user0 u0
-		join trip0 t0 on (1=1)
-		join book b on (b.rider_id=u0.usr_id )
-		join journey j on (j.journey_id=b.journey_id)
-		join trip t on ( t.trip_id=j.trip_id )
-		join book_status s on (s.status_cd= b.status_cd)
-		where (t0.start_date is null or j.journey_date >= t0.start_date)
-		and   (t0.end_date   is null or j.journey_date <= t0.end_date)
-	)
-	select row_to_json(a) 
-	from a
-	order by a.journey_date , a.departure_time
-	;
-$body$
-language sql;

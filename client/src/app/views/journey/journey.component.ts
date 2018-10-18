@@ -74,8 +74,10 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 		for ( let index in this.journeys_from_db) {
 			this.journeys_from_db[index].show_fail_msg=false;
 			this.journeys_from_db[index].show_book_msg=false;
-			this.journeys_from_db[index].show_balance_msg=!this.journeys_from_db[index].sufficient_balance;
-			this.journeys_from_db[index].show_book_button=this.journeys_from_db[index].sufficient_balance;
+			this.journeys_from_db[index].show_balance_msg
+				=!this.journeys_from_db[index].sufficient_balance;
+			this.journeys_from_db[index].show_book_button
+				=this.journeys_from_db[index].sufficient_balance;
 			this.journeys_from_db[index].markertext=Number(index)+1;
 			//add_form(journey);
 			this.communicationService.send_marker_pair_msg( this.journeys_from_db[index]);
@@ -87,17 +89,6 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 		//this.subscription1.unsubscribe();
 		//this.subscription2.unsubscribe();
 	}
-
-/*
-	add_form (journey: any) : void {
-		let journey_form = this.form_builder.group({
-                                journey_id       : [journey.journey_id, []],
-                                }
-                        );
-		this.journey_forms.push(journey_form);
-
-	}
-*/
 
 	book(journey: any): void {
 		let search_form_value_from_storage = StorageService.getForm(Constants.KEY_FORM_SEARCH);
@@ -123,7 +114,7 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 				journey.show_fail_msg= book_from_db.status_cd!='P';
 				//journey.show_balance_msg=!journey.sufficient_balance;
 
-				journey.show_book_botton= book_from_db.status_cd!='P';
+				journey.show_book_button= book_from_db.status_cd!='P';
 				journey.seats_booked= journey.seats_booked
 							+ book_from_db.seats;
 				this.changeDetectorRef.detectChanges();
