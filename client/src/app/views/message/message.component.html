@@ -1,0 +1,23 @@
+<div class=center>Messages</div>
+<div class=warning *ngIf='false'>change_detect_count={{change_detect_counter()}}</div>
+<dl *ngFor="let msg of msgs_from_db ;let i=index;
+		let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
+		[ngClass]="{ odd: odd, even: even }">
+	<dt>
+		{{msg.user_is}} on {{msg.c_ts}}
+	</dt>
+	<dd>
+		{{msg.msg}}
+	</dd>
+</dl>
+
+
+<form [formGroup]="msg_form" (ngSubmit)='true' >
+	<textarea formControlName=msg  > </textarea>
+	<br/>
+	<button type=button (click)="action(msg_form ,0, Constants.URL_SAVE_MSG)">Send</button>
+	<span *ngIf='show_fail_msg' class='error fade'>Action Failed</span>
+</form>
+<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
+<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
+<div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>

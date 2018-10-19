@@ -58,6 +58,8 @@ pub fn router_setup() -> iron::Chain  {
     router.post("/finish", handlers::finish, "finish");
     router.post("/reject", handlers::reject, "reject");
     router.post("/confirm", handlers::confirm, "confirm");
+    router.post("/msgs", handlers::msgs, "msgs");
+    router.post("/save_msg", handlers::save_msg, "save_msg");
 
     let chain = iron::Chain::new(router);
     return chain ;

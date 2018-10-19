@@ -37,7 +37,8 @@ import { TouComponent } from './views/tou/tou.component';
 import { TosComponent } from './views/tos/tos.component';
 import { PrivacyComponent } from './views/privacy/privacy.component';
 import { ActivityComponent } from './views/activity/activity.component';
-import { BookingsComponent } from './views/bookings/bookings.component' ;
+import { BookingsComponent } from './views/bookings/bookings.component';
+import { MessageComponent } from './views/message/message.component' ;
 
 
 const appRoutes: Routes = [
@@ -74,6 +75,7 @@ const appRoutes: Routes = [
     PrivacyComponent,
     ActivityComponent,
     BookingsComponent,
+    MessageComponent,
   ],
   imports: [
     BrowserModule,

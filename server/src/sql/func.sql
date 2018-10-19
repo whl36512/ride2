@@ -26,8 +26,10 @@ create or replace function funcs.json_populate_record(base anyelement, in_text t
   returns anyelement
 as
 $body$
-	select json_populate_record(base ,regexp_replace(in_text , '": ?""', '":null', 'g')::json) t 
-	;
+-- if input json string has fields with "" value, change their value to null 
+-- in order to avoid error when converting empty string to date
+	select json_populate_record(base ,regexp_replace(in_text , '": ?""', '":null', 'g')::json) t ;
+	--select json_populate_record(base ,regexp_replace(in_text , '": ?"[ \t]*"', '":null', 'g')::json) t ;
 $body$
 language sql;
 
@@ -756,3 +758,54 @@ $body$
 $body$
 language sql;
 
+create or replace function funcs.msgs(in_book text, in_user text)
+  returns setof json
+as
+$body$
+	with b0 as (
+		SELECT * FROM funcs.json_populate_record(NULL::book , in_book)
+	)
+	, u0  as ( 
+		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user)
+	)
+	, a as (
+		select m.*
+			,  case when u0.usr_id = m.usr_id then 'Me'
+			   	when u0.usr_id != m.usr_id and m.usr_id = b.rider_id then 'Rider'
+			   	else 'Driver'
+			   end user_is
+		from u0
+		join b0 on (1=1)
+		join book b 	on ( b.book_id= b0.book_id ) 
+		join msg m 	on ( m.book_id= b.book_id )
+	)
+	select row_to_json(a) 
+	from a
+	order by a.c_ts 
+	;
+$body$
+language sql;
+
+create or replace function funcs.save_msg( in_msg text, in_user text)
+  returns msg
+as
+$body$
+DECLARE
+  m0 RECORD; 
+  u0 RECORD ;
+  m1 msg ;
+  m2 RECORD ;
+BEGIN
+	SELECT * into m0 from funcs.json_populate_record(NULL::msg, in_msg) ;
+	SELECT * into u0 from funcs.json_populate_record(NULL::usr, in_user) ;
+	
+	insert into msg ( book_id, usr_id, msg) 
+  	values  ( m0.book_id, u0.usr_id, m0.msg)
+	returning * into m1
+	;
+
+        
+	return m1;
+END
+$body$
+language plpgsql;

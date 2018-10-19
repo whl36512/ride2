@@ -45,6 +45,13 @@ export class SearchComponent implements OnInit,  OnDestroy{
 	MAX_PRICE=Constants.MAX_PRICE_RIDER;
 	ERROR_NO_ROUTE=Constants.ERROR_NO_ROUTE;
 
+	error_msg : string;
+        warning_msg : string;
+        info_msg : string;
+
+	Constants = Constants
+
+
 	trip:any;
 	form: any;
 	form_journeys : any= [];
@@ -97,7 +104,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 				end_date	: [Constants.TODAY(), [Validators.min]], 
 				departure_time	: ['', []], 
 				seats		: [1, []], 
-				price		: [this.MAX_PRICE, []], 
+				price		: [this.Constants.MAX_PRICE, []], 
 				}
 			);
 		}
@@ -135,12 +142,23 @@ export class SearchComponent implements OnInit,  OnDestroy{
 		//this.subscription2.unsubscribe();
 	}
 
+	reset_msg(index: number) : void{
+                //this.msgs_from_db[index].show_fail_msg=false;
+                //this.msgs_from_db[index].show_update_msg=false;
+                this.error_msg=null ;
+                this.warning_msg=null ;
+                this.info_msg=null ;
+        }
+
+
 	close_page() {
 		this.communicationService.close_page(Constants.SEARCH_PAGE);
 	}
 
 	onSubmit() {
 	    	console.debug("201809231416 SearchComponent.onSubmit() this.form.value=" + JSON.stringify(this.form.value) );
+		this.reset_msg(0);
+		this.warning_msg = 'Searching ...';
 		// combining data
 		let trip = { ...this.form.value, ...this.trip};
 		StorageService.storeForm(Constants.KEY_FORM_SEARCH, trip); // save search parameters for later
@@ -153,8 +171,11 @@ export class SearchComponent implements OnInit,  OnDestroy{
 
 		journeys_from_db_observable.subscribe(
 	    		journeys_from_db => {
-				console.info("201808201201 SearchComponent.constructor() journeys_from_db =" + JSON.stringify(journeys_from_db));
+				console.info("201808201201 SearchComponent.constructor() journeys_from_db =" 
+					, JSON.stringify(journeys_from_db, null, 2));
+				this.reset_msg(0);
 				this.journeys_from_db = journeys_from_db;
+				if(this.journeys_from_db.length == 0 ) this.warning_msg = 'Nothing found';
 			}
 		)
 	}

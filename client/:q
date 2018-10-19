@@ -39,11 +39,8 @@
 			</tr>
 		</tbody>
 	</table>
-	<button *ngIf='bookings_from_db[i].show_msg_button'
-		(click)="message(booking,i, Constants.URL_MSGS)">Message
-	</button>
-	<button (click)="update(booking,i)" *ngIf='bookings_from_db[i].show_update_button' 
-		title='Change available seats and unit price'>Update
+	<button (click)="update(booking,i)" *ngIf='bookings_from_db[i].show_update_button'>
+		<span class=popup data-popuptext='Change available seats and unit price'>Update<span>
 	</button>
 	<span *ngIf='bookings_from_db[i].show_update_msg' class="info fade">updated</span>
 
@@ -54,7 +51,7 @@
 		(click)="action(booking,i, Constants.URL_REJECT)">Reject
 	</button>
 	
-	<button *ngIf='bookings_from_db[i].show_driver_cancel_button' 
+	<button *ngIf='bookings_from_db[i].show_drive_cancel_button' 
 		(click)="action(booking,i, Constants.URL_REJECT)">Cancel
 	</button>
 	<button *ngIf='bookings_from_db[i].show_rider_cancel_button'
@@ -63,12 +60,7 @@
 	<button *ngIf='bookings_from_db[i].show_finish_button'
 		(click)="action(booking,i, Constants.URL_FINISH)">Finish
 	</button>
-	<span *ngIf='bookings_from_db[i].show_fail_msg' class='error fade'>Action Failed</span>
-	<app-message *ngIf='bookings_from_db[i].show_messaging_panel'
-                        [book_id]="bookings_from_db[i].book_id"
-                        [msgs_from_db]="bookings_from_db[i].msgs_from_db"
-                        >
-	</app-message>
+	<span *ngIf='bookings_from_db[i].show_fail_msg' class=error>Action Failed</span>
 
 	<div class=f08 ><span class=from>Driver from:</span> {{bookings_from_db[i].start_display_name}}</div>
 	<div class=f08 ><span class=to>Driver to:</span> {{bookings_from_db[i].end_display_name}}</div>

@@ -160,6 +160,12 @@ pub fn confirm(req: &mut Request) -> IronResult<Response> {
 pub fn reject(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_REJECT, 1)
 }
+pub fn msgs(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_MSGS, 2)
+}
+pub fn save_msg(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_SAVE_MSG, 1)
+}
 
 pub fn echo(request: &mut Request) -> IronResult<Response> {
     let request_dump  = format!("{:?}", request);

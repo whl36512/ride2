@@ -32,7 +32,7 @@ export class HttpService {
 	//private static httpClient= HttpClient; 
 	//constructor() { }
 
-	request( method: String, url: string, payload: String) : Observable<any>
+	request( method: string, url: string, payload: string) : Observable<any>
 	{
 		var response: Observable<HttpResponse<string>> ; 
 		let httpHeaders = new HttpHeaders({
@@ -64,7 +64,7 @@ export class HttpService {
 		}
 		else 
 		{
-			console.info("201808190202 HttpService.request() payload=\n" + payload);
+			console.info("201808190202 HttpService.request() payload=\n" + JSON.stringify(JSON.parse(payload), null, 2));
 			//response = this.httpClient.request(method, url, {body: payload, observe: 'response',responseType: 'text', headers: httpHeaders});
 			response  = this.httpClient.post( url, payload, {observe: 'response',responseType: 'text', headers: httpHeaders});
 		}
@@ -176,7 +176,7 @@ export class DBService {
 
 	constructor(private httpService: HttpService){}
 
-	call_db(relative_url: String, payload: any) : Observable<any> {  
+	call_db(relative_url: string, payload: any) : Observable<any> {  
 		let response_body: any ;
 		console.info("201808190205 DBService.call_db payload=\n"+ payload);
 		// add jwt token to the payload
@@ -214,7 +214,7 @@ export class DBService {
 
 
 /*
-	private add_token( relative_url: String, payload: any): any
+	private add_token( relative_url: string, payload: any): any
 	{
 		var combined_payload: any;
 		console.debug("201808190219 DBService.add_token() typeof(payload)="+ typeof(payload)) ;

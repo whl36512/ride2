@@ -101,7 +101,7 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 				this.bookings_from_db[index].show_driver_cancel_button	
 					= this.bookings_from_db[index].status_cd == 'B' ;
 			}
-			if ( this.bookings_from_db[index].is_rider) {
+			else if ( this.bookings_from_db[index].is_rider) {
 				this.bookings_from_db[index].show_rider_cancel_button	
 					= this.bookings_from_db[index].status_cd == 'B' 
 					|| this.bookings_from_db[index].status_cd == 'P' ;
@@ -109,6 +109,8 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 				this.bookings_from_db[index].show_finish_button	
 					= this.bookings_from_db[index].status_cd == 'B' ;
 			}
+			this.bookings_from_db[index].show_msg_button
+					= this.bookings_from_db[index].status_cd == 'B';
 		}
 		console.debug("201809262246 BookingsComponent.ngOnInit() exit");
   	}
@@ -139,6 +141,7 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 
 	reset_msg(index: number) : void{
 		this.bookings_from_db[index].show_fail_msg=false;
+		this.bookings_from_db[index].show_update_msg=false;
 		this.error_msg=null ;
 		this.warning_msg=null ;
 		this.info_msg=null ;
@@ -150,25 +153,24 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 		this.bookings_from_db[index].show_reject_button=false;
 		this.bookings_from_db[index].show_confirm_button=false;
 		this.bookings_from_db[index].show_finish_button=false;
+		this.bookings_from_db[index].show_msg_button=false;
 	}
 
 	update(booking_form: any, index: number): void {
 	    	console.debug("201809261901 BookingsComponent.update() booking_form=" 
 			+ JSON.stringify(booking_form.value) );
-		this.bookings_from_db[index].show_update_msg=false; // remove msg, so animation will work
+		this.reset_msg(index); // remove msg and show it again, so fade would work
 		let booking_to_db = booking_form.value;
 		let booking_from_db_observable     = this.dbService.call_db(Constants.URL_UPD_JOURNEY, booking_to_db);
 		booking_from_db_observable.subscribe(
 	    		booking_from_db => {
 				console.debug("201810072326 BookingsComponent.update() booking_from_db =" + JSON.stringify(booking_from_db));
 
-				this.reset_msg(index);
 				this.bookings_from_db[index].show_update_msg=true;
 				this.changeDetectorRef.detectChanges() ;
 				
 			},
 			error => {
-				this.reset_msg(index);
 				this.error_msg=error;
 				this.bookings_from_db[index].show_fail_msg=true;
 				this.changeDetectorRef.detectChanges() ;
@@ -178,6 +180,8 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 	}
 
 	action(booking_form: any, index: number, action : string): void {
+		this.reset_msg(index); // remove msg and show it again, so fade would work
+		this.changeDetectorRef.detectChanges();   // have to do this so fade would work
 	    	console.debug("201809261901 BookingsComponent.action() booking_form=" 
 			+ JSON.stringify(booking_form.value) );
 		let booking_to_db = booking_form.value;
@@ -187,7 +191,6 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 	    		booking_from_db => {
 				console.debug("201810072326 BookingsComponent.action() booking_from_db =" + JSON.stringify(booking_from_db));
 				
-				this.reset_msg(index);
 				
 				if ( booking_from_db.status_cd==this.bookings_from_db[index].status_cd){
 					// no status_cd change
@@ -197,10 +200,11 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 					this.bookings_from_db[index].status_cd= booking_from_db.status_cd;
 					this.reset_button(index);
 					this.bookings_from_db[index].book_status_description='Confirmed';
-					if(this.bookings_from_db[index].is_rider)
-						this.bookings_from_db[index].show_rider_cancel_button=true;
-					if(this.bookings_from_db[index].is_driver)
-						this.bookings_from_db[index].show_driver_cancel_button=true;
+					this.bookings_from_db[index].show_msg_button=true;
+					this.bookings_from_db[index].show_rider_cancel_button
+						=this.bookings_from_db[index].is_rider;
+					this.bookings_from_db[index].show_driver_cancel_button
+						= this.bookings_from_db[index].is_driver ;
 				}
 				else if ( booking_from_db.status_cd == 'J') {
 					this.bookings_from_db[index].status_cd= booking_from_db.status_cd;
@@ -227,8 +231,36 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 				
 			},
 			error => {
-				this.reset_msg(index);
 				//this.error_msg=error;
+				this.bookings_from_db[index].show_fail_msg=true;
+				this.changeDetectorRef.detectChanges();
+			}
+		)
+		
+	}
+
+	message(booking_form: any, index: number, action : string): void {
+		this.reset_msg(index); // remove msg and show it again, so fade would work
+		this.bookings_from_db[index].show_messaging_panel = true;
+		this.changeDetectorRef.detectChanges();   // have to do this so fade would work
+
+	    	console.debug("201809261901 BookingsComponent.action() booking_form=" 
+			, JSON.stringify(booking_form.value, null, 2) );
+		let data_from_db_observable     
+			= this.dbService.call_db(action, booking_form.value);
+		data_from_db_observable.subscribe(
+	    		msgs_from_db => {
+				console.debug("201810072326 BookingsComponent.action() msg_from_db =" 
+					, JSON.stringify(msgs_from_db, null,2));
+
+				this.bookings_from_db[index].msgs_from_db = msgs_from_db;
+				
+				this.changeDetectorRef.detectChanges();
+				
+			},
+			error => {
+				//this.error_msg=error;
+				this.reset_msg(index);
 				this.bookings_from_db[index].show_fail_msg=true;
 				this.changeDetectorRef.detectChanges();
 			}

@@ -38,6 +38,8 @@ export class ActivityComponent implements OnInit, OnDestroy {
 	filter:any ;
         show_body='show';
 
+	Constants = Constants;
+
 	
 
 
@@ -93,12 +95,20 @@ export class ActivityComponent implements OnInit, OnDestroy {
                 //this.subscription1.unsubscribe();
                 //this.subscription2.unsubscribe();
         }
-        close_page() {
-                this.communicationService.close_page(Constants.PAGE_ACTIVITY);
+
+        reset_msg(index: number) : void{
+                //this.msgs_from_db[index].show_fail_msg=false;
+                //this.msgs_from_db[index].show_update_msg=false;
+                this.error_msg=null ;
+                this.warning_msg=null ;
+                this.info_msg=null ;
         }
 
 	onChange()
 	{
+		this.reset_msg(0);
+		this.warning_msg='loading ...' ;
+
 		StorageService.storeForm(Constants.KEY_FORM_ACTIVITY, this.trip_form.value); 
 		this.bookings_from_db = [] ;	 //remove list of journeys
 	        let bookings_from_db_observable     
@@ -106,10 +116,14 @@ export class ActivityComponent implements OnInit, OnDestroy {
 		bookings_from_db_observable.subscribe(
 			bookings_from_db => {
 				console.debug("201810071557 ActivityComponent.onChange() bookings_from_db =" + JSON.  stringify(bookings_from_db));
+				this.reset_msg(0);
 				this.bookings_from_db = bookings_from_db ;	
+				if (this.bookings_from_db.length==0) this.warning_msg='Nothing found' ; 
 				this.set_filter();
 			},
-			error	=> { this.error_msg= error;
+			error	=> { 
+				this.reset_msg(0);
+				this.error_msg= error;
 			}
 		)
 		

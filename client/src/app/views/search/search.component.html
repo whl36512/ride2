@@ -3,7 +3,7 @@
 		<button  type="button" (click)="show_body='noshow'" > &#xfe3f; </button> 
 		<button  type="button" (click)="show_body='show'" > &#xfe40; </button> 
 	</span>
-	<div class="center f12">Search</div>
+	<br/><div class="center f12">Search</div>
 	<button   class="close-button" type="button" (click)="close_page()" > X </button>
 	<div class={{show_body}} >
 	<form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -87,10 +87,11 @@
 			<button  type="submit" [disabled]="form.invalid || trip.distance==null || trip.distance=='no route' " >Search</button> 
 		</span>
       	</form>
+	<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
+	<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
+	<div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
+
 	<p>
-      	<div *ngIf='journeys_from_db.length==0' class=warning>
-		No trips found
-	</div>
       	<app-journey *ngIf='journeys_from_db.length!=0' 
 			[journeys_from_db]="journeys_from_db" 
 			>

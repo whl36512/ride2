@@ -181,12 +181,27 @@ create table money_trnx (
 	, constraint pk_money_trnx PRIMARY KEY (money_trnx_id)
 );
 
+create table msg (
+	  msg_id 	sys_id 	not null
+	, book_id 	sys_id 	not null
+	, usr_id	sys_id 	not null
+	--, sender_id	sys_id	not null
+	--, receiver_id	sys_id	not null
+	, c_ts		sys_ts 	not null
+	, msg		text 	not null
+);
+
 alter table trip add FOREIGN KEY (driver_id) REFERENCES usr (usr_id);
 alter table journey add FOREIGN KEY (trip_id) REFERENCES trip (trip_id);
 alter table book add FOREIGN KEY (rider_id) REFERENCES usr (usr_id);
 alter table book add FOREIGN KEY (journey_id) REFERENCES journey (journey_id);
 alter table money_trnx add FOREIGN KEY (usr_id) REFERENCES usr (usr_id);
 alter table book add FOREIGN KEY (status_cd) REFERENCES book_status (status_cd);
+alter table msg add FOREIGN KEY (book_id) REFERENCES book (book_id);
+alter table msg add FOREIGN KEY (usr_id) REFERENCES usr (usr_id);
+
+
+
 
 grant all on public.usr to ride;
 grant all on public.trip to ride;
@@ -194,3 +209,4 @@ grant all on public.journey to ride;
 grant all on public.book to ride;
 grant all on public.book_status to ride;
 grant all on public.money_trnx to ride;
+grant all on public.msg to ride;

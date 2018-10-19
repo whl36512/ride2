@@ -5,12 +5,11 @@
 
 <p>
 <div class="center f12">My Activities</div>
-<button type="button" class="close-button" (click)="close_page()" >X</button>
+<button type="button" class="close-button" 
+	(click)="communicationService.close_page(Constants.PAGE_ACTIVITY);" >X
+</button>
 
 <div class={{show_body}} >
-<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
-<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
-<div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
 
 <form [formGroup]="trip_form" (ngSubmit)="onSubmit()">
 	<label for="start_date">From: </label>
@@ -34,8 +33,10 @@
 	<input type=checkbox formControlName='show_cancelled_by_rider' 	(change)='set_filter()' />Cancelled by Rider<br/>
 	<input type=checkbox formControlName='show_finished' 	(change)='set_filter()' />Finished
 </form>
+<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
+<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
+<div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
 <p>
-<div *ngIf='bookings_from_db.length==0' class=warning>Nothing found</div>
 <app-bookings *ngIf='bookings_from_db.length!=0'
                         [bookings_from_db]="bookings_from_db"
 			[filter]='filter'>
