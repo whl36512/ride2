@@ -38,7 +38,9 @@ import { TosComponent } from './views/tos/tos.component';
 import { PrivacyComponent } from './views/privacy/privacy.component';
 import { ActivityComponent } from './views/activity/activity.component';
 import { BookingsComponent } from './views/bookings/bookings.component';
-import { MessageComponent } from './views/message/message.component' ;
+import { MessageComponent } from './views/message/message.component';
+import { DepositComponent } from './views/deposit/deposit.component';
+import { WithdrawComponent } from './views/withdraw/withdraw.component' ;
 
 
 const appRoutes: Routes = [
@@ -76,6 +78,8 @@ const appRoutes: Routes = [
     ActivityComponent,
     BookingsComponent,
     MessageComponent,
+    DepositComponent,
+    WithdrawComponent,
   ],
   imports: [
     BrowserModule,

@@ -40,7 +40,10 @@
 		</tbody>
 	</table>
 	<button *ngIf='bookings_from_db[i].show_msg_button'
-		(click)="message(booking,i, Constants.URL_MSGS)">Message
+		(click)="message(null, i, null)">
+		Message
+		<span *ngIf='bookings_from_db[i].show_messaging_panel' > &#xfe3f;</span>
+		<span *ngIf='!bookings_from_db[i].show_messaging_panel' > &#xfe40;</span>
 	</button>
 	<button (click)="update(booking,i)" *ngIf='bookings_from_db[i].show_update_button' 
 		title='Change available seats and unit price'>Update

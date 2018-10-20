@@ -3,8 +3,8 @@
 <dl *ngFor="let msg of msgs_from_db ;let i=index;
 		let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
 		[ngClass]="{ odd: odd, even: even }">
-	<dt>
-		{{msg.user_is}} on {{Constants.up_to_minutes(msg.c_ts)}}
+	<dt class=f08 >
+		{{msg.user_is}} on {{Constants.up_to_minutes(msg.c_ts)}},  {{Constants.elapsed_time(msg.c_ts)}}
 	</dt>
 	<dd>
 		{{msg.msg}}
@@ -19,6 +19,6 @@
 	<span *ngIf='show_fail_msg' class='error fade'>Action Failed</span>
 </form>
 <div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
-<div class=warning>Note: For on-going messaging, please exchange your phone number or emails</div>
+<div class=warning>Note: For on-going messaging, please exchange your phone numbers or emails</div>
 <div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
 <div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>

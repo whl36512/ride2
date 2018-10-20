@@ -241,31 +241,10 @@ export class BookingsComponent implements OnInit,  OnDestroy{
 
 	message(booking_form: any, index: number, action : string): void {
 		this.reset_msg(index); // remove msg and show it again, so fade would work
-		this.bookings_from_db[index].show_messaging_panel = true;
-		this.changeDetectorRef.detectChanges();   // have to do this so fade would work
-
-	    	console.debug("201809261901 BookingsComponent.action() booking_form=" 
-			, JSON.stringify(booking_form.value, null, 2) );
-		let data_from_db_observable     
-			= this.dbService.call_db(action, booking_form.value);
-		data_from_db_observable.subscribe(
-	    		msgs_from_db => {
-				console.debug("201810072326 BookingsComponent.action() msg_from_db =" 
-					, JSON.stringify(msgs_from_db, null,2));
-
-				this.bookings_from_db[index].msgs_from_db = msgs_from_db;
-				
-				this.changeDetectorRef.detectChanges();
-				
-			},
-			error => {
-				//this.error_msg=error;
-				this.reset_msg(index);
-				this.bookings_from_db[index].show_fail_msg=true;
-				this.changeDetectorRef.detectChanges();
-			}
-		)
-		
+		this.bookings_from_db[index].show_messaging_panel 
+			= !this.bookings_from_db[index].show_messaging_panel;
+		// have to do this so fade would work
+		this.changeDetectorRef.detectChanges();   
 	}
 
 	change_detect_counter(e): number

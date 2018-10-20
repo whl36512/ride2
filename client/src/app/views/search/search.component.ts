@@ -49,7 +49,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
         warning_msg : string;
         info_msg : string;
 
-	Constants = Constants
+	Constants = Constants;
 
 
 	trip:any;

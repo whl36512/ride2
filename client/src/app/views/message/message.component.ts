@@ -72,7 +72,7 @@ export class MessageComponent implements OnInit,  OnDestroy{
 	//	, private zone: NgZone
 	){ 
 
-		this.timer = timer(200, 5000);
+		this.timer = timer(200, Constants.MSG_TIMER_WAIT);
 		this.subscription1 = this.timer.subscribe(
 			// val will be 0, 1,2,3,...
 			val => {this.get_msgs_from_db()},
@@ -85,6 +85,7 @@ export class MessageComponent implements OnInit,  OnDestroy{
 		console.debug("201809262246 MessageComponent.ngOnInit() enter");
 		//this.subscription1 = this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		//this.subscription2 = this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
+		this.warning_msg=' Loading ...' ;
 		this.get_form();
 		console.debug("201809262246 MessageComponent.ngOnInit() exit");
   	}
@@ -173,7 +174,6 @@ export class MessageComponent implements OnInit,  OnDestroy{
 
 	get_msgs_from_db(): void {
                 this.reset_msg(0); // remove msg and show it again, so fade would work
-                //this.bookings_from_db[index].show_messaging_panel = true;
                 this.changeDetectorRef.detectChanges();   // have to do this so fade would work
 		
 
@@ -192,8 +192,8 @@ export class MessageComponent implements OnInit,  OnDestroy{
                         },
                         error => {
                                 //this.error_msg=error;
-                                this.reset_msg(index);
-                                this.bookings_from_db[index].show_fail_msg=true;
+                                this.reset_msg(0);
+                                this.error_msg= error ;
                                 this.changeDetectorRef.detectChanges();
                         }
                 )

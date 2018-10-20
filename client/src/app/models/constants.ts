@@ -61,6 +61,14 @@ export class Constants{
 	static KEY_MYBOOKING	= 'form_mybooking'	;
 	static KEY_FORM_ACTIVITY= 'form_activity'	;
 
+	static MSG_TIMER_WAIT= 10000	;   // 10 seconds
+
+	static ICON_ARROW_UP  =  '&#xfe3f;';
+ 	static ICON_ARROW_DOWN=  '&#xfe40;' ;
+
+ 	static EMAIL_DEPOSIT=  'deposit@beegrove.com' ;
+
+	constructor (){} 
         static TODAY() { // TODAY is browser local time
 		let utc = new Date();
 		let d = new Date(utc.getTime() - utc.getTimezoneOffset() * 60000)
@@ -84,5 +92,20 @@ export class Constants{
 		return local_time.slice(0,10) + ' ' + local_time.slice(11,16);	
 	}
 
-	constructor (){} 
+	static elapsed_time ( date: string) : string {
+		let since_epoch = Date.parse(date);
+		let utc = new Date();
+		let minutes = Math.floor(( utc.getTime() -since_epoch + 10000)/60000);
+		
+		let days = Math.floor(minutes/60/24) ;
+		let hours = Math.floor(minutes % (60*24)/60);
+		let minutes2 = minutes % (60);
+		let elapsed_time='';
+		if (days!=0) { elapsed_time = elapsed_time+ days + ' days ' ; }
+		if (hours!=0) { elapsed_time = elapsed_time+ hours + ' hr '; }
+		if (minutes2!=0) { elapsed_time = elapsed_time+ minutes2 + ' min ';}
+		if (elapsed_time === '') { elapsed_time= 'now'; }
+		else { elapsed_time = elapsed_time + 'ago' ; }
+		return elapsed_time;
+	}
 }

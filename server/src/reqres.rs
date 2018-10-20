@@ -1,4 +1,5 @@
 use iron::request::Request ;
+use std::io::Read;
 use typemap;
 use secure_session::middleware::{SessionMiddleware, SessionConfig};
 use secure_session::session::ChaCha20Poly1305SessionManager;
@@ -48,7 +49,7 @@ pub fn session_middleware (key: [u8; 32]) -> SessionMiddleware<Session, SessionK
 
 pub struct RequestComponent {
     pub params: String,             // in json
-    pub user_from_session: Option<Usr> , // not used
+    //pub user_from_session: Option<Usr> , // not used
     pub user_from_cookie: Option<Usr> ,
     pub user_from_token : Option<Usr> ,
     pub user_from_token_string : String,
@@ -88,20 +89,31 @@ impl<'a, 'b> RideRequest for Request<'a, 'b> {
     fn inspect(& mut self) -> RequestComponent
     {
         debug!("201808131424 request ={:?}", self) ;
-        let user_from_session = self.get_session();
-        debug!("201808131424 user_from_session ={:?}", user_from_session) ;
-        let params= self .params_to_json();
-        debug!("201808131424 params ={:?}", params) ;
-        let user_from_cookie = Usr::from_js_string( & Some(params.clone())) ;
+
+        //let user_from_session = self.get_session();
+        //debug!("201808131424 user_from_session ={:?}", user_from_session) ;
+        //let params= self .params_to_json();
+        //debug!("201808131424 params ={:?}", params) ;
+        //let user_from_cookie = Usr::from_js_string( & Some(params.clone())) ;
+        //debug!("201808131424 user_from_cookie ={:?}", user_from_cookie) ;
+
+        //let user_from_token = Usr::from_token( & params) ; // token jwt string is in params
+        //debug!("201808131424 user_from_token ={:?}", user_from_token) ;
+
+	let mut payload = String::new();
+	self.body.read_to_string(&mut payload).unwrap();
+	debug!("201808131424 request payload ={}", &payload) ;
+	
+        let user_from_cookie = Usr::from_js_string( & Some(payload.clone())) ;
         debug!("201808131424 user_from_cookie ={:?}", user_from_cookie) ;
 
-        let user_from_token = Usr::from_token( & params) ; // token jwt string is in params
+        let user_from_token = Usr::from_token( & payload) ; // token jwt string is in payload
         debug!("201808131424 user_from_token ={:?}", user_from_token) ;
 
 	let user_from_token_string = (&user_from_token).as_ref() .map(|u| u.to_string())
                                 .unwrap_or(constants::EMPTY_JSON_STRING.to_string());
 
-        let request_c= RequestComponent { params, user_from_session, user_from_cookie, user_from_token, user_from_token_string} ;
+        let request_c= RequestComponent { params:payload, user_from_cookie, user_from_token, user_from_token_string} ;
         request_c.security_status();
         request_c
     }
@@ -115,7 +127,8 @@ impl<'a, 'b> RideRequest for Request<'a, 'b> {
         //use json ;
         let map = self.get_ref::<Params>().expect("ERROR 201809091802 Unable to capture params");
         debug!("20180809  map = {:?}", map) ;
-        //let json_string = serde_json::to_value(map) ;
+	//let serde_map = serde_json::Map::from(map);
+        //let json_string = serde_json::to_string(serde_map) ;
         let json_string = format!("{:?}", map) ;  // dumping of BtreeMap happens to be a json string
         debug!("20180809  json_string = {:?}", json_string) ;
         let _json : Json = serde_json::from_str(&json_string).expect(&format!("ERROR 201809091507 Unable to convert params to Json. json_string={}", json_string));
