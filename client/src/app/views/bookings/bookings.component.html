@@ -66,7 +66,6 @@
 	<span *ngIf='bookings_from_db[i].show_fail_msg' class='error fade'>Action Failed</span>
 	<app-message *ngIf='bookings_from_db[i].show_messaging_panel'
                         [book_id]="bookings_from_db[i].book_id"
-                        [msgs_from_db]="bookings_from_db[i].msgs_from_db"
                         >
 	</app-message>
 

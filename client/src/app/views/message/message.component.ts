@@ -18,6 +18,7 @@ import { AbstractControl} from '@angular/forms';
 import { Subscription }   from 'rxjs';
 
 import { EventEmitter, Input, Output} from '@angular/core';
+import { timer } from 'rxjs' ;
 
 import {GeoService} from '../../models/remote.service' ;
 import {DBService} from '../../models/remote.service' ;
@@ -43,8 +44,8 @@ export class MessageComponent implements OnInit,  OnDestroy{
 	@Input()
     	book_id: string;
 
-	@Input()
-    	msgs_from_db: any;
+	//@Input()
+    	msgs_from_db: any= [];
 
 	//@HostListener('keydown', ['$event']) 
 
@@ -60,6 +61,8 @@ export class MessageComponent implements OnInit,  OnDestroy{
         Constants = Constants;
 
 	msg_form: any ;
+	timer;
+	timer_sub;
 
 	constructor(
 		  private dbService		: DBService
@@ -68,6 +71,12 @@ export class MessageComponent implements OnInit,  OnDestroy{
 	//	, private communicationService	: CommunicationService
 	//	, private zone: NgZone
 	){ 
+
+		this.timer = timer(200, 5000);
+		this.subscription1 = this.timer.subscribe(
+			// val will be 0, 1,2,3,...
+			val => {this.get_msgs_from_db()},
+			);
   		console.debug("201809262245 MessageComponent.constructor() enter")  ;
   		console.debug("201809262245 MessageComponent.constructor() exit")  ;
   	} 
@@ -76,21 +85,25 @@ export class MessageComponent implements OnInit,  OnDestroy{
 		console.debug("201809262246 MessageComponent.ngOnInit() enter");
 		//this.subscription1 = this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		//this.subscription2 = this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
-		this.msg_form = this.form_builder.group({
-                                book_id	: [this.book_id, []],
-                                msg	: ['', []],
-                                }
-                        );
+		this.get_form();
 		console.debug("201809262246 MessageComponent.ngOnInit() exit");
   	}
 
 	ngOnDestroy() {
 		// prevent memory leak when component destroyed
-		//this.subscription1.unsubscribe();
+		this.subscription1.unsubscribe();
 		//this.subscription2.unsubscribe();
 	}
 
 	onSubmit(){}
+
+	get_form(): void {
+		this.msg_form = this.form_builder.group({
+                                book_id	: [this.book_id, []],
+                                msg	: ['', []],
+                                }
+                        );
+	}
 
 /*
 	add_form (booking: any) : void {
@@ -145,10 +158,9 @@ export class MessageComponent implements OnInit,  OnDestroy{
 	    		msg_from_db => {
 				console.debug("201810072326 MessageComponent.action() msg_from_db =" 
 					, JSON.stringify(msg_from_db, null, 2));
+				this.get_form();
 				msg_from_db.user_is='Me'; 
 				this.msgs_from_db.push(msg_from_db);
-				form.value.msg=null;   // clear textarea
-				
 				this.changeDetectorRef.detectChanges();
 			},
 			error => {
@@ -158,6 +170,35 @@ export class MessageComponent implements OnInit,  OnDestroy{
 			}
 		)
 	}
+
+	get_msgs_from_db(): void {
+                this.reset_msg(0); // remove msg and show it again, so fade would work
+                //this.bookings_from_db[index].show_messaging_panel = true;
+                this.changeDetectorRef.detectChanges();   // have to do this so fade would work
+		
+
+		var latest_c_ts = '1970-01-01';
+		if ( this.msgs_from_db.length != 0) latest_c_ts = this.msgs_from_db[this.msgs_from_db.length-1].c_ts;
+                let data_from_db_observable
+                        = this.dbService.call_db(Constants.URL_MSGS
+				, {book_id: this.book_id, c_ts: latest_c_ts});
+                data_from_db_observable.subscribe(
+                        msgs_from_db => {
+                                console.debug("201810072326 BookingsComponent.action() msg_from_db ="
+                                        , JSON.stringify(msgs_from_db, null,2));
+
+                                this.msgs_from_db = this.msgs_from_db.concat(msgs_from_db);
+                                this.changeDetectorRef.detectChanges();
+                        },
+                        error => {
+                                //this.error_msg=error;
+                                this.reset_msg(index);
+                                this.bookings_from_db[index].show_fail_msg=true;
+                                this.changeDetectorRef.detectChanges();
+                        }
+                )
+        }
+
 
 	change_detect_counter(e): number
 	{

@@ -70,6 +70,19 @@ export class Constants{
 		return s.slice(0,10) ;
 	} ; // today is in the form of 2018-09-11
 
+	static to_local_time(date : string) : string {
+		let since_epoch = Date.parse(date);
+		let utc = new Date();
+		
+		let d = new Date(since_epoch - utc.getTimezoneOffset() * 60000);
+		let s = d.toJSON() ;
+		return s;
+	}
+
+	static up_to_minutes( date: string) : string {
+		let local_time = Constants.to_local_time(date);
+		return local_time.slice(0,10) + ' ' + local_time.slice(11,16);	
+	}
 
 	constructor (){} 
 }

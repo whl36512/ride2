@@ -4,7 +4,7 @@
 		let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
 		[ngClass]="{ odd: odd, even: even }">
 	<dt>
-		{{msg.user_is}} on {{msg.c_ts}}
+		{{msg.user_is}} on {{Constants.up_to_minutes(msg.c_ts)}}
 	</dt>
 	<dd>
 		{{msg.msg}}
@@ -15,9 +15,10 @@
 <form [formGroup]="msg_form" (ngSubmit)='true' >
 	<textarea formControlName=msg  > </textarea>
 	<br/>
-	<button type=button (click)="action(msg_form ,0, Constants.URL_SAVE_MSG)">Send</button>
+	<button type=button (click)="action(msg_form ,0, Constants.URL_SAVE_MSG)">Send Message</button>
 	<span *ngIf='show_fail_msg' class='error fade'>Action Failed</span>
 </form>
 <div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
+<div class=warning>Note: For on-going messaging, please exchange your phone number or emails</div>
 <div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
 <div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>

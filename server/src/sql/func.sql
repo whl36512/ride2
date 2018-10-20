@@ -777,7 +777,7 @@ $body$
 		from u0
 		join b0 on (1=1)
 		join book b 	on ( b.book_id= b0.book_id ) 
-		join msg m 	on ( m.book_id= b.book_id )
+		join msg m 	on ( m.book_id= b.book_id and m.c_ts > b0.c_ts )
 	)
 	select row_to_json(a) 
 	from a
