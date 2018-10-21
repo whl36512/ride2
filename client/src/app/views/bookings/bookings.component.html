@@ -2,8 +2,7 @@
 <div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
 <div class=warning *ngIf='false'>change_detect_count={{change_detect_counter()}}</div>
 <div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
-<div 
-	*ngFor="let booking of booking_forms ;let i=index;
+<div *ngFor="let booking of booking_forms ;let i=index;
 		let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
 		[ngClass]="{ odd: odd, even: even }">
 	<form [formGroup]="booking" (ngSubmit)='onSubmit()'
@@ -11,6 +10,7 @@
       	<table>
 		<thead>
 			<tr >
+				<th>#</th>
 				<th>Date/Time</th>
 				<th *ngIf='bookings_from_db[i].book_id == null' >Seats</th>
 				<th *ngIf='bookings_from_db[i].book_id == null' >Price($/mile)</th>
@@ -21,19 +21,20 @@
 		</thead>
 		<tbody>
 			<tr>
+				<td>{{i+1}}<br/>
 				<td>{{bookings_from_db[i].journey_date}}<br/>
 					{{bookings_from_db[i].departure_time}}</td>
 				<td *ngIf='bookings_from_db[i].book_id == null' > 
 					{{booking.value.seats}}<br/>
-	<input type="range" formControlName="seats" min="0" max="{{Constants.MAX_SEATS}}" step=1 />
+	<input type="range" formControlName="seats" min="0" max="{{C.MAX_SEATS}}" step=1 />
 				</td>
 				<td *ngIf='bookings_from_db[i].book_id == null' > 
 					{{booking.value.price}}<br/>
-	<input type="range" formControlName="price" min="0" max="{{Constants.MAX_PRICE}}" step=0.01 />
+	<input type="range" formControlName="price" min="0" max="{{C.MAX_PRICE}}" step=0.01 />
 				</td>
 				<td *ngIf='bookings_from_db[i].book_id != null'>{{bookings_from_db[i].seats}}</td>
 				<td *ngIf='bookings_from_db[i].book_id != null'>{{bookings_from_db[i].unified_cost}}</td>
-				<td class=warning>{{bookings_from_db[i].book_status_description}}</td>
+				<td class='warning width05' >{{bookings_from_db[i].book_status_description}}</td>
 
 				
 			</tr>
@@ -48,35 +49,46 @@
 	<button (click)="update(booking,i)" *ngIf='bookings_from_db[i].show_update_button' 
 		title='Change available seats and unit price'>Update
 	</button>
-	<span *ngIf='bookings_from_db[i].show_update_msg' class="info fade">updated</span>
-
+	<span *ngIf='bookings_from_db[i].update_msg!=null' class="info fade">
+		{{bookings_from_db[i].update_msg}}
+	</span>
 	<button *ngIf='bookings_from_db[i].show_confirm_button' 
-		(click)="action(booking,i, Constants.URL_CONFIRM)">Confirm
+		(click)="action(booking,i, C.URL_CONFIRM)">Confirm
 	</button>
 	<button *ngIf='bookings_from_db[i].show_reject_button'
-		(click)="action(booking,i, Constants.URL_REJECT)">Reject
+		(click)="action(booking,i, C.URL_REJECT)">Reject
 	</button>
 	
 	<button *ngIf='bookings_from_db[i].show_driver_cancel_button' 
-		(click)="action(booking,i, Constants.URL_REJECT)">Cancel
+		(click)="action(booking,i, C.URL_REJECT)">Cancel
 	</button>
 	<button *ngIf='bookings_from_db[i].show_rider_cancel_button'
-		(click)="action(booking,i, Constants.URL_CANCEL_BOOKING)">Cancel
+		(click)="action(booking,i, C.URL_CANCEL_BOOKING)">Cancel
 	</button>
 	<button *ngIf='bookings_from_db[i].show_finish_button'
-		(click)="action(booking,i, Constants.URL_FINISH)">Finish
+		(click)="action(booking,i, C.URL_FINISH)">Finish
 	</button>
-	<span *ngIf='bookings_from_db[i].show_fail_msg' class='error fade'>Action Failed</span>
+	<span *ngIf='bookings_from_db[i].fail_msg!=null' class='error fade'>
+		{{bookings_from_db[i].fail_msg}}
+	</span>
+	</form>
+
 	<app-message *ngIf='bookings_from_db[i].show_messaging_panel'
                         [book_id]="bookings_from_db[i].book_id"
                         >
 	</app-message>
 
-	<div class=f08 ><span class=from>Driver from:</span> {{bookings_from_db[i].start_display_name}}</div>
-	<div class=f08 ><span class=to>Driver to:</span> {{bookings_from_db[i].end_display_name}}</div>
-	<div class=f08 *ngIf='bookings_from_db[i].book_id!=null'><span class=from>Passenger Pickup:</span> {{bookings_from_db[i].pickup_display_name}}</div>
-	<div class=f08 *ngIf='bookings_from_db[i].book_id!=null'><span class=to>Passenger Dropoff:</span> {{bookings_from_db[i].dropoff_display_name}}</div>
+	<div class=f08 (click)='geo_mark(i)'>
+		<span class=from>Driver from:</span> {{bookings_from_db[i].start_display_name}} <br/>
+		<span class=to>Driver to:</span> {{bookings_from_db[i].end_display_name}} 
+		<div *ngIf='bookings_from_db[i].book_id!=null'>
+			<span class=from>Passenger Pickup:</span> 
+			{{bookings_from_db[i].pickup_display_name}}
+		</div>
+		<div *ngIf='bookings_from_db[i].book_id!=null'>
+			<span class=to>Passenger Dropoff:</span> 
+			{{bookings_from_db[i].dropoff_display_name}}</div>
+	</div>
 	<div class=f08 >Description: {{bookings_from_db[i].description}}</div>
-	</form>
 	<p>
 </div>

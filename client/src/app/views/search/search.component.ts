@@ -22,6 +22,7 @@ import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 import { Constants } from '../../models/constants';
+import { C } from '../../models/constants';
 import { StorageService } from '../../models/gui.service';
 
 
@@ -219,7 +220,9 @@ export class SearchComponent implements OnInit,  OnDestroy{
 						this.trip.end_display_name=display_name;
 					}
 					this.routing();
-					this.communicationService.send_trip_msg( this.trip) ; // send lat/lon info to map commponent
+					let pair = C.convert_trip_to_pair(this.trip);
+					
+					this.communicationService.send_trip_msg( pair) ; // send lat/lon info to map commponent
 				}
 			);
 		}

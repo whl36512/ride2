@@ -61,12 +61,21 @@ export class Constants{
 	static KEY_MYBOOKING	= 'form_mybooking'	;
 	static KEY_FORM_ACTIVITY= 'form_activity'	;
 
-	static MSG_TIMER_WAIT= 10000	;   // 10 seconds
+	static MSG_TIMER_WAIT	= 10000	;   // 10 seconds
 
-	static ICON_ARROW_UP  =  '&#xfe3f;';
- 	static ICON_ARROW_DOWN=  '&#xfe40;' ;
+	static ICON_ARROW_UP  	= '&#xfe3f;';
+ 	static ICON_ARROW_DOWN	= '&#xfe40;' ;
 
- 	static EMAIL_DEPOSIT=  'deposit@beegrove.com' ;
+ 	static EMAIL_DEPOSIT	= 'deposit@beegrove.com' ;
+
+ 	static ACTION_FAIL	= 'Action Failed' ;
+ 	static OK_UPDATE	= 'Updated' ;
+ 	static OK_NO_CHANGE	= 'No Change' ;
+
+ 	static COLOR_RANDOM	= 'random' ;
+ 	static COLOR_RANDOM_SAME= 'random_same' ;
+ 	static COLOR_RED	= 'red' ;
+ 	static COLOR_GREEN	= 'green' ;
 
 	constructor (){} 
         static TODAY() { // TODAY is browser local time
@@ -101,11 +110,63 @@ export class Constants{
 		let hours = Math.floor(minutes % (60*24)/60);
 		let minutes2 = minutes % (60);
 		let elapsed_time='';
-		if (days!=0) { elapsed_time = elapsed_time+ days + ' days ' ; }
-		if (hours!=0) { elapsed_time = elapsed_time+ hours + ' hr '; }
-		if (minutes2!=0) { elapsed_time = elapsed_time+ minutes2 + ' min ';}
-		if (elapsed_time === '') { elapsed_time= 'now'; }
-		else { elapsed_time = elapsed_time + 'ago' ; }
+		if (days!=0) { elapsed_time = elapsed_time+ days + ' days ago' ; }
+		else if (hours!=0) { elapsed_time = elapsed_time+ hours + ' hr ago'; }
+		else if (minutes2!=0) { elapsed_time = elapsed_time+ minutes2 + ' min ago';}
+		else { elapsed_time= 'now'; }
 		return elapsed_time;
+	}
+
+	static stringify(json: any) :string {
+		return JSON.stringify(json,null,2);
+	}
+	
+	static convert_trip_to_pair(trip: any): any {
+                let p1 ={
+                                  lat           : trip.start_lat
+                                , lon           : trip.start_lon
+                                , display_name  : trip.start_display_name
+                                , marker_text   : trip.start_marker_text
+                                , icon_type     : trip.start_icon_type
+                                , color         : trip.start_color
+                        };
+                let p2 ={
+                                  lat           : trip.end_lat
+                                , lon           : trip.end_lon
+                                , display_name  : trip.end_display_name
+                                , marker_text   : trip.end_marker_text
+                                , icon_type     : trip.end_icon_type
+                                , color         : trip.end_color
+                        };
+                return {p1: p1, p2:p2};
+        }
+
+	static convert_book_to_pair(book: any): any {
+                let p1 ={
+                                  lat           : book.pickup_lat
+                                , lon           : book.pickup_lon
+                                , display_name  : book.pickup_display_name
+                                , marker_text   : book.pickup_marker_text
+                                , icon_type     : book.pickup_icon_type
+                                , color         : book.pickup_color
+                        };
+                let p2 ={
+                                  lat           : book.dropoff_lat
+                                , lon           : book.dropoff_lon
+                                , display_name  : book.dropoff_display_name
+                                , marker_text   : book.dropoff_marker_text
+                                , icon_type     : book.dropoff_icon_type
+                                , color         : book.dropoff_color
+                        };
+                return {p1: p1, p2:p2};
+        }
+
+
+
+}
+
+export class C extends Constants {
+	constructor (){
+		super();
 	}
 }

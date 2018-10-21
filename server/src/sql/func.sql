@@ -225,6 +225,7 @@ BEGIN
 	set seats = least(coalesce (journey0.seats, j.seats), 6)
 	  , price = coalesce (journey0.price, j.price)
 	where j.journey_id=journey0.journey_id
+	and (j.seats != journey0.seats or j.price!= journey0.price)
 	returning * into journey1
 	;
 
@@ -716,7 +717,11 @@ $body$
 			, ids.journey_id
 			, ids.book_id 
 			, t.start_display_name
+			, t.start_lat
+			, t.start_lon
 			, t.end_display_name
+			, t.end_lat
+			, t.end_lon
 			, t.description
 			-- , t.distance
 			, j.journey_date
@@ -744,7 +749,11 @@ $body$
 			, case when ids.usr_id = t.driver_id then true else false end is_driver
 			, case when ids.usr_id = b.rider_id then true else false end is_rider
 			, b.pickup_display_name
+			, b.pickup_lat
+			, b.pickup_lon
 			, b.dropoff_display_name
+			, b.dropoff_lat
+			, b.dropoff_lon
 		from ids 
 		join trip t on ( t.trip_id=ids.trip_id )
 		join journey j on (j.journey_id= ids.journey_id) 

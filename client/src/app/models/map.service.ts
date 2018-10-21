@@ -3,6 +3,8 @@ import { Injectable } from "@angular/core";
 //import { Location } from "./location";
 import * as L from "leaflet";
 
+import { C } from "./constants";
+
 @Injectable()
 export class MapService {
 	public map: L.Map;
@@ -137,6 +139,28 @@ export class MapService {
 		return true; // success
 	}
 
+	mark_point(point: any): boolean {
+		// point has properties: lat, lon, display_name, color, marker_text, icon_type
+
+		let p = {...point} // we don't want to modify input
+	
+	  	if (p.lat == undefined || p.lat == null ) return false	; // failed to place marker
+		if (this.search_marker(p.lat, p.lon) != -1) return true; //  avoid marker at same latlon
+		if (p.icon_type == undefined || p.icon_type == null ) p.icon_type= PinIcon;
+		if (p.color== undefined || p.color== null ) p.color= 'blue';
+		if (p.marker_text== undefined  ) p.marker_text= '';
+		if (p.display_name== undefined  ) p.display_name= '';
+
+		console.debug('201810210205 MapService.mark_point() p=\n', C.stringify(p));
+
+		let popup = `<div>${p.lat} ${p.lon}</div><div>${p.display_name}<div>`;
+		let marker=   L.marker([p.lat, p.lon]
+					, {icon:p.icon_type.get(p.color,p.marker_text)} )
+				.addTo(this.map).bindPopup(popup) ;
+		this.marker_arr.push(marker);
+		return true; // success
+	}
+
 	place_marker_pair(start_lat	, start_lon	, start_display_name
 			, end_lat	, end_lon	, end_display_name
 			, icon_type
@@ -195,6 +219,14 @@ export class MapService {
 		return true;
 	}
 
+	set_view(point: any) : boolean {
+		if ( point ==undefined || point == null) return false;
+		let p = point;
+		if ( p.lat == undefined || p.lat == null) return false;
+		this.map.setView([p.lat, p.lon],12);
+		return true;
+	}
+
 
 	flyToBounds(start_lat, start_lon, start_display_name, end_lat, end_lon, end_display_name, icon_type)
 		: boolean
@@ -214,8 +246,72 @@ export class MapService {
 		//if(this.markerTo)   {     this.map.removeLayer(this.markerTo); }
 		//if(this.markerFrom) {     this.map.removeLayer(this.markerFrom); }
 		this.map.fitBounds(bounds);
-		this.map.flyToBounds(bounds);
+		//this.map.flyToBounds(bounds);
 		return true;
+	}
+
+	fit_pair(pair: any) : boolean
+	{
+		let p1 = pair.p1 ;
+		let p2 = pair.p2 ;
+		if (p1 == undefined) return false;
+		if (p2 == undefined) return false;
+		if (p1.lat == undefined || p1.lat == null 
+			|| p2.lat == undefined || p2.lat == null) return false;
+		let corner1 = L.latLng(p1.lat, p1.lon);
+		let corner2 = L.latLng(p2.lat, p2.lon);
+		let bounds = L.latLngBounds(corner1, corner2);
+
+		this.map.fitBounds(bounds);
+		//this.map.flyToBounds(bounds);
+		return true;
+	}
+
+	mark_pair(pair:any) : boolean
+	{
+		let p1 = pair.p1 ;
+		let p2 = pair.p2 ;
+		if ( p1 == undefined) return false;
+		if ( p2 == undefined) return false;
+		if (p1.lat == undefined || p1.lat == null 
+			|| p2.lat == undefined || p2.lat == null) return false;
+		
+		
+		if( p1.color == undefined || p1.color == null)  p1.color = C.COLOR_GREEN;
+		if( p2.color == undefined || p2.color == null)  p2.color = C.COLOR_RED ;
+
+		if (p1.color == 'random') p1.color = this.getRandomColor();
+		if (p2.color == 'random') p2.color = this.getRandomColor();
+		if ( p1.color == 'random_same')
+		{
+			p1.color = this.getRandomColor();
+			p2.color = p1.color;
+		}
+
+		let ok=this.mark_point( p1);
+		if (! ok) return ok
+		ok = this.mark_point(p2);
+		return ok;
+	}
+
+	try_mark_pair (pair: any) : boolean {
+		let ok = this.mark_pair (pair);
+		if (ok) return ok;
+		ok = this.mark_point(pair.p1) ;
+		if (ok) return ok;
+		ok = this.mark_point(pair.p2) ;
+		return ok;
+	}
+
+	try_fit_pair (pair: any) : boolean {
+		let ok = this.fit_pair (pair);
+		if (ok) return ok;
+
+		ok= this.set_view(pair.p1);
+		if (ok) return ok;
+
+		ok = this.set_view(pair.p2) ;
+		return ok;
 	}
 
         tryFlyTo (trip: any, icon_type: any): boolean

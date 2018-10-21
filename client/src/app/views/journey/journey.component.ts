@@ -23,6 +23,7 @@ import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 import { Constants } from '../../models/constants';
+import { C } 			from '../../models/constants';
 import { StorageService } from '../../models/gui.service';
 import { UserService } from '../../models/gui.service';
 import { MapService } from '../../models/map.service';
@@ -78,9 +79,14 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 				=!this.journeys_from_db[index].sufficient_balance;
 			this.journeys_from_db[index].show_book_button
 				=this.journeys_from_db[index].sufficient_balance;
-			this.journeys_from_db[index].markertext=Number(index)+1;
+			//this.journeys_from_db[index].start_marker_text=Number(index)+1;
+			//this.journeys_from_db[index].end_marker_text=Number(index)+1;
 			//add_form(journey);
-			this.communicationService.send_marker_pair_msg( this.journeys_from_db[index]);
+			let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
+			pair.p1.marker_text= Number(index)+1;
+			pair.p2.marker_text= Number(index)+1;
+			//this.communicationService.send_marker_pair_msg( this.journeys_from_db[index]);
+			this.communicationService.send_marker_pair_msg( pair);
 		}
   	}
 

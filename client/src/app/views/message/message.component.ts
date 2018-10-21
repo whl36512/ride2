@@ -27,6 +27,7 @@ import { AppComponent } from '../../app.component';
 import { Constants } from '../../models/constants';
 //import { StorageService } from '../../models/gui.service';
 import { UserService } from '../../models/gui.service';
+import { Ridebase } from '../../models/ridebase';
 
 
 @Component({
@@ -36,7 +37,8 @@ import { UserService } from '../../models/gui.service';
   changeDetection: ChangeDetectionStrategy.OnPush ,  // prevent change detection unless @Input reference is changed
 })
 
-export class MessageComponent implements OnInit,  OnDestroy{
+//export class MessageComponent implements OnInit,  OnDestroy{
+export class MessageComponent extends Ridebase implements OnInit{ 
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
@@ -49,16 +51,16 @@ export class MessageComponent implements OnInit,  OnDestroy{
 
 	//@HostListener('keydown', ['$event']) 
 
-        error_msg : string;
-        warning_msg : string;
-        info_msg : string;
+        //error_msg : string;
+        //warning_msg : string;
+        //info_msg : string;
 	change_detect_count: number =0;
 
-	subscription1: Subscription ;
-	subscription2: Subscription ;
-	subscription3: Subscription ;
+	//subscription1: Subscription ;
+	//subscription2: Subscription ;
+	//subscription3: Subscription ;
 
-        Constants = Constants;
+        //Constants = Constants;
 
 	msg_form: any ;
 	timer;
@@ -71,6 +73,7 @@ export class MessageComponent implements OnInit,  OnDestroy{
 	//	, private communicationService	: CommunicationService
 	//	, private zone: NgZone
 	){ 
+		super();
 
 		this.timer = timer(200, Constants.MSG_TIMER_WAIT);
 		this.subscription1 = this.timer.subscribe(
@@ -90,12 +93,6 @@ export class MessageComponent implements OnInit,  OnDestroy{
 		console.debug("201809262246 MessageComponent.ngOnInit() exit");
   	}
 
-	ngOnDestroy() {
-		// prevent memory leak when component destroyed
-		this.subscription1.unsubscribe();
-		//this.subscription2.unsubscribe();
-	}
-
 	onSubmit(){}
 
 	get_form(): void {
@@ -106,45 +103,8 @@ export class MessageComponent implements OnInit,  OnDestroy{
                         );
 	}
 
-/*
-	add_form (booking: any) : void {
-		console.debug("201810072302 MessageComponent.add_form() booking = "
-			+ JSON.stringify(booking) );
-		let booking_form = this.form_builder.group({
-                                journey_id  : [booking.journey_id, []],
-                                book_id     : [booking.book_id, []],
-                                seats       : [booking.seats, []],
-                                price       : [booking.price, []],
-                                }
-                        );
-		console.debug("201810072247 MessageComponent.add_form() booking_form="+ JSON.stringify(booking_form.value));
-
-		this.msg_form.push(booking_form);
-
-	}
-*/
-
-	reset_msg(index: number) : void{
-		//this.msgs_from_db[index].show_fail_msg=false;
-		//this.msgs_from_db[index].show_update_msg=false;
-		this.error_msg=null ;
-		this.warning_msg=null ;
-		this.info_msg=null ;
-	}
-
-/*
-	reset_button(index: number) : void{
-		this.msgs_from_db[index].show_driver_cancel_button=false;
-		this.msgs_from_db[index].show_rider_cancel_button=false;
-		this.msgs_from_db[index].show_reject_button=false;
-		this.msgs_from_db[index].show_confirm_button=false;
-		this.msgs_from_db[index].show_finish_button=false;
-		this.msgs_from_db[index].show_msg_button=false;
-	}
-
-*/
 	action(form: any, index: number, action : string): void {
-		this.reset_msg(0); // remove msg and show it again, so fade would work
+		this.reset_msg(); // remove msg and show it again, so fade would work
 		this.changeDetectorRef.detectChanges();   // have to do this so fade would work
 
 	    	console.debug("201810182231 MessageComponent.action() form=" 
@@ -173,7 +133,7 @@ export class MessageComponent implements OnInit,  OnDestroy{
 	}
 
 	get_msgs_from_db(): void {
-                this.reset_msg(0); // remove msg and show it again, so fade would work
+                this.reset_msg(); // remove msg and show it again, so fade would work
                 this.changeDetectorRef.detectChanges();   // have to do this so fade would work
 		
 
@@ -192,7 +152,7 @@ export class MessageComponent implements OnInit,  OnDestroy{
                         },
                         error => {
                                 //this.error_msg=error;
-                                this.reset_msg(0);
+                                this.reset_msg();
                                 this.error_msg= error ;
                                 this.changeDetectorRef.detectChanges();
                         }

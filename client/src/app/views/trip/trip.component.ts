@@ -19,6 +19,7 @@ import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 import { Constants } from '../../models/constants';
+import { C} from '../../models/constants';
 import { StorageService } from '../../models/gui.service';
 
 
@@ -33,9 +34,9 @@ export class TripComponent implements OnInit,  OnDestroy{
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
-	subscription1: Subscription ;
-	subscription2: Subscription ;
-	subscription3: Subscription ;
+	subscription1: Subscription|null =null;
+	subscription2: Subscription|null =null;
+	subscription3: Subscription|null =null;
 
     	form_saved_to_db=false;
 
@@ -136,16 +137,18 @@ export class TripComponent implements OnInit,  OnDestroy{
 		this.geocode('start_loc');
                 this.geocode('end_loc');
 
+
 	
-		this.subscription1 = this.trip_form.valueChanges.subscribe(data => console.log('Form value changes', data));
-		this.subscription2 = this.trip_form.statusChanges.subscribe(data => console.log('Form status changes', data));
+		this.subscription1 = this.trip_form.valueChanges.subscribe(data=> console.log('Form value changes', data),);
+		this.subscription2 = this.trip_form.statusChanges.subscribe(data=> console.log('Form status changes', data),);
 		console.info("TripComponent.ngOnInit() exit");
   	}
 
 	ngOnDestroy() {
 		// prevent memory leak when component destroyed
-		this.subscription1.unsubscribe();
-		this.subscription2.unsubscribe();
+		if ( this.subscription1 != null) this.subscription1.unsubscribe();
+		if ( this.subscription2 != null) this.subscription2.unsubscribe();
+		if ( this.subscription3 != null) this.subscription3.unsubscribe();
 	}
 
 	close_page() {
@@ -170,20 +173,16 @@ export class TripComponent implements OnInit,  OnDestroy{
 	}
 
 	geocode(element_id: string) {
-		var loc: string =null;
-		var lat: number =null;
-		var lon: number =null;
-		var display_name: string =null;
+		var lat: number 	| null;
+		var lon: number 	| null;
+		var display_name: string| null ;
 		console.info("201808212149 TripComponent.geocode() element_id =" + element_id);
 		//console.info("201808212149 TripComponent.geocode()  this.geoService =" +  this.geoService);
 		//console.info("201808212149 TripComponent.geocode()  this.dbService =" +  this.dbService);
 
 
 
-		if (element_id =="start_loc") {
-			loc = this.trip_form.value.start_loc ;
-		}
-		else loc= this.trip_form.value.end_loc ;
+		let loc = element_id =="start_loc"?this.trip_form.value.start_loc:this.trip_form.value.end_loc ;
 
 		if (loc.length >= 3)  // must type at least 3 letters before geocoding starts
 		{	
@@ -221,7 +220,9 @@ export class TripComponent implements OnInit,  OnDestroy{
 						console.info("201808212149 TripComponent.geocode()  this.trip.end_display_name=" +  this.trip.end_display_name);
 					}
 					this.routing();
-					this.communicationService.send_trip_msg( this.trip) ; // send lat/lon info to map commponent
+					let pair = C.convert_trip_to_pair(this.trip);
+					
+					this.communicationService.send_trip_msg( pair) ; // send lat/lon info to map commponent
 				}
 			);
 		}
@@ -298,9 +299,11 @@ export class TripComponent implements OnInit,  OnDestroy{
 		return next_n_day;
 	}
 
+/*
 	track_trip(index, trip) {
 		return trip ? trip.trip_id : undefined;
 	}
+*/
 
 	get start_loc		() { return this.trip_form.get('start_loc'	); }  // the getter is required for reactive form validation to work 
 	get end_loc		() { return this.trip_form.get('end_loc'	); }  

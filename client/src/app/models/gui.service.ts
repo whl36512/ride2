@@ -54,6 +54,7 @@ export class Util {
 
 }
 
+/*
 export class CookieService {
   	constructor() { } ;
 	
@@ -80,6 +81,7 @@ export class CookieService {
 		return "";
 	}
 }
+*/
 
 
 export class CryptoService {
@@ -119,7 +121,7 @@ export class CryptoService {
 		return hex;
 	};
 
-	static decrypt(encrypted_hex: string): string
+	static decrypt(encrypted_hex: string): string|null
 	{
 		if (encrypted_hex== undefined || encrypted_hex== null || encrypted_hex=="") return null ;
 		// decrypt some bytes using CBC mode
@@ -165,14 +167,14 @@ export class CryptoService {
 }
 
 export class StorageService {
-	static setLocal(key: string, value: any){
+	static setLocal(key: string, value: any): void{
 		localStorage.setItem(key, value);
 	}
 	static getLocal(key: string): any{
 		let value=localStorage.getItem(key);
 		return value;
 	}
-	static setSession(key: string, value: any){
+	static setSession(key: string, value: any): void{
 		sessionStorage.setItem(key, value);
 	}
 	static getSession(key: string): any{
@@ -180,7 +182,7 @@ export class StorageService {
 		return value;
 	}
 
-	static storeForm(key, json_value) {
+	static storeForm(key : string, json_value) : void {
 		StorageService.setLocal(key, JSON.stringify(json_value));
 	}
 
