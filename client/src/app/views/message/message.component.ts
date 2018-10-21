@@ -24,7 +24,8 @@ import {GeoService} from '../../models/remote.service' ;
 import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
-import { Constants } from '../../models/constants';
+//import { Constants } from '../../models/constants';
+import { C } from '../../models/constants';
 //import { StorageService } from '../../models/gui.service';
 import { UserService } from '../../models/gui.service';
 import { Ridebase } from '../../models/ridebase';
@@ -46,40 +47,45 @@ export class MessageComponent extends Ridebase implements OnInit{
 	@Input()
     	book_id: string;
 
-	//@Input()
-    	msgs_from_db: any= [];
+	@Input()
+    	index: number;
 
 	//@HostListener('keydown', ['$event']) 
 
-        //error_msg : string;
-        //warning_msg : string;
-        //info_msg : string;
-	change_detect_count: number =0;
-
-	//subscription1: Subscription ;
-	//subscription2: Subscription ;
-	//subscription3: Subscription ;
-
-        //Constants = Constants;
-
+	msgs_from_db: any =[];
 	msg_form: any ;
 	timer;
-	timer_sub;
+	show_messaging_panel = true;
+	// close message window after fixed time 
+	msg_no_activity_count_down: number = C.MSG_NO_ACTIVITY_COUNT_DOWN; 
 
 	constructor(
 		  private dbService		: DBService
 		, private form_builder		: FormBuilder
 		, private changeDetectorRef	: ChangeDetectorRef
-	//	, private communicationService	: CommunicationService
+		, public communicationService	: CommunicationService
 	//	, private zone: NgZone
 	){ 
-		super();
+		super(communicationService);
 
-		this.timer = timer(200, Constants.MSG_TIMER_WAIT);
+		this.timer = timer(200, C.MSG_TIMER_WAIT*1000);
 		this.subscription1 = this.timer.subscribe(
 			// val will be 0, 1,2,3,...
-			val => {this.get_msgs_from_db()},
-			);
+			val => {
+				if(val >0) this.msg_no_activity_count_down -=  C.MSG_TIMER_WAIT;
+				if (this.msg_no_activity_count_down <=0 ) {
+					this.show_messaging_panel=false;
+					communicationService.send_msg(C.MSG_KEY_MSG_PANEL
+						, {index:this.index 
+						, show_messaging_panel:this.show_messaging_panel }
+					);
+				}
+				else {
+					this.get_msgs_from_db();
+				}
+
+			},
+		);
   		console.debug("201809262245 MessageComponent.constructor() enter")  ;
   		console.debug("201809262245 MessageComponent.constructor() exit")  ;
   	} 
@@ -105,12 +111,15 @@ export class MessageComponent extends Ridebase implements OnInit{
 
 	action(form: any, index: number, action : string): void {
 		this.reset_msg(); // remove msg and show it again, so fade would work
+		this.msg_no_activity_count_down = C.MSG_NO_ACTIVITY_COUNT_DOWN ;
 		this.changeDetectorRef.detectChanges();   // have to do this so fade would work
 
 	    	console.debug("201810182231 MessageComponent.action() form=" 
 			, JSON.stringify(form.value, null,2) );
 		let msg_to_db = form.value;
-		msg_to_db.book_id= this.book_id;
+		if(msg_to_db.msg.trim() === '' ) return ;
+		
+		//msg_to_db.book_id= this.book_id;
 
 		let data_from_db_observable     
 			= this.dbService.call_db(action, msg_to_db);
@@ -140,14 +149,18 @@ export class MessageComponent extends Ridebase implements OnInit{
 		var latest_c_ts = '1970-01-01';
 		if ( this.msgs_from_db.length != 0) latest_c_ts = this.msgs_from_db[this.msgs_from_db.length-1].c_ts;
                 let data_from_db_observable
-                        = this.dbService.call_db(Constants.URL_MSGS
+                        = this.dbService.call_db(C.URL_MSGS
 				, {book_id: this.book_id, c_ts: latest_c_ts});
                 data_from_db_observable.subscribe(
                         msgs_from_db => {
                                 console.debug("201810072326 BookingsComponent.action() msg_from_db ="
                                         , JSON.stringify(msgs_from_db, null,2));
 
-                                this.msgs_from_db = this.msgs_from_db.concat(msgs_from_db);
+				if (msgs_from_db.length>0 ) {
+					this.msg_no_activity_count_down 
+								= C.MSG_NO_ACTIVITY_COUNT_DOWN;
+                                	this.msgs_from_db = this.msgs_from_db.concat(msgs_from_db);
+				}
                                 this.changeDetectorRef.detectChanges();
                         },
                         error => {
@@ -159,10 +172,8 @@ export class MessageComponent extends Ridebase implements OnInit{
                 )
         }
 
+        subscription_action(msg): void {
+		console.debug("201808222332 MessageComponent.subscription_action. ignore msg");
+        }
 
-	change_detect_counter(e): number
-	{
-  		console.debug("201810131845 MessageComponent.change_detect_counter() event=", e)  ;
-		return this.change_detect_count ++;	
-	}
 }

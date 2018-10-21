@@ -20,13 +20,10 @@ import {Ridebase} from "../../models/ridebase"
 
 })
 export class Map2Component extends Ridebase implements OnInit  {
-	subscription1: Subscription;
-	subscription2: Subscription;
-	subscription3: Subscription;
 
-	constructor(private communicationService: CommunicationService
+	constructor(public communicationService: CommunicationService
 		, private mapService: MapService) { 
-		super();
+		super(communicationService);
 		this.subscription1 =this.communicationService.trip_msg.subscribe(
       			pair  => {
 				console.debug("201808222332 Map2Component.subscription1. pair="
@@ -61,9 +58,47 @@ export class Map2Component extends Ridebase implements OnInit  {
 */
 			}
     		);
+
+/*
+		this.subscription3 =this.communicationService.msg.subscribe(
+      			msg  => {
+				console.debug("201808222332 Map2Component.subscription3. msg="
+					, C.stringify(msg));
+				if (msg.msgKey==C.MSG_KEY_MARKER_CLEAR) {
+					mapService.clear_markers();
+				}
+				if (msg.msgKey == C.MSG_KEY_MARKER_PAIR ) {
+					mapService.try_mark_pair(msg);
+				}
+				if (msg.msgKey == C.MSG_KEY_MARKER_FIT ) {
+					mapService.fit_pair(msg);
+				}
+				else {
+					console.debug("201808222332 Map2Component.subscription3. ignore msg");
+				}
+			}
+    		);
+*/
+
 	}
 
 	ngOnInit() {
 		this.mapService.createMap('map', 41.889489, -87.633229, 12) ;
 	}
+
+        subscription_action(msg): void {
+		if (msg.msgKey==C.MSG_KEY_MARKER_CLEAR) {
+			this.mapService.clear_markers();
+		}
+		if (msg.msgKey == C.MSG_KEY_MARKER_PAIR ) {
+			this.mapService.try_mark_pair(msg);
+		}
+		if (msg.msgKey == C.MSG_KEY_MARKER_FIT ) {
+			this.mapService.fit_pair(msg);
+		}
+		else {
+			console.debug("201808222332 Map2Component.subscription_action. ignore msg");
+		}
+        }
+
 }

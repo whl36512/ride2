@@ -2,7 +2,9 @@ import { Component } from '@angular/core';
 import { OnDestroy } from '@angular/core';
 import { Subscription }   from 'rxjs';
 
-import {CommunicationService} from "./models/communication.service"
+import {CommunicationService} 	from "./models/communication.service" ;
+import {C} 			from "./models/constants" ;
+import {Ridebase} 		from "./models/ridebase" ;
 
 
 @Component({
@@ -10,14 +12,18 @@ import {CommunicationService} from "./models/communication.service"
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent extends Ridebase {
   	title = 'ride2';
 	pages: any ;
 	subscription1: Subscription;
 	subscription2: Subscription;
 
 
-  constructor (private communicationService: CommunicationService){
+  constructor (
+	public communicationService: CommunicationService
+  )
+  {
+	super(communicationService);
   	this.pages= {};
   	this.setFalse();
     	this.pages.nav=true;
@@ -35,6 +41,21 @@ export class AppComponent {
 			this.deselect(message);
 		}
 	);
+
+/*
+	this.subscription3 =this.communicationService.msg.subscribe(
+		msg  => {
+			console.info("201808222332 Map2Component.constructor.  subscription1 msg=\n"
+				, C.stringify(msg));
+			if(msg.msgKey ==C.MSG_KEY_PAGE_OPEN ){
+				this.select(msg.page);
+			}
+			else if ( msg.msgKey ==C.MSG_KEY_PAGE_CLOSE){
+				this.deselect(msg.page);
+			}
+		}
+	);
+*/
   }
 
 	setFalse ()
@@ -71,5 +92,14 @@ export class AppComponent {
 		// prevent memory leak when component destroyed
 		this.subscription1.unsubscribe();
 		this.subscription2.unsubscribe();
+	}
+
+	subscription_action(msg:any): void {
+		if(msg.msgKey ==C.MSG_KEY_PAGE_OPEN ){
+			this.select(msg.page);
+		}
+		else if ( msg.msgKey ==C.MSG_KEY_PAGE_CLOSE){
+			this.deselect(msg.page);
+		}
 	}
 }

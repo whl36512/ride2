@@ -22,40 +22,63 @@ import { Subscription }   from 'rxjs';
 
 //import {GeoService} from '../../models/remote.service' ;
 //import {DBService} from '../../models/remote.service' ;
-//import {CommunicationService} from '../../models/communication.service' ;
+import {CommunicationService} from './communication.service' ;
 //import { AppComponent } from '../../app.component';
 import { C } from './constants';
 //import { StorageService } from '../../models/gui.service';
 //import { UserService } from '../../models/gui.service';
 
 
-export class Ridebase implements OnDestroy{
+export abstract class Ridebase implements OnDestroy{
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
 
 
-        error_msg	: string|null = null;
-        warning_msg	: string|null = null;
-        info_msg	: string|null = null;
+        error_msg	: string|null 	= null;
+        warning_msg	: string|null 	= null;
+        info_msg	: string|null 	= null;
         change_detect_count: number =0;
+	show_body			='show';
 
 
+
+	subscription0: Subscription |null = null;
 	subscription1: Subscription |null = null;
 	subscription2: Subscription |null = null;
 	subscription3: Subscription |null = null;
+	//communicationService: CommunicationService = new CommunicationService();
 
         C = C;
         Constants = C;
 
-	constructor(){ } 
+	constructor( 
+    		// must use public or private
+		//otherwise Compiler error: Property 'communicationService' does not exist on type 'Ridebase'.
+		public communicationService: CommunicationService
+	){ 
+                this.subscription0 =this.communicationService.msg.subscribe(
+                        msg  => {
+                                console.debug("201810211343 Ridebase.subscription0. msg=\n"
+                                        , C.stringify(msg));
+				this.subscription_action(msg);
+                        }
+                );
+
+	} 
 
 	ngOnDestroy(): void {
 		// prevent memory leak when component destroyed
+		if( this.subscription0!= null) this.subscription0.unsubscribe();
 		if( this.subscription1!= null) this.subscription1.unsubscribe();
 		if( this.subscription2!= null) this.subscription2.unsubscribe();
 		if( this.subscription3!= null) this.subscription3.unsubscribe();
 	}
+	
+	abstract subscription_action(msg): void;
+//{
+		//console.debug('201810211444 Ridebase.subscription_action() ignore msg');
+	//}
 
 	reset_msg() : void{
 		this.error_msg=null ;

@@ -71,10 +71,10 @@
 	<span *ngIf='bookings_from_db[i].fail_msg!=null' class='error fade'>
 		{{bookings_from_db[i].fail_msg}}
 	</span>
-	</form>
 
 	<app-message *ngIf='bookings_from_db[i].show_messaging_panel'
                         [book_id]="bookings_from_db[i].book_id"
+                        [index]="i"
                         >
 	</app-message>
 
@@ -90,5 +90,6 @@
 			{{bookings_from_db[i].dropoff_display_name}}</div>
 	</div>
 	<div class=f08 >Description: {{bookings_from_db[i].description}}</div>
+	</form>
 	<p>
 </div>

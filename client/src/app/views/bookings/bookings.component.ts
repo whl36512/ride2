@@ -62,11 +62,29 @@ export class BookingsComponent extends Ridebase implements OnInit{
 		  private dbService		: DBService
 		, private form_builder		: FormBuilder
 		, private changeDetectorRef	: ChangeDetectorRef
-		, private communicationService	: CommunicationService
+		, public communicationService	: CommunicationService
 	//	, private zone: NgZone
 	){ 
-		super();
+
+		super(communicationService);
   		console.debug("201809262245 BookingsComponent.constructor() enter")  ;
+/*
+                this.subscription1 =this.communicationService.msg.subscribe(
+                        msg  => {
+                                console.debug("201810211343 BookingsComponent.subscription1. msg=\n"
+                                        , C.stringify(msg));
+				if (msg != undefined && msg != null && msg.msgKey == C.MSG_KEY_MSG_PANEL) {
+					this.bookings_from_db[msg.index].show_messaging_panel
+						=msg.show_messaging_panel;
+					this.reset_msgs(msg.index);
+					this.changeDetectorRef.detectChanges();
+				}
+				else {
+					console.debug("201810211344 Map2Component.subscription1. ignore msg");
+				}
+                        }
+                );
+*/
   		console.debug("201809262245 BookingsComponent.constructor() exit")  ;
   	} 
 
@@ -104,8 +122,22 @@ export class BookingsComponent extends Ridebase implements OnInit{
 					= this.bookings_from_db[index].status_cd != 'P'
 					 && this.bookings_from_db[index].book_id != null ;
 		}
+
 		console.debug("201809262246 BookingsComponent.ngOnInit() exit");
   	}
+	
+	subscription_action ( msg: any): void{
+	// overides Ridebase.subscription_action
+		if (msg != undefined && msg != null && msg.msgKey == C.MSG_KEY_MSG_PANEL) {
+			this.bookings_from_db[msg.index].show_messaging_panel
+				=msg.show_messaging_panel;
+			this.reset_msgs(msg.index);
+			this.changeDetectorRef.detectChanges();
+		}
+		else {
+			console.debug("201810211344 Map2Component.subscriptio_action(). ignore msg");
+		}
+	}
 
 	onSubmit(){}
 
@@ -242,15 +274,20 @@ export class BookingsComponent extends Ridebase implements OnInit{
 	}
 	
 	geo_mark(index: number) : void {
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});	
 		let pair = C.convert_trip_to_pair(this.bookings_from_db[index]);
 		pair.p1.marker_text = 'D'+(index+1);
 		pair.p2.marker_text = 'D'+(index+1);
-		this.communicationService.send_marker_pair_msg(pair);	
+		//this.communicationService.send_marker_pair_msg(pair);	
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);	
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);	
 
 		pair =  C.convert_book_to_pair(this.bookings_from_db[index]);
 		pair.p1.marker_text = 'P'+(index+1);
 		pair.p2.marker_text = 'P'+(index+1);
 
-		this.communicationService.send_marker_pair_msg(pair);	
+		//this.communicationService.send_marker_pair_msg(pair);	
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);	
+		this.communicationService.send_msg(C.MSG_KEY_SHOW_ACTIVITY_BODY,{show_body: C.BODY_NOSHOW});
 	}
 }

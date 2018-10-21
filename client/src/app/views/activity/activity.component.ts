@@ -18,7 +18,8 @@ import {GeoService} from '../../models/remote.service' ;
 import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
-import { Constants } from '../../models/constants';
+import { C } from '../../models/constants';
+import { Ridebase } from '../../models/ridebase';
 import { StorageService } from '../../models/gui.service';
 import { UserService } from '../../models/gui.service';
 
@@ -29,36 +30,28 @@ import { UserService } from '../../models/gui.service';
   //changeDetection: ChangeDetectionStrategy.OnPush ,  // prevent change detection unless @Input reference is changed
 })
 
-export class ActivityComponent implements OnInit, OnDestroy {
-	error_msg : string;
-	warning_msg : string;
-	info_msg : string;
+export class ActivityComponent extends Ridebase implements OnInit {
 	bookings_from_db: any= [];
 	trip_form: FormGroup;
 	filter:any ;
-        show_body='show';
-
-	Constants = Constants;
-
-	
-
 
         constructor(
                   private dbService             : DBService
                 , private form_builder          : FormBuilder
-        	, private communicationService  : CommunicationService
+        	, public communicationService  : CommunicationService
         //      , private zone: NgZone
         ){
+		super(communicationService);
                 console.debug("201809262245 ActivityComponent.constructor() enter")  ;
                 console.debug("201809262245 ActivityComponent.constructor() exit")  ;
         }
 
 
 	ngOnInit() {
-		let form_value_from_storage = StorageService.getForm(Constants.KEY_FORM_ACTIVITY);
+		let form_value_from_storage = StorageService.getForm(C.KEY_FORM_ACTIVITY);
 		if ( form_value_from_storage == null) {
                 	this.trip_form = this.form_builder.group({
-                        start_date		: [Constants.TODAY(), [Validators.min]],
+                        start_date		: [C.TODAY(), [Validators.min]],
                         end_date		: ['', [Validators.min] ],
                         show_driver		: [true, [] ],
                         show_rider		: [true, [] ],
@@ -90,39 +83,26 @@ export class ActivityComponent implements OnInit, OnDestroy {
 
 		this.onChange();
 	}
-        ngOnDestroy() {
-                // prevent memory leak when component destroyed
-                //this.subscription1.unsubscribe();
-                //this.subscription2.unsubscribe();
-        }
-
-        reset_msg(index: number) : void{
-                //this.msgs_from_db[index].show_fail_msg=false;
-                //this.msgs_from_db[index].show_update_msg=false;
-                this.error_msg=null ;
-                this.warning_msg=null ;
-                this.info_msg=null ;
-        }
 
 	onChange()
 	{
-		this.reset_msg(0);
+		this.reset_msg();
 		this.warning_msg='loading ...' ;
 
-		StorageService.storeForm(Constants.KEY_FORM_ACTIVITY, this.trip_form.value); 
+		StorageService.storeForm(C.KEY_FORM_ACTIVITY, this.trip_form.value); 
 		this.bookings_from_db = [] ;	 //remove list of journeys
 	        let bookings_from_db_observable     
-			= this.dbService.call_db(Constants.URL_ACTIVITY, this.trip_form.value);
+			= this.dbService.call_db(C.URL_ACTIVITY, this.trip_form.value);
 		bookings_from_db_observable.subscribe(
 			bookings_from_db => {
 				console.debug("201810071557 ActivityComponent.onChange() bookings_from_db =" + JSON.  stringify(bookings_from_db));
-				this.reset_msg(0);
+				this.reset_msg();
 				this.bookings_from_db = bookings_from_db ;	
 				if (this.bookings_from_db.length==0) this.warning_msg='Nothing found' ; 
 				this.set_filter();
 			},
 			error	=> { 
-				this.reset_msg(0);
+				this.reset_msg();
 				this.error_msg= error;
 			}
 		)
@@ -132,7 +112,7 @@ export class ActivityComponent implements OnInit, OnDestroy {
 	set_filter()
 	{
 		this.filter= this.trip_form.value;
-		StorageService.storeForm(Constants.KEY_FORM_ACTIVITY, this.trip_form.value); 
+		StorageService.storeForm(C.KEY_FORM_ACTIVITY, this.trip_form.value); 
 
 		for ( let index in this.bookings_from_db) {
 			this.bookings_from_db[index].show_booking
@@ -164,6 +144,17 @@ export class ActivityComponent implements OnInit, OnDestroy {
                 console.debug("201810131045 BookingsComponent.show_this() ret="+ ret)  ;
 
                 return ret;
+        }
+
+        subscription_action(msg): void {
+               if (msg != undefined && msg != null && msg.msgKey == C.MSG_KEY_SHOW_ACTIVITY_BODY) {
+                        this.show_body = msg.show_body;
+                }
+                else {
+                	console.debug('201810211444 ActivityComponent.subscription_action() ignore msg');
+                }
+
+		
         }
 }
 
