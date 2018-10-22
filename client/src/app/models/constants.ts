@@ -25,6 +25,8 @@ export class Constants{
 	static URL_REJECT 		= '/reject'	; // reject or cancel by driver
 	static URL_MSGS 		= '/msgs'	; 
 	static URL_SAVE_MSG 		= '/save_msg'	; 
+	static URL_WITHDRAW	 	= '/withdraw'	; 
+	static URL_GET_MONEY_TRNX	= '/get_money_trnx'	; 
 
 	static USER_PAGE 		= 'user'	;
 	static TRIP_PAGE 		= 'trip'	;
@@ -51,9 +53,10 @@ export class Constants{
 
 
 
-	static ERROR_NO_SESSION 	= {"error": "#201808181958 no session"} 	;
-	static ERROR_NOT_SIGNED_IN 	= {"error": "#201808181957 not signed in"} 	;
+	//static ERROR_NO_SESSION 	= {"error": "#201808181958 no session"} 	;
+	//static ERROR_NOT_SIGNED_IN 	= {"error": "#201808181957 not signed in"} 	;
 	static ERROR_NO_ROUTE 		= 'no route' 					;
+	static WARN_NOT_SIGNED_IN 	= 'Your are not signed in, yet'			;
 
 	static KEY_FORM_SEARCH		= 'form_search'		;
 	static KEY_FORM_TRIP		= 'form_trip'		;

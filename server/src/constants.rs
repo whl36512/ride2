@@ -27,6 +27,8 @@ pub static SQL_CONFIRM		: &str =  "select row_to_json(a) from funcs.confirm($1, 
 pub static SQL_REJECT		: &str =  "select row_to_json(a) from funcs.reject($1, $2) a " ;
 pub static SQL_MSGS		: &str =  "select * 		 from funcs.msgs($1, $2) a " ;
 pub static SQL_SAVE_MSG		: &str =  "select row_to_json(a) from funcs.save_msg($1, $2) a " ;
+pub static SQL_WITHDRAW		: &str =  "select row_to_json(a) from funcs.withdraw($1, $2) a " ;
+pub static SQL_GET_MONEY_TRNX	: &str =  "select row_to_json(a) from funcs.get_money_trnx($1, $2) a " ;
 
 pub static CORS_ALLOWED_HOSTS : [&str; 9] 
 	= [

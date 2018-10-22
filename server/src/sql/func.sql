@@ -625,6 +625,43 @@ $body$
 language plpgsql;
 
 
+create or replace function funcs.withdraw( in_trnx text, in_user text)
+  returns money_trnx
+as
+$body$
+DECLARE
+  	t0 RECORD ;
+  	u0 RECORD ;
+  	t1 RECORD ;
+BEGIN
+
+        SELECT * into t0 FROM funcs.json_populate_record(NULL::money_trnx, in_trnx) ;
+        SELECT * into u0 FROM funcs.json_populate_record(NULL::usr, in_trnx) ;
+
+        insert into money_trnx ( 
+		  usr_id
+		, trnx_cd
+		, requested_amount
+		, request_ts
+		, bank_email
+		, reference_no  
+		)
+        values (
+		  u0.usr_id
+		, 'W'
+		, t0.requested_amount
+		, clock_timestamp()
+		, t0.bank_email
+		, uuid_generate_v4()
+		)
+        returning * into t1
+        ;
+
+  	return t1;
+END
+$body$
+language plpgsql;
+
 create or replace function funcs.upd_money_trnx( trnx text)
   returns money_trnx
 as

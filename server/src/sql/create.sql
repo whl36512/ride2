@@ -168,7 +168,7 @@ create table book
 create table money_trnx (
 	money_trnx_id	        sys_id not null
 	, usr_id	        sys_id not null
-	, trnx_cd	        textwithdefault not null -- Deposit, Withdraw
+	, trnx_cd	        text not null -- Deposit, Withdraw
 	, requested_amount	ridemoney 
 	, actual_amount	        ridemoney
 	, request_ts	        timestamp with time zone
