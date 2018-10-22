@@ -50,8 +50,8 @@
 			</dd>
 			<dt>
 			Distance (miles): 
-			<span *ngIf="trip.distance==ERROR_NO_ROUTE " error=true>{{trip.distance}}</span>
-			<span *ngIf="trip.distance!=ERROR_NO_ROUTE "           >{{trip.distance}}</span>
+			<span *ngIf="trip.distance==C.ERROR_NO_ROUTE " error=true>{{trip.distance}}</span>
+			<span *ngIf="trip.distance!=C.ERROR_NO_ROUTE "           >{{trip.distance}}</span>
 			</dt>
         	</dl>
 
@@ -72,12 +72,12 @@
         	<dl *ngIf="step==4">
 			<dt><label for="seats">Passengers: {{this.form.value.seats}}  </label></dt>
           		<dd>
-			<input type="range" formControlName="seats" min="1" max="{{MAX_SEATS}}" step=1 /> 
+			<input type="range" formControlName="seats" min="1" max="{{C.MAX_SEATS}}" step=1 /> 
           		</dd>
 
 			<dt><label for="price">Max Price: ${{this.form.value.price}} per mile per passenger</label></dt>
           		<dd>
-			<input type="range" formControlName="price" min="0" max="{{MAX_PRICE}}" step=0.01 />
+			<input type="range" formControlName="price" min="0" max="{{C.MAX_PRICE_RIDER}}" step=0.01 />
           		</dd>
         	</dl>
 		<br/>
@@ -94,6 +94,7 @@
 	<p>
       	<app-journey *ngIf='journeys_from_db.length!=0' 
 			[journeys_from_db]="journeys_from_db" 
+			[search_criteria]="search_criteria" 
 			>
 	</app-journey>
 	</div>

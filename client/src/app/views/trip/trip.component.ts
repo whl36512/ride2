@@ -18,8 +18,9 @@ import {GeoService} from '../../models/remote.service' ;
 import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
-import { Constants } from '../../models/constants';
+//import { Constants } from '../../models/constants';
 import { C} from '../../models/constants';
+import { Ridebase} from '../../models/ridebase';
 import { StorageService } from '../../models/gui.service';
 
 
@@ -30,13 +31,13 @@ import { StorageService } from '../../models/gui.service';
   styleUrls	: ['./trip.component.css']
 })
 
-export class TripComponent implements OnInit,  OnDestroy{
+export class TripComponent extends Ridebase implements OnInit{
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
-	subscription1: Subscription|null =null;
-	subscription2: Subscription|null =null;
-	subscription3: Subscription|null =null;
+	//subscription1: Subscription|null =null;
+	//subscription2: Subscription|null =null;
+	//subscription3: Subscription|null =null;
 
     	form_saved_to_db=false;
 
@@ -44,14 +45,15 @@ export class TripComponent implements OnInit,  OnDestroy{
 	trip_form: any;
 	step=1;
 
-	show_body='show';
+	//show_body='show';
 
 	constructor(
 		  private geoService		: GeoService
 		, private dbService		: DBService
 		, private form_builder		: FormBuilder
-		, private communicationService	: CommunicationService
+		, public communicationService	: CommunicationService
 	){ 
+		super(communicationService)
   		console.log("TripComponent.constructor() enter")  ;
 	this.trip = { 
 		  "start_lat": null
@@ -68,7 +70,7 @@ export class TripComponent implements OnInit,  OnDestroy{
 
 	ngOnInit() {
 		console.debug("201810122335 TripComponent.ngOnInit() enter");
-                let form_value_from_storage = StorageService.getForm(Constants.KEY_FORM_TRIP);
+                let form_value_from_storage = StorageService.getForm(C.KEY_FORM_TRIP);
 		console.debug("201810122336 TripComponent.ngOnInit() form_value_from_storage=");
 		console.debug(JSON.stringify(form_value_from_storage));
 
@@ -83,7 +85,7 @@ export class TripComponent implements OnInit,  OnDestroy{
 				//end_lat		: ['', []], 
 				//end_lon		: ['', []],
 				//end_display_name	: ['', []],
-				start_date	: [Constants.TODAY(), [Validators.required, Validators.min]], 
+				start_date	: [C.TODAY(), [Validators.required, Validators.min]], 
 				departure_time	: ['10:00', [Validators.required]], 
 				seats		: [3, [Validators.required]], 
 				price		: [0.1, [Validators.required]], 
@@ -114,7 +116,7 @@ export class TripComponent implements OnInit,  OnDestroy{
 				//end_lat		: ['', []], 
 				//end_lon		: ['', []],
 				//end_display_name	: ['', []],
-				start_date	: [Constants.TODAY(), [Validators.required, Validators.min]], 
+				start_date	: [C.TODAY(), [Validators.required, Validators.min]], 
 				departure_time	: [form_value_from_storage.departure_time, [Validators.required]], 
 				seats		: [form_value_from_storage.seats, [Validators.required]], 
 				price		: [form_value_from_storage.price, [Validators.required]], 
@@ -152,7 +154,7 @@ export class TripComponent implements OnInit,  OnDestroy{
 	}
 
 	close_page() {
-		this.communicationService.close_page(Constants.TRIP_PAGE);
+		this.communicationService.close_page(C.TRIP_PAGE);
 	}
 
 	onSubmit() {
@@ -162,8 +164,8 @@ export class TripComponent implements OnInit,  OnDestroy{
 		// combining data
 		//this.trip = { ...this.trip_form.value, ...this.trip};
 		let trip = { ...this.trip_form.value, ...this.trip};
-		StorageService.storeForm(Constants.KEY_FORM_TRIP, trip);
-		let trip_from_db_observable     = this.dbService.call_db(Constants.UPD_TRIP_URL, trip);
+		StorageService.storeForm(C.KEY_FORM_TRIP, trip);
+		let trip_from_db_observable     = this.dbService.call_db(C.UPD_TRIP_URL, trip);
 		trip_from_db_observable.subscribe(
 	    		trip_from_db => {
 				console.info("201808201201 TripComponent.constructor() trip_from_db =" + JSON.stringify(trip_from_db));
@@ -222,12 +224,13 @@ export class TripComponent implements OnInit,  OnDestroy{
 					this.routing();
 					let pair = C.convert_trip_to_pair(this.trip);
 					
-					this.communicationService.send_trip_msg( pair) ; // send lat/lon info to map commponent
+					//this.communicationService.send_trip_msg( pair) ; // send lat/lon info to map commponent
+                                        this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+                                        this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+                                        this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
 				}
 			);
 		}
-
-
 	}
 
 	routing() 
@@ -299,11 +302,10 @@ export class TripComponent implements OnInit,  OnDestroy{
 		return next_n_day;
 	}
 
-/*
-	track_trip(index, trip) {
-		return trip ? trip.trip_id : undefined;
-	}
-*/
+        subscription_action ( msg: any): void{
+                console.debug("201810212010 TripComponent.subscriptio_action(). ignore msg");
+        }
+
 
 	get start_loc		() { return this.trip_form.get('start_loc'	); }  // the getter is required for reactive form validation to work 
 	get end_loc		() { return this.trip_form.get('end_loc'	); }  

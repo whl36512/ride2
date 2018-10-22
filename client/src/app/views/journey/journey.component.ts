@@ -22,11 +22,11 @@ import {GeoService} from '../../models/remote.service' ;
 import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
-import { Constants } from '../../models/constants';
 import { C } 			from '../../models/constants';
+import { Ridebase } 			from '../../models/ridebase';
 import { StorageService } from '../../models/gui.service';
 import { UserService } from '../../models/gui.service';
-import { MapService } from '../../models/map.service';
+import { DotIcon } from '../../models/map.service';
 
 
 @Component({
@@ -36,22 +36,16 @@ import { MapService } from '../../models/map.service';
   changeDetection: ChangeDetectionStrategy.OnPush ,  // prevent change detection unless @Input reference is changed
 })
 
-export class JourneyComponent implements OnInit,  OnDestroy{
+export class JourneyComponent extends Ridebase implements OnInit{
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
 
 	@Input()
     	journeys_from_db: any ;
+	@Input()
+	search_criteria: any;
 
-	//@Input()
-    	//seats_searched: number;
-
-	subscription1: Subscription ;
-	subscription2: Subscription ;
-	subscription3: Subscription ;
-
-	is_signed_in: boolean;
 
 	journey_forms: any =[];
 
@@ -59,9 +53,10 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 		  private dbService		: DBService
 		, private form_builder		: FormBuilder
 		, private changeDetectorRef	: ChangeDetectorRef
-		, private communicationService	: CommunicationService
+		, public communicationService	: CommunicationService
 	//	, private zone: NgZone
 	){ 
+		super(communicationService);
   		console.debug("201809262245 JourneyComponent.constructor() enter")  ;
 		this.is_signed_in= UserService.is_signed_in();
   		console.debug("201809262245 JourneyComponent.constructor() exit")  ;
@@ -79,43 +74,37 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 				=!this.journeys_from_db[index].sufficient_balance;
 			this.journeys_from_db[index].show_book_button
 				=this.journeys_from_db[index].sufficient_balance;
-			//this.journeys_from_db[index].start_marker_text=Number(index)+1;
-			//this.journeys_from_db[index].end_marker_text=Number(index)+1;
 			//add_form(journey);
+
 			let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
-			pair.p1.marker_text= Number(index)+1;
-			pair.p2.marker_text= Number(index)+1;
-			//this.communicationService.send_marker_pair_msg( this.journeys_from_db[index]);
-			this.communicationService.send_marker_pair_msg( pair);
+			pair.p1.icon_type= DotIcon ;
+			pair.p2.icon_type= DotIcon ;
+			pair.p1.marker_text= 'D'+ (Number(index)+1);
+			pair.p2.marker_text= 'D'+ (Number(index)+1);
+			this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
 		}
   	}
 
-	ngOnDestroy() {
-		// prevent memory leak when component destroyed
-		//this.subscription1.unsubscribe();
-		//this.subscription2.unsubscribe();
-	}
-
 	book(journey: any): void {
-		let search_form_value_from_storage = StorageService.getForm(Constants.KEY_FORM_SEARCH);
-
-		let book_to_db = { journey_id	: journey.journey_id
-				,pickup_loc	: search_form_value_from_storage.start_loc
-				,pickup_lat	: search_form_value_from_storage.start_lat
-				,pickup_lon	: search_form_value_from_storage.start_lon
-				,pickup_display_name: search_form_value_from_storage.start_display_name
-				,dropoff_loc	: search_form_value_from_storage.end_loc
-				,dropoff_lat	: search_form_value_from_storage.end_lat
-				,dropoff_lon	: search_form_value_from_storage.end_lon
-				,dropoff_display_name: search_form_value_from_storage.end_display_name
-				,distance	: search_form_value_from_storage.distance
-				,seats		: search_form_value_from_storage.seats
+		let book_to_db = { 
+				 journey_id	: journey.journey_id
+				,pickup_loc	: this.search_criteria.start_loc
+				,pickup_lat	: this.search_criteria.start_lat
+				,pickup_lon	: this.search_criteria.start_lon
+				,pickup_display_name: this.search_criteria.start_display_name
+				,dropoff_loc	: this.search_criteria.end_loc
+				,dropoff_lat	: this.search_criteria.end_lat
+				,dropoff_lon	: this.search_criteria.end_lon
+				,dropoff_display_name: this.search_criteria.end_display_name
+				,distance	: this.search_criteria.distance
+				,seats		: this.search_criteria.seats
 				} ;
-	    	console.debug("2018102208 JourneyComponent.book() book_to_db=" +JSON.stringify(book_to_db ));
-		let book_from_db_observable     = this.dbService.call_db(Constants.URL_BOOK, book_to_db);
+	    	console.debug("2018102208 JourneyComponent.book() book_to_db=" 
+			,C.stringify(book_to_db ));
+		let book_from_db_observable     = this.dbService.call_db(C.URL_BOOK, book_to_db);
 		book_from_db_observable.subscribe(
 	    		book_from_db => {
-				console.debug("201808201201 JourneyComponent.book() book_from_db =" + JSON.stringify(book_from_db));
+				console.debug("201808201201 JourneyComponent.book() book_from_db =" + C.stringify(book_from_db));
 				journey.show_book_msg= book_from_db.status_cd=='P';
 				journey.show_fail_msg= book_from_db.status_cd!='P';
 				//journey.show_balance_msg=!journey.sufficient_balance;
@@ -134,15 +123,7 @@ export class JourneyComponent implements OnInit,  OnDestroy{
 		)
 		
 	}
-	
-/*
-	calc_cost(item :number): number {
-		let cost = this.seats_searched
-			* this.journeys_from_db[item].price 
-			* this.journeys_from_db[item].distance;
-
-		return Math.round(cost*100)/100;
-
+	subscription_action ( msg: any): void{
+        	console.debug("201810212243 JourneyComponent.subscriptio_action(). ignore msg");
 	}
-*/
 }

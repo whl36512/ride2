@@ -40,6 +40,8 @@ export abstract class Ridebase implements OnDestroy{
         info_msg	: string|null 	= null;
         change_detect_count: number =0;
 	show_body			='show';
+	is_signed_in: boolean = false;
+
 
 
 

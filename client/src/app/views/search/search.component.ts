@@ -1,10 +1,11 @@
 // https://angular.io/guide/reactive-forms
 // https://angular.io/guide/form-validation
 
-import { Component, OnInit } from '@angular/core';
-import { OnDestroy } from '@angular/core';
-import { NgZone  } from '@angular/core';
-import { ChangeDetectionStrategy } from '@angular/core';
+import { Component} from '@angular/core';
+import { OnInit } from '@angular/core';
+//import { OnDestroy } from '@angular/core';
+//import { NgZone  } from '@angular/core';
+//import { ChangeDetectionStrategy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { FormGroup } from '@angular/forms';
 import { FormArray } from '@angular/forms';
@@ -13,16 +14,17 @@ import { Validators } from '@angular/forms';
 import { ValidatorFn } from '@angular/forms';
 import { ValidationErrors } from '@angular/forms';
 import {AbstractControl} from '@angular/forms';
-import { Subscription }   from 'rxjs';
+//import { Subscription }   from 'rxjs';
 
-import {EventEmitter, Input, Output} from '@angular/core';
+//import {EventEmitter, Input, Output} from '@angular/core';
 
 import {GeoService} from '../../models/remote.service' ;
 import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
-import { Constants } from '../../models/constants';
+//import { Constants } from '../../models/constants';
 import { C } from '../../models/constants';
+import { Ridebase } from '../../models/ridebase';
 import { StorageService } from '../../models/gui.service';
 
 
@@ -34,84 +36,60 @@ import { StorageService } from '../../models/gui.service';
 
 })
 
-export class SearchComponent implements OnInit,  OnDestroy{
+export class SearchComponent extends Ridebase implements OnInit{
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
-	subscription1: Subscription ;
-	subscription2: Subscription ;
-	subscription3: Subscription ;
-
-	MAX_SEATS=Constants.MAX_SEATS;
-	MAX_PRICE=Constants.MAX_PRICE_RIDER;
-	ERROR_NO_ROUTE=Constants.ERROR_NO_ROUTE;
-
-	error_msg : string;
-        warning_msg : string;
-        info_msg : string;
-
-	Constants = Constants;
-
 
 	trip:any;
+	search_criteria	:	any;
 	form: any;
-	form_journeys : any= [];
-	today : any;
+	//form_journeys : any= [];
+	//today : any;
 	step=1;
 	journeys_from_db: any = [];
-	//seats_searched: number=0;
-
-	show_body='show';
-
-	changed_times: number =0;
-
-	change_detect(): number{
-		return this.changed_times++;
-		
-	}
 
 	constructor(
 		  private geoService		: GeoService
 		, private dbService		: DBService
 		, private form_builder		: FormBuilder
-		, private communicationService	: CommunicationService
+		, public communicationService	: CommunicationService
 		//, private zone: NgZone
 	){ 
-
-  	console.log("SearchComponent.constructor() enter")  ;
-	this.trip = { 
-		  "start_lat": null
-		, "start_lon": null
-		, "start_display_name":null
-		, "end_lat": null
-		, "end_lon": null
-		, "end_display_name":null
-		, "distance": null
+		super(communicationService)
+  		console.log("SearchComponent.constructor() enter")  ;
+		this.trip = { 
+		  	"start_lat": null
+			, "start_lon": null
+			, "start_display_name":null
+			, "end_lat": null
+			, "end_lon": null
+			, "end_display_name":null
+			, "distance": null
 		};
 
-		this.today = Constants.TODAY();
   		console.log("201809081034 TripComponent.constructor() exit")  ;
   	} 
 
 	ngOnInit() {
-		console.info("TripComponent.ngOnInit() enter");
-		let form_value_from_storage = StorageService.getForm(Constants.KEY_FORM_SEARCH);
+		console.debug("201810212326 SearchComponent.ngOnInit() enter");
+		let form_value_from_storage = StorageService.getForm(C.KEY_FORM_SEARCH);
 		if ( form_value_from_storage == null) {
 			this.form = this.form_builder.group({
 				// initilaized as ''. Deleted value in UX becomes ''
 				start_loc	: ['', [Validators.required]],
 				end_loc		: ['', [Validators.required]], 
-				start_date	: [Constants.TODAY(), [Validators.min, Validators.required]],     
-				end_date	: [Constants.TODAY(), [Validators.min]], 
+				start_date	: [C.TODAY(), [Validators.min, Validators.required]],     
+				end_date	: [C.TODAY(), [Validators.min]], 
 				departure_time	: ['', []], 
 				seats		: [1, []], 
-				price		: [this.Constants.MAX_PRICE, []], 
+				price		: [this.C.MAX_PRICE, []], 
 				}
 			);
 		}
 		else {
 			// pre-populate search form
-			let start_date 	= Constants.TODAY();
+			let start_date 	= C.TODAY();
 
 			if ( form_value_from_storage.start_date > start_date)  
 				start_date = form_value_from_storage.start_date;
@@ -137,44 +115,26 @@ export class SearchComponent implements OnInit,  OnDestroy{
 		console.info("SearchComponent.ngOnInit() exit");
   	}
 
-	ngOnDestroy() {
-		// prevent memory leak when component destroyed
-		//this.subscription1.unsubscribe();
-		//this.subscription2.unsubscribe();
-	}
-
-	reset_msg(index: number) : void{
-                //this.msgs_from_db[index].show_fail_msg=false;
-                //this.msgs_from_db[index].show_update_msg=false;
-                this.error_msg=null ;
-                this.warning_msg=null ;
-                this.info_msg=null ;
-        }
-
-
 	close_page() {
-		this.communicationService.close_page(Constants.SEARCH_PAGE);
+		this.communicationService.close_page(C.SEARCH_PAGE);
 	}
 
 	onSubmit() {
-	    	console.debug("201809231416 SearchComponent.onSubmit() this.form.value=" + JSON.stringify(this.form.value) );
-		this.reset_msg(0);
+	    	console.debug("201809231416 SearchComponent.onSubmit() this.form.value=" + C.stringify(this.form.value) );
+		this.reset_msg();
 		this.warning_msg = 'Searching ...';
 		// combining data
-		let trip = { ...this.form.value, ...this.trip};
-		StorageService.storeForm(Constants.KEY_FORM_SEARCH, trip); // save search parameters for later
+		this.search_criteria = { ...this.form.value, ...this.trip};
+		StorageService.storeForm(C.KEY_FORM_SEARCH, this.search_criteria); // save search parameters for later
 
-		//this.seats_searched= trip.seats;
-
-		let journeys_from_db_observable     = this.dbService.call_db(Constants.URL_SEARCH, trip);
-
+		let journeys_from_db_observable     = this.dbService.call_db(C.URL_SEARCH, this.search_criteria);
 		this.journeys_from_db =[]; // remove previous search result from screen
 
 		journeys_from_db_observable.subscribe(
 	    		journeys_from_db => {
 				console.info("201808201201 SearchComponent.constructor() journeys_from_db =" 
-					, JSON.stringify(journeys_from_db, null, 2));
-				this.reset_msg(0);
+					, C.stringify(journeys_from_db));
+				this.reset_msg();
 				this.journeys_from_db = journeys_from_db;
 				if(this.journeys_from_db.length == 0 ) this.warning_msg = 'Nothing found';
 			}
@@ -198,7 +158,7 @@ export class SearchComponent implements OnInit,  OnDestroy{
 			let loc_response = this.geoService.geocode(loc) ;
 			loc_response.subscribe(
 				body => 	{
-					console.info("201809111347 SearchComponent.geocode()  body =\n" +  JSON.stringify(body));
+					console.info("201809111347 SearchComponent.geocode()  body =\n" +  C.stringify(body));
 					if (body[0]) {
 						lat=body[0].lat ;
 						lon=body[0].lon ;
@@ -221,8 +181,11 @@ export class SearchComponent implements OnInit,  OnDestroy{
 					}
 					this.routing();
 					let pair = C.convert_trip_to_pair(this.trip);
+					this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+                			this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+                			this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
 					
-					this.communicationService.send_trip_msg( pair) ; // send lat/lon info to map commponent
+					//this.communicationService.send_trip_msg( pair) ; // send lat/lon info to map commponent
 				}
 			);
 		}
@@ -241,29 +204,30 @@ export class SearchComponent implements OnInit,  OnDestroy{
 			);
 			route_response.subscribe(
 				body => {
-					console.info("201808201201 TripComponent.routing() body =" + JSON.stringify(body));
-					let distance=body.routes[0].distance ;
-					this.trip.distance= Math.round(distance /160)/10;
+					console.info("201808201201 SearchComponent.routing() body =" 
+						, C.stringify(body));
+					if( body.routes.length >0 ) {
+						let distance=body.routes[0].distance ;
+						this.trip.distance= Math.round(distance /160)/10;
+					}
+					else {
+						this.trip.distance=C.ERROR_NO_ROUTE;
+					}
 				},
 				error => {
-					this.trip.distance=Constants.ERROR_NO_ROUTE;
+					this.trip.distance=C.ERROR_NO_ROUTE;
 				}
 			);
-		} else this.trip.distance=Constants.ERROR_NO_ROUTE;
+		} else this.trip.distance=C.ERROR_NO_ROUTE;
 	}
 
-/*
-	calc_cost(item :number): number {
-		let cost = this.seats_searched
-			* this.journeys_from_db[item].price 
-			* this.journeys_from_db[item].distance;
-
-		return Math.round(cost*100)/100;
-
+	subscription_action ( msg: any): void{
+        	console.debug("201810212010 SearchComponent.subscriptio_action(). ignore msg");
 	}
-*/
 
-	get start_loc		() { return this.form.get('start_loc'	); }  // the getter is required for reactive form validation to work 
+
+	// the getter is required for reactive form validation to work 
+	get start_loc		() { return this.form.get('start_loc'	); }  
 	get end_loc		() { return this.form.get('end_loc'	); }  
 	get start_date		() { return this.form.get('start_date'	); }
 	get departure_time	() { return this.form.get('departure_time'	); }

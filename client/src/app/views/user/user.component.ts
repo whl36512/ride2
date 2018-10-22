@@ -13,7 +13,9 @@ import {AbstractControl,  ValidatorFn} from '@angular/forms';
 import {EventEmitter, Input, Output} from '@angular/core';
 
 import {Usr} from '../../models/tables' ;
-import {Constants} from '../../models/constants' ;
+//import {Constants} from '../../models/constants' ;
+import {C} from '../../models/constants' ;
+import {Ridebase} from '../../models/ridebase' ;
 import {UserService} from '../../models/gui.service' ;
 import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
@@ -26,15 +28,15 @@ import { AppComponent } from '../../app.component';
   styleUrls: ['./user.component.css']
 })
 
-export class UserComponent implements OnInit {
+export class UserComponent extends Ridebase implements OnInit {
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  user to populate its input fields. If user==undefined, angular will keep calling constructor. 
 	// By initialize user to an empty structure, repeated calling of constructor can be avoided
 	user_from_db: Usr =new Usr  ; 
 
     	saved=false;
-	error_msg: string ;
-	EMAIL_PATTERN = Constants.EMAIL_PATTERN ;
+	//error_msg: string ;
+	//EMAIL_PATTERN = Constants.EMAIL_PATTERN ;
 	user_form = this.form_builder.group({
 		email: ["",  [Validators.required, Validators.pattern]],     // sync validators must be in an array
 		//last_name: [''],
@@ -44,10 +46,10 @@ export class UserComponent implements OnInit {
 	constructor(
 		  private dbService: DBService
 		, private form_builder: FormBuilder
-		, private communicationService: CommunicationService
+		, public communicationService: CommunicationService
 	)   { 
+		super(communicationService);
   		console.log("UserComponent.constructor() enter")  ;
-		console.log( "201808201325 UserComponent EMAIL_PATTERN=" + this.EMAIL_PATTERN);
 		let user_from_cookie 	= UserService.get_profile_from_session();
 		let user_from_db_observable 	= this.dbService.get_user_from_db(user_from_cookie); 
 		user_from_db_observable.subscribe(
@@ -72,6 +74,7 @@ export class UserComponent implements OnInit {
   	}
 
 	onSubmit() {
+		this.reset_msg();
 	  	// TODO: Use EventEmitter with form value
 	    	console.warn("201808201534 UserComponent.onSubmit() this.user_form.value=" + this.user_form.value );
 	    	let user_from_db_observable     = this.dbService.get_user_from_db(this.user_form.value);
@@ -80,12 +83,22 @@ export class UserComponent implements OnInit {
 				console.info("201808201201 UserComponent.constructor() user_from_db =" + JSON.stringify(user_from_db));
 				this.user_from_db =user_from_db
 				this.saved=true;
+				this.info_msg ='Profile saved';
+			},
+			error => {
+				this.error_msg = error;
+				this.error_msg ='Action failed';
 			}
 		)
 	}
 	close_page() {
-		this.communicationService.close_page(Constants.USER_PAGE);
+		this.communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE,{page:C.PAGE_USER});
 	}
+        subscription_action ( msg: any): void{
+                console.debug("201810220042 UserComponent.subscriptio_action(). ignore msg");
+        }
+
+
 
 	
 	get email() { return this.user_form.get('email'); }  // the getter is required for reactive form validation to work 
