@@ -6,6 +6,7 @@
             	<li                   (click)="select(C.PAGE_SEARCH)" 		>Search</li>
 	    	<li *ngIf="signed_in" (click)="select(C.PAGE_TRIP)" 		>Post a Trip</li>
 	    	<li *ngIf="signed_in" (click)="select(C.PAGE_ACTIVITY)"		>My Activities</li>
+	    	<li *ngIf="signed_in" (click)="select(C.PAGE_THIST)"		>Transaction History</li>
 		<li *ngIf="signed_in" (click)="select(C.PAGE_USER)" 		>My Profile</li>
 		<li                   (click)="select(C.PAGE_DEPOSIT)"  	>Deposit</li>
 		<li                   (click)="select(C.PAGE_WITHDRAW)"  	>Withdraw</li>

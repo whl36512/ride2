@@ -94,7 +94,7 @@ onSubmit() {
 		money_trnx_from_db=> {
 			console.info("201808201201 WithdrawComponent.onSubmit() money_trnx_from_db =\n" 
 				, C.stringify(money_trnx_from_db));
-			if(money_trnx_from_db.requested_amount > 0 ) {
+			if(money_trnx_from_db.requested_amount < 0 ) { //withdraw is a debit. So negative number
 				this.saved=true;
 				this.info_msg='Request sent';
 			}

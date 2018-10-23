@@ -169,8 +169,8 @@ pub fn save_msg(req: &mut Request) -> IronResult<Response> {
 pub fn withdraw(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_WITHDRAW, 1)
 }
-pub fn get_money_trnx(req: &mut Request) -> IronResult<Response> {
-	request_sql(req, constants::SQL_GET_MONEY_TRNX, 2)
+pub fn thist(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_THIST, 2)
 }
 
 pub fn echo(request: &mut Request) -> IronResult<Response> {

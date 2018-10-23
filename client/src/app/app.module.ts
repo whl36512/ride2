@@ -40,7 +40,9 @@ import { ActivityComponent } from './views/activity/activity.component';
 import { BookingsComponent } from './views/bookings/bookings.component';
 import { MessageComponent } from './views/message/message.component';
 import { DepositComponent } from './views/deposit/deposit.component';
-import { WithdrawComponent } from './views/withdraw/withdraw.component' ;
+import { WithdrawComponent } from './views/withdraw/withdraw.component';
+import { ThistComponent } from './views/thist/thist.component';
+import { ThistlistComponent } from './views/thistlist/thistlist.component' ;
 
 
 const appRoutes: Routes = [
@@ -80,6 +82,8 @@ const appRoutes: Routes = [
     MessageComponent,
     DepositComponent,
     WithdrawComponent,
+    ThistComponent,
+    ThistlistComponent,
   ],
   imports: [
     BrowserModule,

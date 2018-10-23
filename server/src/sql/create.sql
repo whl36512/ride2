@@ -29,6 +29,31 @@ CREATE DOMAIN tswithepoch timestamp with time zone default '1970-01-01 00:00:00Z
 CREATE DOMAIN score integer  CHECK ( value in (1,2,3,4,5));
 CREATE DOMAIN ridemoney decimal(10,4) ;
 
+create type criteria as
+(
+	  start_date 		date
+	, end_date 		date
+	, start_lat 		decimal(18,14)
+	, start_lon 		decimal(18,14)
+	, end_lat 		decimal(18,14)
+	, end_lon 		decimal(18,14)
+	, pickup_lat 		decimal(18,14)
+	, pickup_lon 		decimal(18,14)
+	, dropoff_lat 		decimal(18,14)
+	, dropoff_lon 		decimal(18,14)
+	, departure_time 	time
+	, usr_id 		uuid
+	, driver_id 		uuid
+	, rider_id 		uuid
+	, trip_id 		uuid
+	, journey_id 		uuid
+	, book_id 		uuid
+	, oauth_id 		text
+        , price                 ridemoney   
+	, seats			integer
+);
+	
+
 --CREATE TYPE location AS
    --(
 	--address	text 
@@ -62,6 +87,8 @@ create table usr
 	, constraint uk_usr unique  (oauth_id)
 ) ;
 
+create index ix_usr_oauth_id on usr(oauth_id);
+
 CREATE TABLE trip
 (
         trip_id                 sys_id not null
@@ -94,7 +121,9 @@ CREATE TABLE trip
         , m_ts                  sys_ts not null
         , c_usr 		text
         , constraint pk_trip PRIMARY KEY (trip_id)
+	, constraint fk_trip2user foreign key ( driver_id) REFERENCES  usr ( usr_id)
 );
+create index ix_trip_driver_id on trip(driver_id);
 
 CREATE TABLE journey
 (
@@ -109,26 +138,28 @@ CREATE TABLE journey
         , m_ts                  sys_ts not null
         , c_usr 		text
         , constraint pk_journey PRIMARY KEY (journey_id)
+	, constraint fk_jn2trip foreign key ( trip_id) REFERENCES  trip ( trip_id)
 );
+create index ix_jn_trip_id on journey(trip_id);
 
 
-create table book_status(
-	status_cd 	char(1) not null
-	, description	textwithdefault not null
-	, constraint pk_book_status PRIMARY KEY (status_cd)
-);
+--create table book_status(
+	--status_cd 	char(1) not null
+	--, description	textwithdefault not null
+	--, constraint pk_book_status PRIMARY KEY (status_cd)
+--);
 
-insert into book_status 
-values 
-  ('P', 'Pending confirmation')
-, ('I', 'Insufficient balance')
-, ('B', 'Confirmed')
-, ('S', 'trip started')
-, ('R', 'cancelled by Rider')
-, ('D', 'cancelled by Driver')
-, ('F', 'Finished')
-, ('J', 'Rejected by driver')
-;
+--insert into book_status 
+--values 
+  --('P', 'Pending confirmation')
+--, ('I', 'Insufficient balance')
+--, ('B', 'Confirmed')
+--, ('S', 'trip started')
+--, ('R', 'cancelled by Rider')
+--, ('D', 'cancelled by Driver')
+--, ('F', 'Finished')
+--, ('J', 'Rejected by driver')
+--;
 
 create table book
 (
@@ -151,7 +182,8 @@ create table book
 	, rider_cost		ridemoney not null default 0
 	, penalty_to_driver	ridemoney not null default 0    
 	, penalty_to_rider	ridemoney not null default 0
-	, status_cd		char(1) not null default  'P' -- Pending confirmation, Booked, trip Started, Finished, cancelled by Rider, cancelled by Driver
+	, status_cd		char(1) not null default  'P' 
+-- Pending confirmation, Booked, trip Started, cancelled by Rider, cancelled by Driver, Finished, Rejected by driver
 	, rider_score		smallint  CHECK ( rider_score in (1,2,3,4,5))
 	, driver_score		smallint  CHECK ( rider_score in (1,2,3,4,5))
 	, rider_comment		text
@@ -163,12 +195,18 @@ create table book
 	, rider_cancel_ts	timestamp with time zone
 	, finish_ts		timestamp with time zone
 	, constraint pk_book PRIMARY KEY (book_id)
+	, constraint fk_book2jn foreign key ( journey_id) REFERENCES  journey ( journey_id)
+	, constraint fk_book2usr foreign key ( rider_id) REFERENCES  usr ( usr_id)
 );
+create index ix_book_journey_id on book(journey_id);
+create index ix_book_rider_id on book(rider_id);
+alter table book add constraint ck_book_status_cd check (status_cd in ('P','B','S','R','D','F','J') );
 
 create table money_trnx (
 	money_trnx_id	        sys_id not null
 	, usr_id	        sys_id not null
-	, trnx_cd	        text not null -- Deposit, Withdraw
+	, trnx_cd	        text not null 
+				-- Deposit, Withdraw, Penalty, trip Finished, Booking
 	, requested_amount	ridemoney 
 	, actual_amount	        ridemoney
 	, request_ts	        timestamp with time zone
@@ -179,7 +217,12 @@ create table money_trnx (
 	, c_ts			sys_ts not null
 	, m_ts			sys_ts not null
 	, constraint pk_money_trnx PRIMARY KEY (money_trnx_id)
+	, constraint fk_tran2usr foreign key ( usr_id) REFERENCES  usr ( usr_id)
 );
+create index ix_money_trnx_usr_id on money_trnx(usr_id);
+alter table money_trnx add constraint ck_money_trnx_trnx_cd 
+	check (trnx_cd in ('D', 'W', 'P', 'F', 'B', 'R') );
+
 
 create table msg (
 	  msg_id 	sys_id 	not null
@@ -189,24 +232,64 @@ create table msg (
 	--, receiver_id	sys_id	not null
 	, c_ts		sys_ts 	not null
 	, msg		text 	not null
+	, constraint fk_msg2usr foreign key ( usr_id) REFERENCES  usr ( usr_id)
+	, constraint fk_msg2book foreign key ( book_id) REFERENCES  book ( book_id)
 );
+create index ix_msg_book_id on msg(book_id);
 
-alter table trip add FOREIGN KEY (driver_id) REFERENCES usr (usr_id);
-alter table journey add FOREIGN KEY (trip_id) REFERENCES trip (trip_id);
-alter table book add FOREIGN KEY (rider_id) REFERENCES usr (usr_id);
-alter table book add FOREIGN KEY (journey_id) REFERENCES journey (journey_id);
-alter table money_trnx add FOREIGN KEY (usr_id) REFERENCES usr (usr_id);
-alter table book add FOREIGN KEY (status_cd) REFERENCES book_status (status_cd);
-alter table msg add FOREIGN KEY (book_id) REFERENCES book (book_id);
-alter table msg add FOREIGN KEY (usr_id) REFERENCES usr (usr_id);
+create table code (
+	code_type	text not null
+	, cd	text not null
+	, description	text not null
+	, constraint pk_code PRIMARY KEY (code_type, cd)
+)
+;
+
+insert into code values
+  ('BK', 'P', 'Pending confirmation')
+, ('BK', 'I', 'Insufficient balance')
+, ('BK', 'B', 'Confirmed')
+, ('BK', 'S', 'trip started')
+, ('BK', 'R', 'cancelled by Rider')
+, ('BK', 'D', 'cancelled by Driver')
+, ('BK', 'F', 'Finished')
+, ('BK', 'J', 'Rejected by driver')
+, ('TRAN', 'D', 'Deposit')
+, ('TRAN', 'W', 'Withdraw')
+, ('TRAN', 'P', 'Penalty')
+, ('TRAN', 'B', 'Booking')
+, ('TRAN', 'R', 'Return')
+, ('TRAN', 'F', 'Trip Finished')
+, ('TRIP', 'A', 'Active')
+, ('JN'  , 'A', 'Active')
+, ('JN'  , 'E', 'Expired')
+;
 
 
+--alter table trip add FOREIGN KEY (driver_id) REFERENCES usr (usr_id);
+--alter table journey add FOREIGN KEY (trip_id) REFERENCES trip (trip_id);
+--alter table book add FOREIGN KEY (rider_id) REFERENCES usr (usr_id);
+--alter table book add FOREIGN KEY (journey_id) REFERENCES journey (journey_id);
+--alter table money_trnx add FOREIGN KEY (usr_id) REFERENCES usr (usr_id);
+--alter table book add FOREIGN KEY (status_cd) REFERENCES book_status (status_cd);
+--alter table msg add FOREIGN KEY (book_id) REFERENCES book (book_id);
+--alter table msg add FOREIGN KEY (usr_id) REFERENCES usr (usr_id);
 
+create view book_status as select cd status_cd, description 
+from code where code_type ='BK';
 
+create view money_trnx_trnx_cd as select cd , description 
+from code where code_type='TRAN';
+
+--grant all on public.criteria to ride;
 grant all on public.usr to ride;
 grant all on public.trip to ride;
 grant all on public.journey to ride;
 grant all on public.book to ride;
-grant all on public.book_status to ride;
+--grant all on public.book_status to ride;
 grant all on public.money_trnx to ride;
 grant all on public.msg to ride;
+grant all on public.code to ride;
+grant all on public.book_status to ride;
+grant all on public.money_trnx_trnx_cd to ride;
+

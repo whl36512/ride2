@@ -65,6 +65,7 @@ export class AppComponent extends Ridebase {
 		this.pages.trip 	= false ;
 		this.pages.signout 	= false ;
 		this.pages.activity	= false ;
+		this.pages.thist	= false ;
 		this.pages.deposit 	= false ;
 		this.pages.withdraw	= false ;
 		this.pages.contact_us	= false ;

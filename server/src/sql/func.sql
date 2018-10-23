@@ -290,6 +290,35 @@ BEGIN
 	;
 
 	-- return money to rider and apply penalty to rider
+	insert into money_trnx ( 
+		  usr_id
+		, trnx_cd
+		, actual_amount
+		, actual_ts 
+		, reference_no)
+	select 
+		 book1.rider_id
+		, 'R'
+		, book1.rider_cost
+		, clock_timestamp()
+		, book1.book_id
+	;
+
+	insert into money_trnx ( 
+		  usr_id
+		, trnx_cd
+		, actual_amount
+		, actual_ts 
+		, reference_no)
+	select 
+		 book1.rider_id
+		, 'P'
+		, - book1.penalty_to_rider
+		, clock_timestamp()
+		, book1.book_id
+	where book1.penalty_to_rider > 0
+	;
+
 	update usr u
 	set balance = 	balance 
 			+ book1.rider_cost 
@@ -347,6 +376,21 @@ BEGIN
 
 
 	-- apply penalty to driver 
+	insert into money_trnx ( 
+		  usr_id
+		, trnx_cd
+		, actual_amount
+		, actual_ts 
+		, reference_no)
+	select 
+		 ids.driver_id
+		, 'P'
+		, - book1.penalty_to_driver
+		, clock_timestamp()
+		, book1.book_id
+	where book1.penalty_to_driver >0
+	;
+		
 	update usr u
 	set 	balance = u.balance - book1.penalty_to_driver
 	where  u.usr_id	= ids.driver_id
@@ -361,6 +405,20 @@ BEGIN
 	;
 
 	-- return money to rider 
+	insert into money_trnx ( 
+		  usr_id
+		, trnx_cd
+		, actual_amount
+		, actual_ts 
+		, reference_no)
+	select 
+		 book1.rider_id
+		, 'R'
+		, book1.rider_cost
+		, clock_timestamp()
+		, book1.book_id
+	;
+
 	update usr u
 	set balance = 	balance 
 			+ book1.rider_cost 
@@ -415,6 +473,7 @@ DECLARE
   journey1 RECORD ;
   rider_id1 uuid;
   jsonrow json;
+  ids 	RECORD;
 BEGIN
 	SELECT * into book0 FROM funcs.json_populate_record(NULL::book , in_book) ;
 	SELECT * into user0 FROM funcs.json_populate_record(NULL::usr , in_user) ;
@@ -433,15 +492,33 @@ BEGIN
 	set trips_completed = trips_completed+1
 	where usr_id=book1.rider_id
 	;
+
+	select t.trip_id, j.journey_id	, t.driver_id
+	into ids
+	from journey j
+	join trip t on (t.trip_id=j.trip_id)
+	where j.journey_id = book1.journey_id
+	;
 	
 
 	-- assign money to driver
+	insert into money_trnx ( 
+		  usr_id
+		, trnx_cd
+		, actual_amount
+		, actual_ts 
+		, reference_no)
+	values (ids.driver_id
+		, 'F'
+		, book1.driver_cost
+		, clock_timestamp()
+		, book1.book_id
+		)
+	;
+
 	update usr u
 	set balance = 	balance + book1.driver_cost 
-	from journey j, trip t
-	where	j.journey_id	= book1.journey_id
-	and 	t.trip_id	= j.trip_id
-	and	u.usr_id 	= t.driver_id
+	where	u.usr_id 	= ids.driver_id
 	;
 
 	return book1;
@@ -463,7 +540,7 @@ $body$
 			, end_lon	+ (end_lon	- start_lon) 	*0.05 adjusted_end_lon 
 		FROM funcs.json_populate_record(NULL::trip , in_trip) t
 		where 	t.distance is not null -- make sure the distance is already found at client side
-		and	t.distance <> 0 -- make sure the distance is already found at client side
+		and	t.distance > 0 -- make sure the distance is already found at client side
 	)
 	, user0  as ( 
 		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user) t 
@@ -613,6 +690,20 @@ BEGIN
 	where j.journey_id= book1.journey_id
 	;
 	
+	insert into money_trnx ( 
+		usr_id
+		, trnx_cd
+		, actual_amount
+		, actual_ts 
+		, reference_no)
+	values (book1.rider_id
+		, 'B'
+		, -book1.rider_cost
+		, clock_timestamp()
+		, book1.book_id
+		)
+	;
+
 	update usr u
 	set balance = balance - book1.rider_cost
 	where u.usr_id=book1.rider_id
@@ -624,6 +715,38 @@ END
 $body$
 language plpgsql;
 
+
+create or replace function funcs.get_money_trnx( in_criteria text, in_user text)
+  returns setof json
+as
+$body$
+	with u0  as ( 
+		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user) 
+	)
+	, c0 as ( 
+		SELECT * FROM funcs.json_populate_record(NULL::criteria , in_criteria)
+	)
+	, s1 as (select  
+			coalesce(t.actual_ts, t.request_ts) date
+			, cd.description
+			, t.*
+		from u0
+		join money_trnx t on ( t.usr_id= u0.usr_id)
+		join  c0 on (1=1)  
+		left outer join money_trnx_trnx_cd cd on (  cd.cd = t.trnx_cd)
+		where (
+			t.actual_ts between coalesce(c0.start_date, '1970-01-01') 
+			and coalesce(c0.end_date, '3000-01-01')
+			or 
+			t.request_ts between coalesce(c0.start_date, '1970-01-01') 
+			and coalesce(c0.end_date, '3000-01-01')
+		)
+	)
+	select row_to_json (s1)  from s1
+	order by date desc
+	;
+$body$
+language sql;
 
 create or replace function funcs.withdraw( in_trnx text, in_user text)
   returns money_trnx
@@ -649,7 +772,7 @@ BEGIN
         values (
 		  u0.usr_id
 		, 'W'
-		, t0.requested_amount
+		, -t0.requested_amount
 		, clock_timestamp()
 		, t0.bank_email
 		, uuid_generate_v4()
@@ -715,36 +838,36 @@ $body$
 	)
 	, ids as (
 		select  t.trip_id, j.journey_id, b.book_id, t.driver_id, b.rider_id, u0.usr_id
-		from user0 u0
-		join trip0 t0 on (1=1)
-		join trip t on ( t.driver_id=u0.usr_id )
-		join journey j on (t.trip_id=j.trip_id
-					and (t0.start_date is null or j.journey_date >= t0.start_date)
-					and (t0.end_date   is null or j.journey_date <= t0.end_date)
-				)
-		join book b on (b.journey_id=j.journey_id )
+		from user0 	u0
+		join trip0 	t0 	on (1=1)
+		join trip 	t 	on ( t.driver_id=u0.usr_id )
+		join journey 	j	on (t.trip_id=j.trip_id
+			and  j.journey_date between coalesce(t0.start_date	, '1970-01-01') 
+						and coalesce(t0.end_date	, '3000-01-01')
+			)
+		join book 	b	on (b.journey_id=j.journey_id )
 		-- join book_status s on (s.status_cd= b.status_cd)
 		union
 		select  t.trip_id, j.journey_id, b.book_id, t.driver_id, b.rider_id, u0.usr_id
-		from user0 u0
-		join trip0 t0 on (1=1)
-		join book 	b on ( b.rider_id= u0.usr_id)
-		join journey 	j on ( j.journey_id = b.journey_id
-					and (t0.start_date is null or j.journey_date >= t0.start_date)
-					and (t0.end_date   is null or j.journey_date <= t0.end_date)
-					)
-		join trip 	t on ( t.trip_id = j.trip_id)
+		from user0 	u0
+		join trip0 	t0 	on (1=1)
+		join book 	b 	on ( b.rider_id= u0.usr_id)
+		join journey 	j 	on ( j.journey_id = b.journey_id
+			and  j.journey_date between coalesce(t0.start_date	, '1970-01-01') 
+						and coalesce(t0.end_date	, '3000-01-01')
+			)
+		join trip 	t 	on ( t.trip_id = j.trip_id)
 		union 
 		-- get bookable journeys to allow its driver to change seats and price
 		select  t.trip_id, j.journey_id, null book_id, t.driver_id, null rider_id, u0.usr_id
-		from user0 u0
-		join trip0 t0 on (1=1)
-		join trip t on ( t.driver_id=u0.usr_id )
-		join journey j on (t.trip_id=j.trip_id
-					and (t0.start_date is null or j.journey_date >= t0.start_date)
-					and (t0.end_date   is null or j.journey_date <= t0.end_date)
-					and j.status_code = 'A'
-				)
+		from user0	u0
+		join trip0	t0 	on ( 1=1)
+		join trip 	t 	on ( t.driver_id=u0.usr_id )
+		join journey	j	on (t.trip_id=j.trip_id
+			and  j.journey_date between coalesce(t0.start_date	, '1970-01-01') 
+						and coalesce(t0.end_date	, '3000-01-01')
+			and j.status_code = 'A'
+			)
 	)
 	, a as (
 		select 

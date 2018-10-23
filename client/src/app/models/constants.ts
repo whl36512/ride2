@@ -26,7 +26,7 @@ export class Constants{
 	static URL_MSGS 		= '/msgs'	; 
 	static URL_SAVE_MSG 		= '/save_msg'	; 
 	static URL_WITHDRAW	 	= '/withdraw'	; 
-	static URL_GET_MONEY_TRNX	= '/get_money_trnx'	; 
+	static URL_THIST		= '/thist'	; 
 
 	static USER_PAGE 		= 'user'	;
 	static TRIP_PAGE 		= 'trip'	;
@@ -44,6 +44,7 @@ export class Constants{
 	static PAGE_TOU 		= 'tou'		;
 	static PAGE_NAV 		= 'nav'		;
 	static PAGE_MAP 		= 'map'		;
+	static PAGE_THIST 		= 'thist'		;
 
 	static EMAIL_PATTERN 		= String.raw`^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-]{1,30}\.){1,4}([a-zA-Z]{2,5})$` ;
 
@@ -63,6 +64,7 @@ export class Constants{
 	static KEY_MYOFFERS		= 'form_myoffers'	;
 	static KEY_MYBOOKING		= 'form_mybooking'	;
 	static KEY_FORM_ACTIVITY	= 'form_activity'	;
+	static KEY_FORM_THIST		= 'form_thist'	;
 
 	// timer is in miliseconds. So need * 1000 when set up timer
 	static MSG_TIMER_WAIT		= 5	;   
