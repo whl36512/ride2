@@ -114,7 +114,7 @@ export class MessageComponent extends Ridebase implements OnInit{
 		this.changeDetectorRef.detectChanges();   // have to do this so fade would work
 
 	    	console.debug("201810182231 MessageComponent.action() form=" 
-			, JSON.stringify(form.value, null,2) );
+			, C.stringify(form.value) );
 		let msg_to_db = form.value;
 		if(msg_to_db.msg.trim() === '' ) return ;
 		
@@ -126,7 +126,7 @@ export class MessageComponent extends Ridebase implements OnInit{
 		data_from_db_observable.subscribe(
 	    		msg_from_db => {
 				console.debug("201810072326 MessageComponent.action() msg_from_db =" 
-					, JSON.stringify(msg_from_db, null, 2));
+					, C.stringify(msg_from_db));
 				this.get_form();
 				msg_from_db.user_is='Me'; 
 				this.msgs_from_db.push(msg_from_db);
@@ -153,7 +153,7 @@ export class MessageComponent extends Ridebase implements OnInit{
                 data_from_db_observable.subscribe(
                         msgs_from_db => {
                                 console.debug("201810072326 BookingsComponent.action() msg_from_db ="
-                                        , JSON.stringify(msgs_from_db, null,2));
+                                        , C.stringify(msgs_from_db));
 
 				if (msgs_from_db.length>0 ) {
 					this.msg_no_activity_count_down 

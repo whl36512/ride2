@@ -50,11 +50,13 @@ export class UserComponent extends Ridebase implements OnInit {
 	)   { 
 		super(communicationService);
   		console.log("UserComponent.constructor() enter")  ;
+		this.page_name = C.PAGE_USER;
 		let user_from_cookie 	= UserService.get_profile_from_session();
 		let user_from_db_observable 	= this.dbService.get_user_from_db(user_from_cookie); 
 		user_from_db_observable.subscribe(
 			user_from_db => {
-				console.info("201808201201 UserComponent.constructor() user_from_db =" + JSON.stringify(user_from_db));
+				console.info("201808201201 UserComponent.constructor() user_from_db =" 
+					, C.stringify(user_from_db));
 				if (user_from_db.error == undefined )	
 				{
 					this.user_from_db=user_from_db;
@@ -80,7 +82,8 @@ export class UserComponent extends Ridebase implements OnInit {
 	    	let user_from_db_observable     = this.dbService.get_user_from_db(this.user_form.value);
 	    	user_from_db_observable.subscribe(
 	    		user_from_db => {
-				console.info("201808201201 UserComponent.constructor() user_from_db =" + JSON.stringify(user_from_db));
+				console.info("201808201201 UserComponent.constructor() user_from_db =" 
+					, C.stringify(user_from_db));
 				this.user_from_db =user_from_db
 				this.saved=true;
 				this.info_msg ='Profile saved';
@@ -90,9 +93,6 @@ export class UserComponent extends Ridebase implements OnInit {
 				this.error_msg ='Action failed';
 			}
 		)
-	}
-	close_page() {
-		this.communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE,{page:C.PAGE_USER});
 	}
         subscription_action ( msg: any): void{
                 console.debug("201810220042 UserComponent.subscriptio_action(). ignore msg");

@@ -207,6 +207,7 @@ create table money_trnx (
 	, usr_id	        sys_id not null
 	, trnx_cd	        text not null 
 				-- Deposit, Withdraw, Penalty, trip Finished, Booking
+	, status_cd		text not null default 'K' --
 	, requested_amount	ridemoney 
 	, actual_amount	        ridemoney
 	, request_ts	        timestamp with time zone
@@ -222,6 +223,8 @@ create table money_trnx (
 create index ix_money_trnx_usr_id on money_trnx(usr_id);
 alter table money_trnx add constraint ck_money_trnx_trnx_cd 
 	check (trnx_cd in ('D', 'W', 'P', 'F', 'B', 'R') );
+alter table money_trnx add constraint ck_money_trnx_status_cd 
+	check (status_cd in ('K', 'F') );
 
 
 create table msg (
@@ -263,6 +266,8 @@ insert into code values
 , ('TRIP', 'A', 'Active')
 , ('JN'  , 'A', 'Active')
 , ('JN'  , 'E', 'Expired')
+, ('TRAN_STATUS', 'K', 'Success')
+, ('TRAN_STATUS', 'F', 'Failed')
 ;
 
 

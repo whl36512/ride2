@@ -94,10 +94,11 @@ th {
 .close-button {
         /* use absolute to position child relative to its parent. 
 	parent must have absolue of fixed position */
-        position: absolute;
+        position: fixed;
         width: auto;
         top: 0.2rem ;
         right: 3rem;
+	z-index:1000;
 }
 .hide-unhide {
         /* use absolute to position child relative to its parent. 
@@ -195,3 +196,5 @@ user-select: none;
 .width05 {
 	width: 5rem;
 }
+
+

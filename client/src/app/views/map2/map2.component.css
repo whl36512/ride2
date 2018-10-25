@@ -2,8 +2,11 @@ div#map {
         height: 100%;
         width: 100%;
         border: 0px solid #AAA;
-        z-index: 0;
+        z-index: 700;
+/*
         position: absolute;
+*/
+        position: fixed;
         left: 0px;
         top: 0px;
 }

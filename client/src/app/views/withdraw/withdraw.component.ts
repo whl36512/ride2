@@ -48,6 +48,7 @@ export class WithdrawComponent extends Ridebase implements OnInit {
 	)   { 
 		super(communicationService);
   		console.debug("WithdrawComponent.constructor() enter")  ;
+		this.page_name=C.PAGE_WITHDRAW;
   		console.debug("WithdrawComponent.constructor() exit")  ;
   	}
 
@@ -106,9 +107,6 @@ onSubmit() {
 	)
 }
 		
-close_page() {
-	this.communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE,{page:C.PAGE_WITHDRAW} );
-}
 subscription_action ( msg: any): void{
 	console.debug("201810212010 WithdrawComponent.subscriptio_action(). ignore msg");
 }

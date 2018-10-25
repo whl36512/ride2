@@ -93,7 +93,10 @@ export class Constants{
  	static MSG_KEY_MARKER_CLEAR	= 'msgKeyMarkerClear' 		; // clear all markers on the map
  	static MSG_KEY_MARKER_PAIR	= 'msgKeyMarkerPair' 		; // place marker fair on the map
  	static MSG_KEY_MARKER_FIT	= 'msgKeyMarkerFit' 		; // show map fitting the markers
- 	static MSG_KEY_SHOW_ACTIVITY_BODY	= 'msgKeyShowActivityBody' 		; // show map fitting the markers
+ 	static MSG_KEY_SHOW_ACTIVITY_BODY	= 'msgKeyShowActivityBody' ; // show map fitting the markers
+ 	static MSG_KEY_MAP_BODY_SHOW	= 'msgKeyShowMapBodyShow' 	; 
+ 	static MSG_KEY_MAP_BODY_NOSHOW	= 'msgKeyShowMapBodyNoShow' 	; 
+
  	static BODY_SHOW		= 'show' 		; 
  	static BODY_NOSHOW		= 'noshow' 		; 
 

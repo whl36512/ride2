@@ -274,20 +274,20 @@ export class BookingsComponent extends Ridebase implements OnInit{
 	}
 	
 	geo_mark(index: number) : void {
+                this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
+
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});	
+
 		let pair = C.convert_trip_to_pair(this.bookings_from_db[index]);
 		pair.p1.marker_text = 'D'+(index+1);
 		pair.p2.marker_text = 'D'+(index+1);
-		//this.communicationService.send_marker_pair_msg(pair);	
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);	
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);	
 
 		pair =  C.convert_book_to_pair(this.bookings_from_db[index]);
 		pair.p1.marker_text = 'P'+(index+1);
 		pair.p2.marker_text = 'P'+(index+1);
-
-		//this.communicationService.send_marker_pair_msg(pair);	
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);	
-		this.communicationService.send_msg(C.MSG_KEY_SHOW_ACTIVITY_BODY,{show_body: C.BODY_NOSHOW});
+		//this.communicationService.send_msg(C.MSG_KEY_SHOW_ACTIVITY_BODY,{show_body: C.BODY_NOSHOW});
 	}
 }

@@ -43,6 +43,7 @@ export class ActivityComponent extends Ridebase implements OnInit {
         ){
 		super(communicationService);
                 console.debug("201809262245 ActivityComponent.constructor() enter")  ;
+		this.page_name=C.PAGE_ACTIVITY;
                 console.debug("201809262245 ActivityComponent.constructor() exit")  ;
         }
 
@@ -95,10 +96,12 @@ export class ActivityComponent extends Ridebase implements OnInit {
 			= this.dbService.call_db(C.URL_ACTIVITY, this.trip_form.value);
 		bookings_from_db_observable.subscribe(
 			bookings_from_db => {
-				console.debug("201810071557 ActivityComponent.onChange() bookings_from_db =" + JSON.  stringify(bookings_from_db));
+				console.debug("201810071557 ActivityComponent.onChange() bookings_from_db ="
+					 , C.stringify(bookings_from_db));
 				this.reset_msg();
 				this.bookings_from_db = bookings_from_db ;	
 				if (this.bookings_from_db.length==0) this.warning_msg='Nothing found' ; 
+				else this.info_msg =`Found ${this.bookings_from_db.length} activities.`  ;
 				this.set_filter();
 			},
 			error	=> { 

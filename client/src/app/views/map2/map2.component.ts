@@ -21,84 +21,36 @@ import {Ridebase} from "../../models/ridebase"
 })
 export class Map2Component extends Ridebase implements OnInit  {
 
-	constructor(public communicationService: CommunicationService
-		, private mapService: MapService) { 
+	constructor(	  public communicationService: CommunicationService
+			, private mapService: MapService) 
+	{ 
 		super(communicationService);
-		this.subscription1 =this.communicationService.trip_msg.subscribe(
-      			pair  => {
-				console.debug("201808222332 Map2Component.subscription1. pair="
-					, C.stringify(pair));
-				//mapService.tryFlyTo(trip, PinIcon);
-				//let pair = C.convert_trip_to_pair(trip);
-
-				mapService.clear_markers();
-				mapService.try_mark_pair(pair);
-				mapService.fit_pair(pair);
-			}
-    		);
-		this.subscription2 =this.communicationService.marker_pair_msg.subscribe(
-      			pair  => {
-				console.debug("201808222332 Map2Component.subscription2. pair="
-					, C.stringify(pair));
-
-				//let pair = C.convert_trip_to_pair(trip);
-				if (pair.p1 != undefined) pair.p1.icon_type=DotIcon;
-				if (pair.p2 != undefined) pair.p2.icon_type=DotIcon;
-				mapService.mark_pair(pair);
-
-/*
-				mapService.place_marker_pair(
-					pair.start_lat, pair.start_lon, pair.start_display_name
-					, pair.end_lat, pair.end_lon  , pair.end_display_name
-					, DotIcon
-					//, 'random_same'
-					, null // default green and red color
-					, pair.markertext
-					);
-*/
-			}
-    		);
-
-/*
-		this.subscription3 =this.communicationService.msg.subscribe(
-      			msg  => {
-				console.debug("201808222332 Map2Component.subscription3. msg="
-					, C.stringify(msg));
-				if (msg.msgKey==C.MSG_KEY_MARKER_CLEAR) {
-					mapService.clear_markers();
-				}
-				if (msg.msgKey == C.MSG_KEY_MARKER_PAIR ) {
-					mapService.try_mark_pair(msg);
-				}
-				if (msg.msgKey == C.MSG_KEY_MARKER_FIT ) {
-					mapService.fit_pair(msg);
-				}
-				else {
-					console.debug("201808222332 Map2Component.subscription3. ignore msg");
-				}
-			}
-    		);
-*/
-
+		this.show_body=C.BODY_NOSHOW;
 	}
 
 	ngOnInit() {
+		console.debug('201810242021 Map2Component.ngOnInit() enter');
 		this.mapService.createMap('map', 41.889489, -87.633229, 12) ;
 	}
 
         subscription_action(msg): void {
-		if (msg.msgKey==C.MSG_KEY_MARKER_CLEAR) {
+		if (msg.msgKey==C.MSG_KEY_MAP_BODY_SHOW) {
+			this.show_body=C.BODY_SHOW
+		}
+		if (msg.msgKey==C.MSG_KEY_MAP_BODY_NOSHOW) {
+			this.show_body=C.BODY_NOSHOW
+		}
+		else if (msg.msgKey==C.MSG_KEY_MARKER_CLEAR) {
 			this.mapService.clear_markers();
 		}
-		if (msg.msgKey == C.MSG_KEY_MARKER_PAIR ) {
+		else if (msg.msgKey == C.MSG_KEY_MARKER_PAIR ) {
 			this.mapService.try_mark_pair(msg);
 		}
-		if (msg.msgKey == C.MSG_KEY_MARKER_FIT ) {
-			this.mapService.fit_pair(msg);
+		else if (msg.msgKey == C.MSG_KEY_MARKER_FIT ) {
+			this.mapService.try_fit_pair(msg);
 		}
 		else {
 			console.debug("201808222332 Map2Component.subscription_action. ignore msg");
 		}
         }
-
 }

@@ -1,13 +1,5 @@
-<span class=hide-unhide>
-	<button  type="button" (click)="show_body='noshow'" > &#xfe3f; </button>
-	<button  type="button" (click)="show_body='show'" > &#xfe40; </button>
-</span>
-
-<p>
 <div class="center f12">Transaction History</div>
-<button type="button" class="close-button" 
-	(click)="communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE, {page:C.PAGE_THIST})" >X
-</button>
+<button type="button" class="close-button" (click)="close_page()" >X</button>
 
 <div class={{show_body}} >
 

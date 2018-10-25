@@ -9,16 +9,18 @@ import { FormBuilder } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { ValidatorFn } from '@angular/forms';
 import { ValidationErrors } from '@angular/forms';
-import {AbstractControl} from '@angular/forms';
-import { Subscription }   from 'rxjs';
+import { AbstractControl} from '@angular/forms';
+//import { Subscription }   from 'rxjs';
+import { ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 
-import {EventEmitter, Input, Output} from '@angular/core';
 
-import {GeoService} from '../../models/remote.service' ;
-import {DBService} from '../../models/remote.service' ;
-import {CommunicationService} from '../../models/communication.service' ;
+//import { EventEmitter, Input, Output} from '@angular/core';
+
+import { GeoService} from '../../models/remote.service' ;
+import { DBService} from '../../models/remote.service' ;
+import { CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
-//import { Constants } from '../../models/constants';
 import { C} from '../../models/constants';
 import { Ridebase} from '../../models/ridebase';
 import { StorageService } from '../../models/gui.service';
@@ -28,18 +30,17 @@ import { StorageService } from '../../models/gui.service';
 @Component({
   selector	: 'app-trip'			,
   templateUrl	: './trip.component.html'	,
-  styleUrls	: ['./trip.component.css']
+  styleUrls	: ['./trip.component.css']	,
+  // prevent change detection unless @Input reference is changed
+//  changeDetection: ChangeDetectionStrategy.OnPush ,  
+
 })
 
 export class TripComponent extends Ridebase implements OnInit{
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
-	//subscription1: Subscription|null =null;
-	//subscription2: Subscription|null =null;
-	//subscription3: Subscription|null =null;
-
-    	form_saved_to_db=false;
+    	form_saved_to_db: boolean=false;
 
 	trip:any;
 	trip_form: any;
@@ -55,15 +56,16 @@ export class TripComponent extends Ridebase implements OnInit{
 	){ 
 		super(communicationService)
   		console.log("TripComponent.constructor() enter")  ;
-	this.trip = { 
-		  "start_lat": null
-		, "start_lon": null
-		, "start_display_name":null
-		, "end_lat": null
-		, "end_lon": null
-		, "end_display_name":null
-		, "distance": null
-		};
+		this.page_name= C.PAGE_TRIP;
+		this.trip = { 
+			  "start_lat": null
+			, "start_lon": null
+			, "start_display_name":null
+			, "end_lat": null
+			, "end_lon": null
+			, "end_display_name":null
+			, "distance": null
+			};
   		console.debug("201809081033 TripComponent.constructor() this.trip="+ this.trip)  ;
   		console.debug("201809081034 TripComponent.constructor() exit")  ;
   	} 
@@ -72,7 +74,7 @@ export class TripComponent extends Ridebase implements OnInit{
 		console.debug("201810122335 TripComponent.ngOnInit() enter");
                 let form_value_from_storage = StorageService.getForm(C.KEY_FORM_TRIP);
 		console.debug("201810122336 TripComponent.ngOnInit() form_value_from_storage=");
-		console.debug(JSON.stringify(form_value_from_storage));
+		console.debug(C.stringify(form_value_from_storage));
 
 		if( form_value_from_storage == null ) {
 			this.trip_form = this.form_builder.group(
@@ -120,16 +122,16 @@ export class TripComponent extends Ridebase implements OnInit{
 				departure_time	: [form_value_from_storage.departure_time, [Validators.required]], 
 				seats		: [form_value_from_storage.seats, [Validators.required]], 
 				price		: [form_value_from_storage.price, [Validators.required]], 
-				recur_ind	: [false, []], 
-				end_date	: [null,[Validators.min] ], 
-				day0_ind	: [false, ], 
-				day1_ind	: [false, ], 
-				day2_ind	: [false, ], 
-				day3_ind	: [false, ], 
-				day4_ind	: [false, ], 
-				day5_ind	: [false, ], 
-				day6_ind	: [false, ], 
-				description	: ['', ], 
+				recur_ind	: [form_value_from_storage.recur_ind, []], 
+				end_date	: [form_value_from_storage.end_date,[Validators.min] ], 
+				day0_ind	: [form_value_from_storage.day0_ind, ], 
+				day1_ind	: [form_value_from_storage.day1_ind, ], 
+				day2_ind	: [form_value_from_storage.day2_ind, ], 
+				day3_ind	: [form_value_from_storage.day3_ind, ], 
+				day4_ind	: [form_value_from_storage.day4_ind, ], 
+				day5_ind	: [form_value_from_storage.day5_ind, ], 
+				day6_ind	: [form_value_from_storage.day6_ind, ], 
+				description	: [form_value_from_storage.description, ], 
 				}, 
 				{ 
 					validator: this.validate_trip
@@ -146,33 +148,37 @@ export class TripComponent extends Ridebase implements OnInit{
 		console.info("TripComponent.ngOnInit() exit");
   	}
 
-	ngOnDestroy() {
-		// prevent memory leak when component destroyed
-		if ( this.subscription1 != null) this.subscription1.unsubscribe();
-		if ( this.subscription2 != null) this.subscription2.unsubscribe();
-		if ( this.subscription3 != null) this.subscription3.unsubscribe();
-	}
-
-	close_page() {
-		this.communicationService.close_page(C.TRIP_PAGE);
-	}
-
 	onSubmit() {
-	  	// TODO: Use EventEmitter with form value
-	    	console.warn("201808201534 TripComponent.onSubmit() this.trip_form.value=" + JSON.stringify(this.trip_form.value) );
+		this.reset_msg() ;
+	    	console.warn("201808201534 TripComponent.onSubmit() this.trip_form.value=" 
+			, C.stringify(this.trip_form.value) );
 		// save trip to db
 		// combining data
-		//this.trip = { ...this.trip_form.value, ...this.trip};
 		let trip = { ...this.trip_form.value, ...this.trip};
 		StorageService.storeForm(C.KEY_FORM_TRIP, trip);
 		let trip_from_db_observable     = this.dbService.call_db(C.UPD_TRIP_URL, trip);
 		trip_from_db_observable.subscribe(
 	    		trip_from_db => {
-				console.info("201808201201 TripComponent.constructor() trip_from_db =" + JSON.stringify(trip_from_db));
+				console.info("201808201201 TripComponent.constructor() trip_from_db =" 
+					, C.stringify(trip_from_db));
 				this.form_saved_to_db=true;
+				this.info_msg
+				='The trip is published. Other users can start to book the trip.';
+			},
+			error => {
+				this.error_msg=error;
 			}
 		)
 	}
+
+	show_map(){
+		console.debug('201810242001 TripComponent.show_map()');
+		this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
+		let pair = C.convert_trip_to_pair(this.trip);
+                this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+                this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+                this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
+	};
 
 	geocode(element_id: string) {
 		var lat: number 	| null;
@@ -191,7 +197,8 @@ export class TripComponent extends Ridebase implements OnInit{
 			let loc_response = this.geoService.geocode(loc) ;
 			loc_response.subscribe(
 				body => 	{
-					console.info("201808212149 TripComponent.geocode()  body =\n" +  JSON.stringify(body));
+					console.info("201808212149 TripComponent.geocode()  body =\n" 
+						,  C.stringify(body));
 					if (body[0]) {
 						lat=body[0].lat ;
 						lon=body[0].lon ;
@@ -223,11 +230,9 @@ export class TripComponent extends Ridebase implements OnInit{
 					}
 					this.routing();
 					let pair = C.convert_trip_to_pair(this.trip);
-					
-					//this.communicationService.send_trip_msg( pair) ; // send lat/lon info to map commponent
-                                        this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
-                                        this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
-                                        this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
+                			this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+                			this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+                			this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
 				}
 			);
 		}
@@ -246,15 +251,18 @@ export class TripComponent extends Ridebase implements OnInit{
 			);
 			route_response.subscribe(
 				body => {
-					console.info("201808201201 TripComponent.routing() body =" + JSON.stringify(body));
-					let distance=body.routes[0].distance ;
-					this.trip.distance= Math.round(distance /160)/10;
+					console.debug("201808201201 TripComponent.routing() body =" 
+						, C.stringify(body));
+					if(body.routes.length>0) 
+						this.trip.distance =Math.round(body.routes[0].distance/160)/10 ;
+					else 
+						this.trip.distance=C.ERROR_NO_ROUTE;
 				},
 				error => {
-					this.trip.distance="no route";
+					this.trip.distance=C.ERROR_NO_ROUTE;
 				}
 			);
-		} else this.trip.distance="no route";
+		} else this.trip.distance=C.ERROR_NO_ROUTE;
 	}
 
 	validate_trip(fg: FormGroup): ValidationErrors | null {
@@ -307,7 +315,8 @@ export class TripComponent extends Ridebase implements OnInit{
         }
 
 
-	get start_loc		() { return this.trip_form.get('start_loc'	); }  // the getter is required for reactive form validation to work 
+	// the getter is required for reactive form validation to work 
+	get start_loc		() { return this.trip_form.get('start_loc'	); }  
 	get end_loc		() { return this.trip_form.get('end_loc'	); }  
 	get start_date		() { return this.trip_form.get('start_date'	); }
 	get departure_time	() { return this.trip_form.get('departure_time'	); }

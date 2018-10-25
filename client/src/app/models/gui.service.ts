@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import {DBService} from './remote.service'
-import { Constants } from './constants';
+import { C} from './constants';
 
 
 //in order for require to work, change  src/tsconfig.app.json to read 
@@ -32,14 +32,14 @@ export class UserService {
   	}
 
 	static get_profile_from_session(): object|null {
-        	let encrypted_profile = StorageService.getSession(Constants.PROFILE);
+        	let encrypted_profile = StorageService.getSession(C.PROFILE);
 		let profile = CryptoService.decrypt(encrypted_profile);
 		if ( profile == null) {return null;} ;
 		return JSON.parse(profile);
 	}
 
 	static get_jwt_from_session(): object|null {
-        	let jwt = StorageService.getSession(Constants.JWT);
+        	let jwt = StorageService.getSession(C.JWT);
 		if (jwt == undefined || jwt==null || jwt=='' ) { return null;} ;
 		return {'jwt' : jwt}
 	}
@@ -183,7 +183,7 @@ export class StorageService {
 	}
 
 	static storeForm(key : string, json_value) : void {
-		StorageService.setLocal(key, JSON.stringify(json_value));
+		StorageService.setLocal(key, C.stringify(json_value));
 	}
 
 	static getForm(key) : any{
@@ -193,7 +193,7 @@ export class StorageService {
 		console.debug('StorageService.getForm() 201809241133 form_value =' + form_value);
 		let form_value1 = JSON.parse(form_value);
 
-		//console.info('201809241146 form_value1 =' + JSON.stringify(form_value1));
+		//console.info('201809241146 form_value1 =' + C.stringify(form_value1));
 		return form_value1;
 	}
 }

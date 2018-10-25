@@ -32,8 +32,8 @@
 			</tr>
 		</tbody>
 	</table>
-	<div class=f08 ><span class=from>Driver from:</span>{{journey.start_display_name}}</div>
-	<div class=f08 ><span class=to>Driver to:</span>{{journey.end_display_name}}</div>
+	<div class=f08 (click)='show_map(i)'><span class=from>Driver from:</span>{{journey.start_display_name}}</div>
+	<div class=f08 (click)='show_map(i)'><span class=to>Driver to:</span>{{journey.end_display_name}}</div>
 	<div class=f08 >Description: {{journey.description}}</div>
 	<p>
 </div>

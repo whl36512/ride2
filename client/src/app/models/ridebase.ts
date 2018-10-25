@@ -41,6 +41,7 @@ export abstract class Ridebase implements OnDestroy{
         change_detect_count: number =0;
 	show_body			='show';
 	is_signed_in: boolean = false;
+	page_name : string| null = null;
 
 
 
@@ -61,8 +62,8 @@ export abstract class Ridebase implements OnDestroy{
 	){ 
                 this.subscription0 =this.communicationService.msg.subscribe(
                         msg  => {
-                                console.debug("201810211343 Ridebase.subscription0. msg=\n"
-                                        , C.stringify(msg));
+                                //console.debug("201810211343 Ridebase.subscription0. msg=\n"
+                                        //, C.stringify(msg));
 				this.subscription_action(msg);
                         }
                 );
@@ -93,4 +94,9 @@ export abstract class Ridebase implements OnDestroy{
                 console.debug("201810131845 Constants.change_detect_counter() event=", e)  ;
                 return this.change_detect_count ++;
         }
+	
+	close_page(): boolean{
+		this.communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE, {page:this.page_name});
+		return false;
+	}
 }

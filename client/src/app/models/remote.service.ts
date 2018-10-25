@@ -15,7 +15,7 @@ import {StorageService} 	from './gui.service' ;
 import {CryptoService} 	from './gui.service' ;
 import {Util} 		from './gui.service' ;
 import {UserService} 		from './gui.service' ;
-import {Constants} 	from './constants' ;
+import {C} 	from './constants' ;
 
 // code sample from https://angular.io/guide/http
 
@@ -64,7 +64,8 @@ export class HttpService {
 		}
 		else 
 		{
-			console.info("201808190202 HttpService.request() payload=\n" + JSON.stringify(JSON.parse(payload), null, 2));
+			console.info("201808190202 HttpService.request() payload=\n" 
+				, C.stringify(JSON.parse(payload)));
 			//response = this.httpClient.request(method, url, {body: payload, observe: 'response',responseType: 'text', headers: httpHeaders});
 			response  = this.httpClient.post( url, payload, {observe: 'response',responseType: 'text', headers: httpHeaders});
 		}
@@ -76,11 +77,11 @@ export class HttpService {
 				tap( // Log the result or error
 					res => {
 							//this.log(filename, data),
-							console.log( "201808200808 HttpService.request tap res =\n" + JSON.stringify(res) )
+							console.log( "201808200808 HttpService.request tap res =\n" , C.stringify(res) )
 						} ,
 					error =>{
 							//this.logError(filename, error)
-							console.log( "201808200808 HttpService.request tap error =\n" + JSON.stringify(error) )
+							console.log( "201808200808 HttpService.request tap error =\n" , C.stringify(error) )
 						}
 				), 
 				catchError(this.handleError),
@@ -132,7 +133,8 @@ export class HttpService {
 			else break;
 
 		}
-		console.log("201808200856  HttpService.subscribe() return this.body=\n" + JSON.stringify(this.body) ); 
+		console.log("201808200856  HttpService.subscribe() return this.body=\n" 
+			, C.stringify(this.body) ); 
 
 		
 	}
@@ -172,7 +174,7 @@ export class HttpService {
 export class DBService {
 	private static root_url  = window.location.protocol
 					+ '//' +window.location.hostname 
-					+ ":"+ Constants.SERVER_PORT ;
+					+ ":"+ C.SERVER_PORT ;
 
 	constructor(private httpService: HttpService){}
 
@@ -184,31 +186,31 @@ export class DBService {
 		let profile = UserService.get_profile_from_session()
 		let combined_payload = {...payload, ...profile, ...jwt };  // add profile into the payload. server side must compare jwt and profile to make sure they match
 		//payload = this.add_token(relative_url, payload) ; 
-		console.info("201808190206 DBService.call_db after adding jwt and profile. combined_payload=\n"+ JSON.stringify(combined_payload));
+		console.info("201808190206 DBService.call_db after adding jwt and profile. combined_payload=\n" , C.stringify(combined_payload));
 
 		if ( combined_payload.error == undefined )
 		{
 			let complete_url = DBService.root_url + relative_url ;
-			response_body = this.httpService.request(Constants.POST, complete_url , JSON.stringify(combined_payload));
+			response_body = this.httpService.request(C.POST, complete_url , C.stringify(combined_payload));
 		}
 		else response_body = of(combined_payload) ; //return observable containing error
 		return response_body;
 	}
 
 	get_user_from_db(user: any): Observable<any> {
-		return this.call_db(Constants.GET_USER_URL, user);
+		return this.call_db(C.GET_USER_URL, user);
 	}
 
 	save_user_to_db(user: any) : any {
-		return this.call_db(Constants.SAVE_USER_URL, user);
+		return this.call_db(C.SAVE_USER_URL, user);
 	}
 
 	upd_trip(trip: any) :  Observable<any> {
-		return this.call_db(Constants.UPD_TRIP_URL, trip);
+		return this.call_db(C.UPD_TRIP_URL, trip);
 	}
 
 	get_journeys_from_db(trip:any): Observable<any> {
-		return this.call_db(Constants.URL_MYOFFERS, trip);
+		return this.call_db(C.URL_MYOFFERS, trip);
 	}
 
 
@@ -219,11 +221,13 @@ export class DBService {
 		var combined_payload: any;
 		console.debug("201808190219 DBService.add_token() typeof(payload)="+ typeof(payload)) ;
 		if (typeof(payload) == 'string' ) payload = JSON.parse(payload);
-		console.debug("201808190230 DBService.add_token after JSON.parse. payload=\n"+ JSON.stringify(payload));
+		console.debug("201808190230 DBService.add_token after JSON.parse. payload=\n" ,
+			, C.stringify(payload));
 		let jwt=  UserService.get_jwt_from_session();
 		let profile = UserService.get_profile_from_session()
 		combined_payload = {...payload, ...profile, ...jwt };  // add profile into the payload. server side must compare jwt and profile to make sure they match
-		console.debug("201810062319 DBService.add_token after combining. combined_payload=\n"+ JSON.stringify(combined_payload));
+		console.debug("201810062319 DBService.add_token after combining. combined_payload=\n"
+			, C.stringify(combined_payload));
 		return combined_payload;
 	}
 */
@@ -250,7 +254,7 @@ export class GeoService {
 		// response: {"routes":[{"legs":[{"summary":"","weight":534.5,"duration":354.1,"steps":[],"distance":1880.2},{"summary":"","weight":679.8,"duration":483.4,"steps":[],"distance":2947.6}],"weight_name":"routability","weight":1214.3,"duration":837.5,"distance":4827.8}],"waypoints":[{"hint":"09sJgLtb54QkAAAADwAAAAMAAAAAAAAAeOI0QY6li0FoZYRAAAAAACQAAAAPAAAAAwAAAAAAAACyowAAAEzMAKlYIQM8TMwArVghAwEA3wqcmk-F","name":"Friedrichstraße","location":[13.3888,52.517033]},{"hint":"KpYTgKABvYEMAAAACgAAANYBAAAAAAAA4pzIQFu_j0CGdCVDAAAAAAwAAAAKAAAAXgEAAAAAAACyowAAf27MABiJIQOCbswA_4ghAwQAnxCcmk-F","name":"Torstraße","location":[13.397631,52.529432]},{"hint":"9n8YgP___38cAAAA2AAAACIAAABQAAAAsowKQkpQX0Lx6yZC8esmQhwAAABsAAAAIgAAACkAAACyowAASufMAOdwIQNL58wA03AhAwMAvxCcmk-F","name":"Platz der Vereinten Nationen","location":[13.428554,52.523239]}],"code":"Ok"}
 		let encodedUrl = this.routingUrl(start_lat, start_lon, end_lat, end_lon);
 
-		let response_body= this.httpService.request(Constants.GET, encodedUrl, null) ;
+		let response_body= this.httpService.request(C.GET, encodedUrl, null) ;
 		return response_body;
 	}
 
@@ -264,7 +268,7 @@ export class GeoService {
 		let query="?format=json&polygon=0&addressdetails=0" ;
 		let encodedUrl = url+encodeURIComponent(address) +query;
 		console.debug("20180815 geocode() encodedUrl="+encodedUrl) ;
-		let response_body= this.httpService.request(Constants.GET, encodedUrl, null) ;
+		let response_body= this.httpService.request(C.GET, encodedUrl, null) ;
 		return response_body ;
 	}
 }

@@ -50,6 +50,7 @@ export class DepositComponent extends Ridebase implements OnInit{
 	){ 
 		super(communicationService);
   		console.debug("201809262245 DepositComponent.constructor() enter")  ;
+		this.page_name=C.PAGE_DEPOSIT;
   		console.debug("201809262245 DepositComponent.constructor() exit")  ;
   	} 
 
@@ -68,7 +69,7 @@ export class DepositComponent extends Ridebase implements OnInit{
 		data_from_db_observable.subscribe(
 	    		user_from_db => {
 				console.debug("201810072326 DepositComponent.action() user_from_db =" 
-					+ JSON.stringify(user_from_db));
+					, C.stringify(user_from_db));
 				this.user_from_db= user_from_db;
 
 				if ( this.user_from_db.deposit_id != null)

@@ -14,52 +14,19 @@ import {Ridebase} 		from "./models/ridebase" ;
 })
 export class AppComponent extends Ridebase {
   	title = 'ride2';
-	pages: any ;
-	subscription1: Subscription;
-	subscription2: Subscription;
+	pages: any ={}	;
 
-
-  constructor (
-	public communicationService: CommunicationService
-  )
-  {
-	super(communicationService);
-  	this.pages= {};
-  	this.setFalse();
-    	this.pages.nav=true;
-    	this.pages.map=true;
-
-	this.subscription1 =this.communicationService.menu_msg.subscribe(
-		message  => {
-			console.info("201808222332 Map2Component.constructor.  subscription got message. message="+ JSON.stringify(message));
-			this.select(message);
-		}
-	);
-	this.subscription2 =this.communicationService.close_page_msg.subscribe(
-		message  => {
-			console.info("201808222332 Map2Component.constructor.  subscription got message. message="+ JSON.stringify(message));
-			this.deselect(message);
-		}
-	);
-
-/*
-	this.subscription3 =this.communicationService.msg.subscribe(
-		msg  => {
-			console.info("201808222332 Map2Component.constructor.  subscription1 msg=\n"
-				, C.stringify(msg));
-			if(msg.msgKey ==C.MSG_KEY_PAGE_OPEN ){
-				this.select(msg.page);
-			}
-			else if ( msg.msgKey ==C.MSG_KEY_PAGE_CLOSE){
-				this.deselect(msg.page);
-			}
-		}
-	);
-*/
-  }
-
-	setFalse ()
+  	constructor (
+		public communicationService: CommunicationService
+	)
 	{
+		super(communicationService);
+  		this.setFalse();
+    		this.pages.nav		= true ;
+    		this.pages.map		= true ;
+	}
+
+	setFalse () {
 		this.pages.search 	= false ;
 		this.pages.user 	= false ;
 		this.pages.trip 	= false ;
@@ -78,7 +45,8 @@ export class AppComponent extends Ridebase {
 		let json = JSON.parse(`{"${page}":true}`);
 	
 		this.pages = { ...this.pages, ...json} ;
-		console.info("201808221510 AppComponent.select()  this.pages="+  JSON.stringify(this.pages) ) ;
+		console.info("201808221510 AppComponent.select()  this.pages="
+			,  C.stringify(this.pages) ) ;
   	}
 
   	deselect(page:string) {
@@ -86,15 +54,9 @@ export class AppComponent extends Ridebase {
 		let json = JSON.parse(`{"${page}":false}`);
 	
 		this.pages = { ...this.pages, ...json} ;
-		console.info("201808221510 AppComponent.select()  this.pages="+  JSON.stringify(this.pages) ) ;
+		console.info("201808221510 AppComponent.select()  this.pages=" +  C.stringify(this.pages) ) ;
   	}
 	
-	ngOnDestroy() {
-		// prevent memory leak when component destroyed
-		this.subscription1.unsubscribe();
-		this.subscription2.unsubscribe();
-	}
-
 	subscription_action(msg:any): void {
 		if(msg.msgKey ==C.MSG_KEY_PAGE_OPEN ){
 			this.select(msg.page);

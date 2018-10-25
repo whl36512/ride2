@@ -43,6 +43,7 @@ export class ThistComponent extends Ridebase implements OnInit {
         ){
 		super(communicationService);
                 console.debug("201809262245 ThistComponent.constructor() enter")  ;
+		this.page_name=C.PAGE_THIST;
                 console.debug("201809262245 ThistComponent.constructor() exit")  ;
         }
 

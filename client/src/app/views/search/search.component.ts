@@ -58,6 +58,7 @@ export class SearchComponent extends Ridebase implements OnInit{
 	){ 
 		super(communicationService)
   		console.log("SearchComponent.constructor() enter")  ;
+		this.page_name= C.PAGE_SEARCH;
 		this.trip = { 
 		  	"start_lat": null
 			, "start_lon": null
@@ -114,10 +115,6 @@ export class SearchComponent extends Ridebase implements OnInit{
 		//this.subscription2 = this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
 		console.info("SearchComponent.ngOnInit() exit");
   	}
-
-	close_page() {
-		this.communicationService.close_page(C.SEARCH_PAGE);
-	}
 
 	onSubmit() {
 	    	console.debug("201809231416 SearchComponent.onSubmit() this.form.value=" + C.stringify(this.form.value) );
@@ -184,8 +181,6 @@ export class SearchComponent extends Ridebase implements OnInit{
 					this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
                 			this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
                 			this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
-					
-					//this.communicationService.send_trip_msg( pair) ; // send lat/lon info to map commponent
 				}
 			);
 		}
@@ -224,7 +219,6 @@ export class SearchComponent extends Ridebase implements OnInit{
 	subscription_action ( msg: any): void{
         	console.debug("201810212010 SearchComponent.subscriptio_action(). ignore msg");
 	}
-
 
 	// the getter is required for reactive form validation to work 
 	get start_loc		() { return this.form.get('start_loc'	); }  

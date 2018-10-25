@@ -1,21 +1,17 @@
-<div class="search main">
-	<span class=hide-unhide>
-		<button  type="button" (click)="show_body='noshow'" > &#xfe3f; </button> 
-		<button  type="button" (click)="show_body='show'"   > &#xfe40; </button> 
-	</span>
-	<br/><div class="center f12">Search</div>
-	<button   class="close-button" type="button" (click)="close_page()" > X </button>
-	<div class={{show_body}} >
+<br/><div class="center f12">Search</div>
+<button   class="close-button" type="button" (click)="close_page()" > X </button>
+<div class={{show_body}} >
 	<form [formGroup]="form" (ngSubmit)="onSubmit()">
-		<dl *ngIf="step==1"> 
+		<dl> 
           		<dt>
 				<label for="start_loc">Exact Pickup Location
 				</label>
 			</dt>
           		<dd>
-	   			<input  type="text"  id="start_loc" formControlName="start_loc" placeholder="From" required
-	                                   (keyup)='geocode("start_loc")' 
-	                                   (blur)='geocode("start_loc")' 
+	   			<input  type="text"  id="start_loc" formControlName="start_loc" 
+					placeholder="From" required
+	                                (keyup)='geocode("start_loc")' 
+	                                (blur)='geocode("start_loc")' 
 					pattern=".{3,}"
 					*ngIf="!form_saved_to_db"
 				/>
@@ -29,7 +25,7 @@
 			</dd>
         	</dl>
 
-        	<dl *ngIf="step==2">
+        	<dl>
           		<dt>
 				<label for="end_loc">Exact Dropoff Location</label>
 			</dt>
@@ -55,7 +51,7 @@
 			</dt>
         	</dl>
 
-        	<dl *ngIf="step==3">
+        	<dl>
           		<dt><label for="start_date">Search from</label></dt>
           		<dd> <input type="date" formControlName="start_date" min={{today}} required/> 
 				<span class="validity"></span>
@@ -69,7 +65,7 @@
           		<dd> <input type="time" formControlName="departure_time" step="60" /> </dd>
         	</dl>
 
-        	<dl *ngIf="step==4">
+        	<dl>
 			<dt><label for="seats">Passengers: {{this.form.value.seats}}  </label></dt>
           		<dd>
 			<input type="range" formControlName="seats" min="1" max="{{C.MAX_SEATS}}" step=1 /> 
@@ -81,11 +77,12 @@
           		</dd>
         	</dl>
 		<br/>
-		<button  type="button" *ngIf="step>1" (click)="step=step-1">&lt; Back</button> &nbsp; &nbsp;
-		<button  type="button" *ngIf="step<4" (click)="step=step+1">Next &gt;</button>
-        	<span *ngIf="step==4">
-			<button  type="submit" [disabled]="form.invalid || trip.distance==null || trip.distance=='no route' " >Search</button> 
-		</span>
+		<div class=center>
+		<button type="submit" 
+			[disabled]="form.invalid || trip.distance==null || trip.distance=='no route' " >
+			Search
+		</button> 
+		</div>
       	</form>
 	<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
 	<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
@@ -98,4 +95,3 @@
 			>
 	</app-journey>
 	</div>
-</div>
