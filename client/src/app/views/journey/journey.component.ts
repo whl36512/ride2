@@ -131,14 +131,14 @@ export class JourneyComponent extends Ridebase implements OnInit{
 
         show_map(index: number){
                 this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
+                this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
                 let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
+                this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
 		pair.p1.icon_type=DotIcon;
 		pair.p2.icon_type=DotIcon;
 		pair.p1.marker_text=index+1;
 		pair.p2.marker_text=index+1;
-                this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
                 this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
-                this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
 
                 pair = C.convert_trip_to_pair(this.search_criteria);
 		pair.p1.icon_type=PinIcon;

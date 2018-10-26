@@ -25,7 +25,8 @@ export class Map2Component extends Ridebase implements OnInit  {
 			, private mapService: MapService) 
 	{ 
 		super(communicationService);
-		this.show_body=C.BODY_NOSHOW;
+		this.page_name=C.PAGE_MAP;
+		this.show_body=C.BODY_SHOW;
 	}
 
 	ngOnInit() {
@@ -35,10 +36,13 @@ export class Map2Component extends Ridebase implements OnInit  {
 
         subscription_action(msg): void {
 		if (msg.msgKey==C.MSG_KEY_MAP_BODY_SHOW) {
-			this.show_body=C.BODY_SHOW
+			this.show_body=C.BODY_SHOW ;
+			document.getElementById('map').style.zIndex = 300;	
+			document.getElementById('map-close-button').style.zIndex = 350;	
 		}
 		if (msg.msgKey==C.MSG_KEY_MAP_BODY_NOSHOW) {
-			this.show_body=C.BODY_NOSHOW
+			this.show_body=C.BODY_NOSHOW ;
+			document.getElementById('map').style.zIndex = 100;	
 		}
 		else if (msg.msgKey==C.MSG_KEY_MARKER_CLEAR) {
 			this.mapService.clear_markers();
@@ -53,4 +57,10 @@ export class Map2Component extends Ridebase implements OnInit  {
 			console.debug("201808222332 Map2Component.subscription_action. ignore msg");
 		}
         }
+	//override Ridebase.close_page()
+	close_page():boolean {
+			document.getElementById('map').style.zIndex = 100;	
+			document.getElementById('map-close-button').style.zIndex = 100;	
+		return false;
+	}
 }

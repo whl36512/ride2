@@ -4,26 +4,51 @@
 <div class={{show_body}} >
 
 <form [formGroup]="trip_form" (ngSubmit)="onSubmit()">
-	<label for="start_date">From: </label>
-	<input  type="date"  formControlName="start_date" (change)='onChange()' />
-	<br/>
-	<label for="end_date">To:</label>
-	<input  type="date" formControlName="end_date" min={{trip_form.value.start_date}}
-	(change)='onChange()'
-	/>
-	<span class="validity"></span>
-	<br/>
-	Show activities when I am a 
-	<input type=checkbox formControlName='show_driver' 	(change)='set_filter()' />driver
-	<input type=checkbox formControlName='show_rider' 	(change)='set_filter()' />rider<br/>
-	Show activities when status is <br/>
-	<input type=checkbox formControlName='show_seats_available' (change)='set_filter()' />Seats Available<br/>
-	<input type=checkbox formControlName='show_pending' 	(change)='set_filter()' />Pending Comfirmation<br/>
-	<input type=checkbox formControlName='show_confirmed' 	(change)='set_filter()' />Confirmed<br/>
-	<input type=checkbox formControlName='show_rejected' 	(change)='set_filter()' />Rejected by Driver<br/>
-	<input type=checkbox formControlName='show_cancelled_by_driver' 	(change)='set_filter()' />Cancelled by Driver<br/>
-	<input type=checkbox formControlName='show_cancelled_by_rider' 	(change)='set_filter()' />Cancelled by Rider<br/>
-	<input type=checkbox formControlName='show_finished' 	(change)='set_filter()' />Finished
+	<dl>
+		<dt>
+			<label for="start_date">From: </label>
+		</dt>
+		<dd>
+			<input  type="date"  formControlName="start_date" (change)='onChange()' />
+		</dd>
+		<dt>
+			<label for="end_date">To:</label>
+		</dt>
+		<dd>
+			<input  type="date" formControlName="end_date" min={{trip_form.value.start_date}}
+				(change)='onChange()'
+			/>
+			<span class="validity"></span>
+		</dd>
+		<dt>
+			Show activities when I am a <br/>
+		</dt>
+		<dd>
+			<label><input type=checkbox formControlName='show_driver'
+				(change)='set_filter()' />driver</label>
+			<label><input type=checkbox formControlName='show_rider'
+				(change)='set_filter()' />rider</label>
+		</dd>
+		<dt>
+			Show activities when status is <br/>
+		</dt>
+		<dd>
+			<label><input type=checkbox formControlName='show_seats_available' 
+				(change)='set_filter()' />Seats Availabel</label><br/>
+			<label><input type=checkbox formControlName='show_pending' 	
+				(change)='set_filter()' />Pending Comfirmation</label><br/>
+			<label><input type=checkbox formControlName='show_confirmed' 	
+				(change)='set_filter()' />Confirmed</label><br/>
+			<label><input type=checkbox formControlName='show_rejected'
+				(change)='set_filter()' />Rejected by Driver</label><br/>
+			<label><input type=checkbox formControlName='show_cancelled_by_driver'
+				(change)='set_filter()' />Cancelled by Driver</label><br/>
+			<label><input type=checkbox formControlName='show_cancelled_by_rider'
+				(change)='set_filter()' />Cancelled by Rider</label><br/>
+			<label><input type=checkbox formControlName='show_finished'
+				(change)='set_filter()' />Finished</label>
+		</dd>
+	</dl>
 </form>
 <div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
 <div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>

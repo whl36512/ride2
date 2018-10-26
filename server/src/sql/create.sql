@@ -81,6 +81,7 @@ create table usr
 	, oauth_id		text not null
 	, oauth_host		text not null default 'linkedin'
         , deposit_id            sys_id not null
+	, sm_link		text	-- social media link
         , c_ts 			sys_ts not null
         , m_ts 			sys_ts not null
 	, constraint pk_usr PRIMARY KEY (usr_id)
@@ -124,6 +125,7 @@ CREATE TABLE trip
 	, constraint fk_trip2user foreign key ( driver_id) REFERENCES  usr ( usr_id)
 );
 create index ix_trip_driver_id on trip(driver_id);
+alter table trip add constraint ck_trip_status_code check (status_code in ('A','E') );
 
 CREATE TABLE journey
 (
@@ -264,6 +266,7 @@ insert into code values
 , ('TRAN', 'R', 'Return')
 , ('TRAN', 'F', 'Trip Finished')
 , ('TRIP', 'A', 'Active')
+, ('TRIP', 'E', 'Expired')
 , ('JN'  , 'A', 'Active')
 , ('JN'  , 'E', 'Expired')
 , ('TRAN_STATUS', 'K', 'Success')

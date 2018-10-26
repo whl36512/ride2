@@ -1,4 +1,4 @@
-<br/><div class="center f12">Search</div>
+<div class="center f12">Search</div>
 <button   class="close-button" type="button" (click)="close_page()" > X </button>
 <div class={{show_body}} >
 	<form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -11,16 +11,12 @@
 	   			<input  type="text"  id="start_loc" formControlName="start_loc" 
 					placeholder="From" required
 	                                (keyup)='geocode("start_loc")' 
-	                                (blur)='geocode("start_loc")' 
 					pattern=".{3,}"
-					*ngIf="!form_saved_to_db"
 				/>
 				<span class="validity"></span>
 			</dd>
-          		<dd  class="f08"> 
-				{{trip.start_lat}}  {{trip.start_lon}} 
-			</dd>
-			<dd class="f08">
+          		<dd  class="f08 clickable-text" (click)='show_map()'> 
+				{{trip.start_lat}}  {{trip.start_lon}} <br/>
 				{{trip.start_display_name}}
 			</dd>
         	</dl>
@@ -30,23 +26,20 @@
 				<label for="end_loc">Exact Dropoff Location</label>
 			</dt>
           		<dd>
-	   			<input  type="text"  id="end_loc" formControlName="end_loc" placeholder="To" required
-	                                   (keyup)='geocode("end_loc")'  
-	                                   (blur)='geocode("end_loc")' 
+	   			<input  type="text"  id="end_loc" formControlName="end_loc" 
+					placeholder="To" required
+	                                (keyup)='geocode("end_loc")'  
 					pattern=".{3,}"
-					*ngIf="!form_saved_to_db"
 				/>
 				<span class="validity"></span> 
 			</dd>
-			<dd class="f08">
-				{{trip.end_lat}} {{trip.end_lon}} 
-			</dd>
-			<dd class="f08">
+			<dd class="f08 clickable-text" (click)='show_map()'>
+				{{trip.end_lat}} {{trip.end_lon}} <br/>
 				{{trip.end_display_name	}}
 			</dd>
 			<dt>
 			Distance (miles): 
-			<span *ngIf="trip.distance==C.ERROR_NO_ROUTE " error=true>{{trip.distance}}</span>
+			<span *ngIf="trip.distance==C.ERROR_NO_ROUTE " class=error>{{trip.distance}}</span>
 			<span *ngIf="trip.distance!=C.ERROR_NO_ROUTE "           >{{trip.distance}}</span>
 			</dt>
         	</dl>
@@ -76,7 +69,6 @@
 			<input type="range" formControlName="price" min="0" max="{{C.MAX_PRICE_RIDER}}" step=0.01 />
           		</dd>
         	</dl>
-		<br/>
 		<div class=center>
 		<button type="submit" 
 			[disabled]="form.invalid || trip.distance==null || trip.distance=='no route' " >

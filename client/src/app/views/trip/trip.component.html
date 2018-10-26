@@ -16,16 +16,16 @@
           		<dd>
 	   			<input  type="text"  id="start_loc" formControlName="start_loc" 
 					placeholder="From" required
-	                                   (keyup)='geocode("start_loc")' (blur)='geocode("start_loc")' 
+	                                (keyup)='geocode("start_loc")' 
 					pattern=".{3,}"
 					[readonly]="form_saved_to_db"
 				/>
 				<span class="validity"></span>
 			</dd>
 
-          		<dd  class="f08" (click)='show_map()'> 
+          		<dd  class="f08 clickable-text" (click)='show_map()' > 
 				{{trip.start_lat}}  {{trip.start_lon}} <br/>
-				{{trip.start_display_name}}
+				 {{trip.start_display_name}}
 			</dd>
         	</dl>
 
@@ -39,14 +39,15 @@
 				</label>
 			</dt>
           		<dd>
-	   			<input  type="text"  id="end_loc" formControlName="end_loc" placeholder="To" required
-	                                   (keyup)='geocode("end_loc")' (blur)='geocode("end_loc") ' 
+	   			<input  type="text"  id="end_loc" formControlName="end_loc" 
+					placeholder="To" required
+	                                (keyup)='geocode("end_loc")'  
 					pattern=".{3,}"
 					[readonly]="form_saved_to_db"
 				/>
 				<span class="validity"></span>
 			</dd>
-			<dd class="f08" (click)='show_map()'>
+			<dd class="f08 clickable-text" (click)='show_map()' >
 				{{trip.end_lat}} {{trip.end_lon}} <br/>
 				{{trip.end_display_name	}}
 			</dd>

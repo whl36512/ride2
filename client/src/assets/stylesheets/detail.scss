@@ -16,10 +16,10 @@ textarea#description {
 }
 
 input[type="time"] {
-	width: 10rem;
+	width: 8rem;
 }
 input[type="date"] {
-	width: 10rem;
+	width: 8rem;
 }
 
 .rTable {
@@ -86,19 +86,34 @@ th {
 .to {
 	background-color: #ff9999;
 }
+.driver {
+	background-color: yellow;
+}
 .mapicon {
 	text-align:center;
 	vertical-align: middle;
 }
 
-.close-button {
+.clickable-text {
+  	cursor: pointer;
+  	border-radius: 0.3rem;
+        &:hover {
+        	background-color: #333;
+		color:white;
+        }
+}
+
+button.close-button {
         /* use absolute to position child relative to its parent. 
 	parent must have absolue of fixed position */
         position: fixed;
         width: auto;
-        top: 0.2rem ;
-        right: 3rem;
-	z-index:1000;
+        top: 0.5rem;
+        right: 4rem;
+	font-size: 1.5rem;
+	margin:0px;
+	padding:0.3rem;
+  	border-radius: 0.3rem;
 }
 .hide-unhide {
         /* use absolute to position child relative to its parent. 
@@ -129,6 +144,10 @@ button {
     		transition: all 150ms linear;
     		opacity: .75;
   	}
+}
+
+button[disabled] {
+	opacity: .5;
 }
 
 @keyframes fadeInOut {
@@ -197,4 +216,6 @@ user-select: none;
 	width: 5rem;
 }
 
-
+.map {
+	z-index:1250;
+}

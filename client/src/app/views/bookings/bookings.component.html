@@ -3,7 +3,7 @@
 <div class=warning *ngIf='false'>change_detect_count={{change_detect_counter()}}</div>
 <div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
 <div *ngFor="let booking of booking_forms ;let i=index;
-		let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
+		let even=even;let odd=odd; let first = first; let last = last; trackBy:trackByFunc"
 		[ngClass]="{ odd: odd, even: even }">
 	<form [formGroup]="booking" (ngSubmit)='onSubmit()'
 		*ngIf='bookings_from_db[i].show_booking'>
@@ -71,25 +71,28 @@
 	<span *ngIf='bookings_from_db[i].fail_msg!=null' class='error fade'>
 		{{bookings_from_db[i].fail_msg}}
 	</span>
+	<br/>
 
 	<app-message *ngIf='bookings_from_db[i].show_messaging_panel'
                         [book_id]="bookings_from_db[i].book_id"
                         [index]="i"
                         >
 	</app-message>
-
-	<div class=f08 (click)='geo_mark(i)'>
-		<span class=from>Driver from:</span> {{bookings_from_db[i].start_display_name}} <br/>
-		<span class=to>Driver to:</span> {{bookings_from_db[i].end_display_name}} 
+	<div class=f08>
+		<span class='from clickable-text' (click)='geo_mark(i)'>Driver from:</span> 
+		{{bookings_from_db[i].start_display_name}} <br/>
+		<span class='to clickable-text' (click)='geo_mark(i)' >Driver to:</span> 
+		{{bookings_from_db[i].end_display_name}} 
 		<div *ngIf='bookings_from_db[i].book_id!=null'>
-			<span class=from>Passenger Pickup:</span> 
+			<span class='from clickable-text' (click)='geo_mark(i)'>Passenger Pickup:</span> 
 			{{bookings_from_db[i].pickup_display_name}}
 		</div>
 		<div *ngIf='bookings_from_db[i].book_id!=null'>
-			<span class=to>Passenger Dropoff:</span> 
-			{{bookings_from_db[i].dropoff_display_name}}</div>
+			<span class='to clickable-text' (click)='geo_mark(i)'>Passenger Dropoff:</span> 
+			{{bookings_from_db[i].dropoff_display_name}}
+		</div>
+		<div>Description: {{bookings_from_db[i].description}}</div>
 	</div>
-	<div class=f08 >Description: {{bookings_from_db[i].description}}</div>
-	</form>
-	<p>
+    </form>
+<p>
 </div>

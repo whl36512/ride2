@@ -1,6 +1,6 @@
 <div 
 	*ngFor="let journey of journeys_from_db ;let i=index;
-		let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
+		let even=even;let odd=odd; let first = first; let last = last; trackBy:trackByFunc"
 		[ngClass]="{ odd: odd, even: even }">
       	<table>
 		<thead>
@@ -10,6 +10,12 @@
 				<th>Seats</th>
 				<th>Price($)</th>
 				<th *ngIf='is_signed_in'>Booked</th>
+				<td *ngIf='is_signed_in && !journey.sufficient_balance' class=warning >
+					Insufficient<br/>Balance
+				</td>
+				<td *ngIf='!is_signed_in'  class=warning >
+					Not Signed in	
+				</td>
 			</tr>
 		</thead>
 		<tbody>
@@ -20,11 +26,10 @@
 				<td>{{journey.seats}}</td>
 				<td>{{journey.rider_cost}} </td>
 				<td *ngIf='is_signed_in'>{{journey.seats_booked}}</td>
-				<td *ngIf='is_signed_in && journey.show_book_button'>
-					<button #j (click)="book(journey)">Book</button>
-				</td>
-				<td *ngIf='is_signed_in && !journey.sufficient_balance' class=warning >
-					Insufficient<br/>Balance
+				<td>
+					<button #j (click)="book(journey)"
+						[disabled]='!is_signed_in || !journey.show_book_button'
+					>Book it</button>
 				</td>
 				<td *ngIf='journey.show_fail_msg' class=error >failed</td>
 				<td *ngIf='journey.show_book_msg' class=info >booked</td>
@@ -32,8 +37,9 @@
 			</tr>
 		</tbody>
 	</table>
-	<div class=f08 (click)='show_map(i)'><span class=from>Driver from:</span>{{journey.start_display_name}}</div>
-	<div class=f08 (click)='show_map(i)'><span class=to>Driver to:</span>{{journey.end_display_name}}</div>
+	<div class=f08 ><span (click)='show_something(i)'  class='driver clickable-text' >Driver:</span>{{journey.headline}}</div>
+	<div class=f08 ><span (click)='show_map(i)' class='from clickable-text' >Driver from:</span>{{journey.start_display_name}}</div>
+	<div class=f08 ><span (click)='show_map(i)' class='to clickable-text' >Driver to:</span>{{journey.end_display_name}}</div>
 	<div class=f08 >Description: {{journey.description}}</div>
 	<p>
 </div>

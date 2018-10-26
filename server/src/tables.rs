@@ -24,6 +24,7 @@ pub struct Usr {
     , pub oauth_id          : Option<String>
     , pub oauth_host        : Option<String>
     , pub deposit_id        : Option<String>
+    , pub sm_link	    : Option<String>
     , pub c_ts              : Option<String>
     , pub m_ts              : Option<String>
 }

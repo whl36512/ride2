@@ -49,6 +49,7 @@ var ride = {
 		, "headline": data.headline
 		, "oauth_id": data.id
 		, 'siteStandardProfileRequest': data.siteStandardProfileRequest
+		, 'sm_link': data.siteStandardProfileRequest.url
 	} ;
 
 	var profile_hex = rideCrypt.encrypt(JSON.stringify(profile));

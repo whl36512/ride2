@@ -149,6 +149,7 @@ export class ActivityComponent extends Ridebase implements OnInit {
                 return ret;
         }
 
+
         subscription_action(msg): void {
                if (msg != undefined && msg != null && msg.msgKey == C.MSG_KEY_SHOW_ACTIVITY_BODY) {
                         this.show_body = msg.show_body;

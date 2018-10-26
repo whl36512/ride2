@@ -1,8 +1,8 @@
 // https://angular.io/guide/reactive-forms
 // https://angular.io/guide/form-validation
 
-import { Component, OnInit } from '@angular/core';
-import { OnDestroy } from '@angular/core';
+import { Component} from '@angular/core';
+import { OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { FormGroup } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
@@ -13,6 +13,8 @@ import { AbstractControl} from '@angular/forms';
 //import { Subscription }   from 'rxjs';
 import { ChangeDetectionStrategy } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
+import { NgZone } from '@angular/core';
+
 
 
 //import { EventEmitter, Input, Output} from '@angular/core';
@@ -32,7 +34,7 @@ import { StorageService } from '../../models/gui.service';
   templateUrl	: './trip.component.html'	,
   styleUrls	: ['./trip.component.css']	,
   // prevent change detection unless @Input reference is changed
-//  changeDetection: ChangeDetectionStrategy.OnPush ,  
+  changeDetection: ChangeDetectionStrategy.OnPush ,  
 
 })
 
@@ -45,6 +47,7 @@ export class TripComponent extends Ridebase implements OnInit{
 	trip:any;
 	trip_form: any;
 	step=1;
+	today = C.TODAY();
 
 	//show_body='show';
 
@@ -52,7 +55,9 @@ export class TripComponent extends Ridebase implements OnInit{
 		  private geoService		: GeoService
 		, private dbService		: DBService
 		, private form_builder		: FormBuilder
-		, public communicationService	: CommunicationService
+		, private changeDetectorRef	: ChangeDetectorRef
+		, public  communicationService	: CommunicationService
+  		//, private zone			: NgZone
 	){ 
 		super(communicationService)
   		console.log("TripComponent.constructor() enter")  ;
@@ -145,6 +150,7 @@ export class TripComponent extends Ridebase implements OnInit{
 	
 		this.subscription1 = this.trip_form.valueChanges.subscribe(data=> console.log('Form value changes', data),);
 		this.subscription2 = this.trip_form.statusChanges.subscribe(data=> console.log('Form status changes', data),);
+
 		console.info("TripComponent.ngOnInit() exit");
   	}
 
@@ -164,9 +170,11 @@ export class TripComponent extends Ridebase implements OnInit{
 				this.form_saved_to_db=true;
 				this.info_msg
 				='The trip is published. Other users can start to book the trip.';
+				this.changeDetectorRef.detectChanges() ;
 			},
 			error => {
 				this.error_msg=error;
+				this.changeDetectorRef.detectChanges() ;
 			}
 		)
 	}
@@ -187,6 +195,18 @@ export class TripComponent extends Ridebase implements OnInit{
 		console.info("201808212149 TripComponent.geocode() element_id =" + element_id);
 		//console.info("201808212149 TripComponent.geocode()  this.geoService =" +  this.geoService);
 		//console.info("201808212149 TripComponent.geocode()  this.dbService =" +  this.dbService);
+
+		
+		this.trip.distance=C.ERROR_NO_ROUTE ;
+		if (element_id == "start_loc" ) {
+			this.trip.start_lat=lat;
+			this.trip.start_lon=lon;
+			this.trip.start_display_name=display_name;
+		} else {
+			this.trip.end_lat=lat;
+			this.trip.end_lon=lon;
+			this.trip.end_display_name=display_name;
+		}
 
 
 
@@ -233,9 +253,11 @@ export class TripComponent extends Ridebase implements OnInit{
                 			this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
                 			this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
                 			this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
+					this.changeDetectorRef.detectChanges() ;
 				}
 			);
 		}
+		this.changeDetectorRef.detectChanges() ;
 	}
 
 	routing() 
@@ -257,12 +279,15 @@ export class TripComponent extends Ridebase implements OnInit{
 						this.trip.distance =Math.round(body.routes[0].distance/160)/10 ;
 					else 
 						this.trip.distance=C.ERROR_NO_ROUTE;
+					this.changeDetectorRef.detectChanges() ;
 				},
 				error => {
 					this.trip.distance=C.ERROR_NO_ROUTE;
+					this.changeDetectorRef.detectChanges() ;
 				}
 			);
 		} else this.trip.distance=C.ERROR_NO_ROUTE;
+		this.changeDetectorRef.detectChanges() ;
 	}
 
 	validate_trip(fg: FormGroup): ValidationErrors | null {
@@ -314,6 +339,21 @@ export class TripComponent extends Ridebase implements OnInit{
                 console.debug("201810212010 TripComponent.subscriptio_action(). ignore msg");
         }
 
+/*
+  	mouseDown(event) {
+    		this.element = event.target;
+
+    		this.zone.runOutsideAngular(() => {
+      		window.document.addEventListener('mousemove', this.mouseMove.bind(this));
+    		});
+	}
+
+  	mouseMove(event) {
+		event.preventDefault();
+		//this.element.setAttribute('x', event.clientX + this.clientX + 'px');
+		//this.element.setAttribute('y', event.clientX + this.clientY + 'px');
+	}
+*/
 
 	// the getter is required for reactive form validation to work 
 	get start_loc		() { return this.trip_form.get('start_loc'	); }  

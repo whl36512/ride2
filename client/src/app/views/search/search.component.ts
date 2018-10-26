@@ -1,31 +1,35 @@
 // https://angular.io/guide/reactive-forms
 // https://angular.io/guide/form-validation
 
-import { Component} from '@angular/core';
-import { OnInit } from '@angular/core';
-//import { OnDestroy } from '@angular/core';
-//import { NgZone  } from '@angular/core';
+import { Component		} from '@angular/core';
+import { OnInit 		} from '@angular/core';
+//import { OnDestroy 		} from '@angular/core';
+//import { NgZone  		} from '@angular/core';
 //import { ChangeDetectionStrategy } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { FormGroup } from '@angular/forms';
-import { FormArray } from '@angular/forms';
-import { FormBuilder } from '@angular/forms';
-import { Validators } from '@angular/forms';
-import { ValidatorFn } from '@angular/forms';
-import { ValidationErrors } from '@angular/forms';
-import {AbstractControl} from '@angular/forms';
-//import { Subscription }   from 'rxjs';
+import { FormControl 		} from '@angular/forms';
+import { FormGroup 		} from '@angular/forms';
+import { FormArray 		} from '@angular/forms';
+import { FormBuilder 		} from '@angular/forms';
+import { Validators 		} from '@angular/forms';
+import { ValidatorFn 		} from '@angular/forms';
+import { ValidationErrors 	} from '@angular/forms';
+import { AbstractControl	} from '@angular/forms';
+//import { Subscription 	} from 'rxjs';
 
-//import {EventEmitter, Input, Output} from '@angular/core';
+//import { EventEmitter		} from '@angular/core';
+//import { Output		} from '@angular/core';
+//import { Input		} from '@angular/core';
 
-import {GeoService} from '../../models/remote.service' ;
-import {DBService} from '../../models/remote.service' ;
-import {CommunicationService} from '../../models/communication.service' ;
-import { AppComponent } from '../../app.component';
-//import { Constants } from '../../models/constants';
-import { C } from '../../models/constants';
-import { Ridebase } from '../../models/ridebase';
-import { StorageService } from '../../models/gui.service';
+import { GeoService		} from '../../models/remote.service' ;
+import { DBService		} from '../../models/remote.service' ;
+import { CommunicationService	} from '../../models/communication.service' ;
+import { AppComponent 		} from '../../app.component';
+//import { Constants 		} from '../../models/constants';
+import { C 			} from '../../models/constants';
+import { Ridebase 		} from '../../models/ridebase';
+import { StorageService		} from '../../models/gui.service';
+import { PinIcon		} from "../../models/map.service"
+
 
 
 @Component({
@@ -48,6 +52,8 @@ export class SearchComponent extends Ridebase implements OnInit{
 	//today : any;
 	step=1;
 	journeys_from_db: any = [];
+
+	today=C.TODAY();
 
 	constructor(
 		  private geoService		: GeoService
@@ -145,6 +151,18 @@ export class SearchComponent extends Ridebase implements OnInit{
 		var display_name: string =null;
 		console.info("201800111346 SearchComponent.geocode() element_id =" + element_id);
 
+                this.trip.distance=C.ERROR_NO_ROUTE ;
+                if (element_id == "start_loc" ) {
+                        this.trip.start_lat=lat;
+                        this.trip.start_lon=lon;
+                        this.trip.start_display_name=display_name;
+                } else {
+                        this.trip.end_lat=lat;
+                        this.trip.end_lon=lon;
+                        this.trip.end_display_name=display_name;
+                }
+
+
 		if (element_id =="start_loc") {
 			loc = this.form.value.start_loc ;
 		}
@@ -219,6 +237,17 @@ export class SearchComponent extends Ridebase implements OnInit{
 	subscription_action ( msg: any): void{
         	console.debug("201810212010 SearchComponent.subscriptio_action(). ignore msg");
 	}
+
+        show_map(){
+                this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
+                this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+                let pair = C.convert_trip_to_pair(this.trip);
+                pair.p1.icon_type=PinIcon;
+                pair.p2.icon_type=PinIcon;
+                this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+                this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
+        }
+
 
 	// the getter is required for reactive form validation to work 
 	get start_loc		() { return this.form.get('start_loc'	); }  

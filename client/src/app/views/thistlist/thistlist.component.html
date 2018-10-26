@@ -16,7 +16,7 @@
 	</thead>
 	<tbody>
 		<tr *ngFor="let trnx of trnx_from_db ;let i=index;
-			let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
+			let even=even;let odd=odd; let first = first; let last = last; trackBy:trackByFunc"
 			[ngClass]="{ odd: odd, even: even }">
 			<td>{{i+1}}</td>
 			<td>{{trnx.date.slice(0,10)}} </td>

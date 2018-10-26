@@ -99,4 +99,11 @@ export abstract class Ridebase implements OnDestroy{
 		this.communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE, {page:this.page_name});
 		return false;
 	}
+	onSubmit(){}
+
+        trackByFunc (index, item) {
+                if (!item) return null;
+                return index;
+        }
+
 }

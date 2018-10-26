@@ -145,7 +145,7 @@ export class MapService {
 		let p = {...point} // we don't want to modify input
 	
 	  	if (p.lat == undefined || p.lat == null ) return false	; // failed to place marker
-		if (this.search_marker(p.lat, p.lon) != -1) return true; //  avoid marker at same latlon
+		//if (this.search_marker(p.lat, p.lon) != -1) return true; //  avoid marker at same latlon
 		if (p.icon_type == undefined || p.icon_type == null ) p.icon_type= PinIcon;
 		if (p.color== undefined || p.color== null ) p.color= 'blue';
 		if (p.marker_text== undefined  ) p.marker_text= '';

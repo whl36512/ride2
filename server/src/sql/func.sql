@@ -96,6 +96,7 @@ BEGIN
 		  , oauth_id         	=coalesce(s0.oauth_id, u.oauth_id)
 		  , oauth_host       	=coalesce(s0.oauth_host, u.oauth_host)
 		  , deposit_id       	=coalesce(s0.deposit_id, u.deposit_id)
+		  , sm_link       	=coalesce(s0.sm_link, u.sm_link)
 		  , c_ts             	=coalesce(s0.c_ts, u.c_ts)
 		  , m_ts             	=coalesce(s0.m_ts, clock_timestamp())
 	where u.usr_id = s1.usr_id
@@ -543,7 +544,9 @@ $body$
 		and	t.distance > 0 -- make sure the distance is already found at client side
 	)
 	, user0  as ( 
-		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user) t 
+		-- if usr_id is null, populated it with random uuid
+		SELECT coalesce(t.usr_id, uuid_generate_v4()) usr_id  
+		FROM funcs.json_populate_record(NULL::usr , in_user) t 
 	)
 	, a as (
 		select t.start_display_name, t.end_display_name 
@@ -553,6 +556,7 @@ $body$
 			, t.end_lon
 			--, t.distance 
 			, t.description
+			, t.driver_id        
 			, j.journey_id        
  			, j.trip_id         
  			, j.journey_date    
@@ -564,33 +568,54 @@ $body$
 			, case when u.balance >=  funcs.calc_cost(j.price , trip0.distance , trip0.seats , true)
 			  then true else false 
 			  end sufficient_balance
-		from trip t
-		join journey j on (t.trip_id=j.trip_id)
-		join trip0 on (1=1)
-		left outer join user0 on (1=1)  -- usr0 may not ba available because of not signed in
-		left outer join usr u on (u.usr_id= user0.usr_id)
+			, ut.sm_link
+			, ut.headline
+		from trip0
+		join user0 on (1=1)  -- usr0 may not ba available because of not signed in
+		join trip t on  (
+		 	t.start_lat	between trip0.adjusted_start_lat-trip0.degree10 	
+				and 	trip0.adjusted_start_lat+trip0.degree10
+			and t.start_lon	between trip0.adjusted_start_lon-trip0.degree10	
+				and 	trip0.adjusted_start_lon+trip0.degree10
+			and t.end_lat		between trip0.adjusted_end_lat-trip0.degree10 	
+				and 	trip0.adjusted_end_lat+trip0.degree10
+			and t.end_lon		between trip0.adjusted_end_lon-trip0.degree10
+				and 	trip0.adjusted_end_lon+trip0.degree10
+			and t.status_code 	= 	'A'
+			and t.driver_id 	!= 	user0.usr_id
+		)
+		join usr 	ut on (ut.usr_id=t.driver_id) -- to get driver sm_link
+		join journey 	j  on (
+			j.trip_id=t.trip_id
+			and   j.journey_date	between trip0.start_date 
+						and coalesce ( trip0.end_date, '3000-01-01')
+			and j.status_code='A'
+			and j.price <= trip0.price/1.2
+			and j.seats >= trip0.seats
+		)
+		--left outer join user0 on (1=1)  -- usr0 may not ba available because of not signed in
+		left outer join usr u on (u.usr_id= user0.usr_id) -- to get bookings
 		left outer join book b on (b.rider_id = user0.usr_id 
 						and b.journey_id=j.journey_id
 						and b.status_cd in ('P', 'B')
 					)
-		where t.start_lat	between trip0.adjusted_start_lat-trip0.degree10 	
-					and 	trip0.adjusted_start_lat+trip0.degree10
-		and   t.start_lon	between trip0.adjusted_start_lon-trip0.degree10	
-					and 	trip0.adjusted_start_lon+trip0.degree10
-		and   t.end_lat		between trip0.adjusted_end_lat-trip0.degree10 		
-					and 	trip0.adjusted_end_lat+trip0.degree10
-		and   t.end_lon		between trip0.adjusted_end_lon-trip0.degree10		
-					and 	trip0.adjusted_end_lon+trip0.degree10
-		and   j.journey_date	between trip0.start_date and coalesce ( trip0.end_date, '3000-01-01')
-		and   ( trip0.departure_time is null  
+		--where t.start_lat	between trip0.adjusted_start_lat-trip0.degree10 	
+					--and 	trip0.adjusted_start_lat+trip0.degree10
+		--and   t.start_lon	between trip0.adjusted_start_lon-trip0.degree10	
+					--and 	trip0.adjusted_start_lon+trip0.degree10
+		--and   t.end_lat		between trip0.adjusted_end_lat-trip0.degree10 		
+					--and 	trip0.adjusted_end_lat+trip0.degree10
+		--and   t.end_lon		between trip0.adjusted_end_lon-trip0.degree10		
+					--and 	trip0.adjusted_end_lon+trip0.degree10
+		--and   j.journey_date	between trip0.start_date and coalesce ( trip0.end_date, '3000-01-01')
+		where   ( trip0.departure_time is null  
 			or j.departure_time between trip0.departure_time - interval '1 hour' 
 					        and trip0.departure_time + interval '1 hour'
 		)
-		and j.price <= trip0.price/1.2
-		and j.seats >= trip0.seats
-		and t.trip_id=j.trip_id
-		and j.status_code='A'
-		and ( user0.usr_id is null or t.driver_id != user0.usr_id)
+		--and j.price <= trip0.price/1.2
+		--and j.seats >= trip0.seats
+		--and j.status_code='A'
+		--where t.driver_id != user0.usr_id
 	)
 	select row_to_json(a) 
 	from a
@@ -907,18 +932,22 @@ $body$
 			--, case when ids.usr_id = ids.driver_id then true else false end is_driver
 			--, case when ids.usr_id = ids.rider_id then true else false end is_rider
 			, case when ids.usr_id = t.driver_id then true else false end is_driver
-			, case when ids.usr_id = b.rider_id then true else false end is_rider
+			, case when ids.usr_id = b.rider_id  then true else false end is_rider
 			, b.pickup_display_name
 			, b.pickup_lat
 			, b.pickup_lon
 			, b.dropoff_display_name
 			, b.dropoff_lat
 			, b.dropoff_lon
+			, case when ids.usr_id = t.driver_id then ud.headline else ur.headline end headline
+			, case when ids.usr_id = t.driver_id then ud.sm_link  else ur.sm_link  end sm_link
 		from ids 
-		join trip t on ( t.trip_id=ids.trip_id )
-		join journey j on (j.journey_id= ids.journey_id) 
-		left outer join book b on (b.book_id= ids.book_id )
-		left outer join book_status s on (s.status_cd= b.status_cd)
+		join trip 		t 	on ( t.trip_id=ids.trip_id )
+		join journey 		j 	on (j.journey_id= ids.journey_id) 
+		join usr		ud 	on ( ud.usr_id=ids.driver_id)
+		left outer join usr	ur 	on ( ur.usr_id=ids.rider_id)
+		left outer join book 	b 	on (b.book_id= ids.book_id )
+		left outer join book_status s 	on (s.status_cd= b.status_cd)
 	)
 	select row_to_json(a) 
 	from a

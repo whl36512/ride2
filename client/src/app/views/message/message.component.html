@@ -1,7 +1,7 @@
 <div class=center>Messages</div>
 <div class=warning *ngIf='false'>change_detect_count={{change_detect_counter()}}</div>
 <dl *ngFor="let msg of msgs_from_db ;let i=index;
-		let even=even;let odd=odd; let first = first; let last = last; trackBy:i"
+		let even=even;let odd=odd; let first = first; let last = last; trackBy:trackByFunc"
 		[ngClass]="{ odd: odd, even: even }">
 	<dt class=f08 >
 		{{msg.user_is}} on {{Constants.up_to_minutes(msg.c_ts)}},  {{Constants.elapsed_time(msg.c_ts)}}
@@ -16,7 +16,6 @@
 	<textarea formControlName=msg  > </textarea>
 	<br/>
 	<button type=button (click)="action(msg_form ,0, Constants.URL_SAVE_MSG)">Send Message</button>
-	<span *ngIf='show_fail_msg' class='error fade'>Action Failed</span>
 </form>
 <div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
 <div class=warning>Note: Message window will close automatically 

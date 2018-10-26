@@ -156,6 +156,7 @@ export class MessageComponent extends Ridebase implements OnInit{
                                         , C.stringify(msgs_from_db));
 
 				if (msgs_from_db.length>0 ) {
+					// reset timer if getting new messages
 					this.msg_no_activity_count_down 
 								= C.MSG_NO_ACTIVITY_COUNT_DOWN;
                                 	this.msgs_from_db = this.msgs_from_db.concat(msgs_from_db);
@@ -163,7 +164,6 @@ export class MessageComponent extends Ridebase implements OnInit{
                                 this.changeDetectorRef.detectChanges();
                         },
                         error => {
-                                //this.error_msg=error;
                                 this.reset_msg();
                                 this.error_msg= error ;
                                 this.changeDetectorRef.detectChanges();
