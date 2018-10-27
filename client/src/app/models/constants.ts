@@ -14,6 +14,7 @@ export class Constants{
 	static URL_GET_USER 		= '/get_user'	;
 	static URL_UPD_TRIP 		= '/upd_trip'	;
 	static URL_SEARCH 		= '/search'	;
+	static URL_SEARCH_ALL 		= '/search_all'	;
 	static URL_BOOK 		= '/book'	;
 	static URL_ACTIVITY 		= '/activity'	;
 	static URL_MYOFFERS 		= '/myoffers'	;
@@ -96,9 +97,15 @@ export class Constants{
  	static MSG_KEY_SHOW_ACTIVITY_BODY	= 'msgKeyShowActivityBody' ; // show map fitting the markers
  	static MSG_KEY_MAP_BODY_SHOW	= 'msgKeyShowMapBodyShow' 	; 
  	static MSG_KEY_MAP_BODY_NOSHOW	= 'msgKeyShowMapBodyNoShow' 	; 
+ 	static MSG_KEY_MAP_LINE		= 'msgKeyMapLine' 	; 
 
  	static BODY_SHOW		= 'show' 		; 
  	static BODY_NOSHOW		= 'noshow' 		; 
+
+	// if markers overlap, draw subsequent marks at a offset location
+ 	static MAP_OVERLAP_OFFSET	= 0.00004 		;  
+ 	static MAP_LINE_COLOR_REGULAR	= 'blue'; 		;  
+ 	static MAP_LINE_COLOR_HIGHLIGHT	= 'red'; 		;  
 
 	constructor (){} 
         static TODAY() { // TODAY is browser local time

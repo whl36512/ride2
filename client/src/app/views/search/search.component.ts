@@ -122,7 +122,7 @@ export class SearchComponent extends Ridebase implements OnInit{
 		console.info("SearchComponent.ngOnInit() exit");
   	}
 
-	onSubmit() {
+	search() {
 	    	console.debug("201809231416 SearchComponent.onSubmit() this.form.value=" + C.stringify(this.form.value) );
 		this.reset_msg();
 		this.warning_msg = 'Searching ...';
@@ -135,12 +135,38 @@ export class SearchComponent extends Ridebase implements OnInit{
 
 		journeys_from_db_observable.subscribe(
 	    		journeys_from_db => {
-				console.info("201808201201 SearchComponent.constructor() journeys_from_db =" 
+				console.info("201808201201 SearchComponent.search() journeys_from_db =" 
 					, C.stringify(journeys_from_db));
 				this.reset_msg();
 				this.journeys_from_db = journeys_from_db;
 				if(this.journeys_from_db.length == 0 ) this.warning_msg = 'Nothing found';
-			}
+				else this.info_msg = 'Found ' + this.journeys_from_db.length + ' trips' ;
+			},
+			error => {
+					this.error_msg=error;
+				}
+		)
+	}
+	
+	search_all()
+	{
+		let data_from_db_observable     = this.dbService.call_db(C.URL_SEARCH_ALL, {});
+		this.journeys_from_db =[]; // remove previous search result from screen
+		this.search_criteria = null   // indicate that search_all() is called
+		data_from_db_observable.subscribe(
+	    		journeys_from_db => {
+				console.info("201808201201 SearchComponent.search_all() journeys_from_db =" 
+					, C.stringify(journeys_from_db));
+				this.reset_msg();
+				this.journeys_from_db = journeys_from_db;
+				if(this.journeys_from_db.length == 0 ) this.warning_msg = 'Nothing found';
+				else if (this.journeys_from_db.length >=100) 
+					this.info_msg = 'Found too many trips. Limit to nearest 100' ;
+				else this.info_msg = 'Found ' + this.journeys_from_db.length + ' trips' ;
+			},
+			error => {
+					this.error_msg=error;
+				}
 		)
 	}
 

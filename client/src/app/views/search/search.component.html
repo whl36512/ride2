@@ -1,7 +1,8 @@
 <div class="center f12">Search</div>
 <button   class="close-button" type="button" (click)="close_page()" > X </button>
 <div class={{show_body}} >
-	<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+	<form [formGroup]="form" (ngSubmit)="search()">
 		<dl> 
           		<dt>
 				<label for="start_loc">Exact Pickup Location
@@ -76,6 +77,11 @@
 		</button> 
 		</div>
       	</form>
+	<div class=center>
+	or <br/>
+	<button type=button (click)='search_all()'>See all trips within 10 days from today<br/>
+	You must use Search if you want to book a trip</button> <br/>
+	</div>
 	<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
 	<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
 	<div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>

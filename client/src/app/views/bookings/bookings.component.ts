@@ -282,6 +282,7 @@ export class BookingsComponent extends Ridebase implements OnInit{
 		pair.p1.marker_text = 'D'+(index+1);
 		pair.p2.marker_text = 'D'+(index+1);
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);	
+		// use driver pair to fit because rider pair is not always avalable
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);	
 
 		pair =  C.convert_book_to_pair(this.bookings_from_db[index]);

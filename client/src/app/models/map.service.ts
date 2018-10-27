@@ -15,6 +15,7 @@ export class MapService {
 	private markerTo: any;
 
 	private marker_arr: any =[];
+	private lines: any =[];
 
 	constructor() {
 		const osmAttr =
@@ -66,7 +67,17 @@ export class MapService {
 			this.map.removeLayer(this.marker_arr[index]);
 		}
 		this.marker_arr=[];
+
+		this.clear_lines();
 	}
+
+	clear_lines(){
+		for (let index in this.lines){
+			this.map.removeLayer(this.lines[index]);
+		}
+		this.lines=[];
+	}
+
 
 	disableMouseEvent(elementId: string) {
 		const element = <HTMLElement>document.getElementById(elementId);
@@ -142,19 +153,28 @@ export class MapService {
 	mark_point(point: any): boolean {
 		// point has properties: lat, lon, display_name, color, marker_text, icon_type
 
-		let p = {...point} // we don't want to modify input
+		//let p = {...point} // we don't want to modify input
+		let p=point;
 	
-	  	if (p.lat == undefined || p.lat == null ) return false	; // failed to place marker
-		//if (this.search_marker(p.lat, p.lon) != -1) return true; //  avoid marker at same latlon
-		if (p.icon_type == undefined || p.icon_type == null ) p.icon_type= PinIcon;
-		if (p.color== undefined || p.color== null ) p.color= 'blue';
-		if (p.marker_text== undefined  ) p.marker_text= '';
-		if (p.display_name== undefined  ) p.display_name= '';
+	  	if (!p) 	return false	; 
+	  	if (!p.lat) 	return false	; 
+		p.icon_type	= p.icon_type 	? p.icon_type 	: PinIcon	;
+		p.color		= p.color 	? p.color	: 'blue' 	;
+		p.marker_text	= p.marker_text ? p.marker_text : ''		;
+		p.display_name	= p.display_name? p.display_name: '' 		;
 
 		console.debug('201810210205 MapService.mark_point() p=\n', C.stringify(p));
 
+
 		let popup = `<div>${p.lat} ${p.lon}</div><div>${p.display_name}<div>`;
-		let marker=   L.marker([p.lat, p.lon]
+		// if mark location has alread a marker, move a bit
+		p.lat_offset = p.lat_offset?p.lat_offset:p.lat ;
+		p.lon_offset = p.lon_offset?p.lon_offset:p.lon ;
+		if (this.search_marker(p.lat_offset, p.lon_offset) != -1) {
+			p.lat_offset = p.lat + C.MAP_OVERLAP_OFFSET * 5*(Math.random()-0.5);
+			p.lon_offset = p.lon + C.MAP_OVERLAP_OFFSET * 5*(Math.random()-0.5);
+		}
+		let marker=   L.marker([p.lat_offset, p.lon_offset]
 					, {icon:p.icon_type.get(p.color,p.marker_text)} )
 				.addTo(this.map).bindPopup(popup) ;
 		this.marker_arr.push(marker);
@@ -200,7 +220,7 @@ export class MapService {
   		return color;
 	}
 
-	createMap(mapTag: string, lat: number, long: number, zoom: number)
+	createMap(mapTag: string, lat: number, long: number, zoom: number): L.Map
 	{
 		//map = L.map('map').setView([lat, long], zoom);
 		this.map = L.map(mapTag).setView([lat, long], zoom);
@@ -340,7 +360,30 @@ export class MapService {
 		let urlEncoded=url+points+query ;
 		return urlEncoded;
 	}
-
+	
+	draw_line(pair: any):boolean {
+		if ( !pair) 		return false;
+		if ( !pair.p1) 		return false;
+		if ( !pair.p2)   	return false;
+		if ( !pair.p1.lat ) 	return false;
+		if ( !pair.p2.lat ) 	return false;
+		var polyline = L.polyline
+		(
+			[
+            			[pair.p1.lat, pair.p1.lon],
+            			[pair.p2.lat, pair.p2.lon],
+            		],
+            		{
+                		color: pair.line_color?pair.line_color:C.MAP_LINE_COLOR_REGULAR,
+                		weight: 1,
+                		opacity: 1 ,
+                		//dashArray: '20,15',
+                		//lineJoin: 'round'
+            		}
+            	).addTo(this.map);
+		this.lines.push(polyline);
+		return true;
+	}
 }
 
 
@@ -425,7 +468,7 @@ export class DotIcon {
 		'border: 1px solid #FFFFFF; '   ;
 		
 		let html= 	''  ;
-		html +=`<span class="mapicon" style="background: radial-gradient(white, red ); width:1rem;height:1rem;display: block; left: -0.5rem;top: 0.5rem;position: absolute; border: 0px solid white; border-radius: 20rem" >${text}</span>`  ;
+		html +=`<span class="mapicon" style="background: radial-gradient(white, red ); width:1rem;height:1rem;display: block; left: -0.5rem;top: 1rem;position: absolute; border: 0px solid white; border-radius: 20rem" >${text}</span>`  ;
 		//html +='<span class="mapiconcenter" style="background: linear-gradient(to bottom right, white, white);; width:0.5rem;height: 0.5rem;display: block; left: -0.25rem;top: -1.0rem;position: absolute; border: 0rem solid red; border-radius: 20rem" ></span>' ;
 		//html +='<span class="mapiconstemfrom" style=" background-color: red; width: 0.2rem;height: 1.5rem;display: block; left: -0.1rem;top: -0.1rem;position: absolute; border: 0rem solid red; border-radius: 8rem" ></span> ' ;
 		html = html.replace(/red/g, myCustomColour);

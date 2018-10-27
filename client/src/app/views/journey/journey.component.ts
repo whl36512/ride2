@@ -67,23 +67,27 @@ export class JourneyComponent extends Ridebase implements OnInit{
 		console.debug("201809262246 JourneyComponent.ngOnInit() enter");
 		//this.subscription1 = this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		//this.subscription2 = this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
-		console.debug("201809262246 JourneyComponent.ngOnInit() exit");
+                //this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
 		for ( let index in this.journeys_from_db) {
 			this.journeys_from_db[index].show_fail_msg=false;
 			this.journeys_from_db[index].show_book_msg=false;
 			this.journeys_from_db[index].show_balance_msg
 				=!this.journeys_from_db[index].sufficient_balance;
+			//if search_criteria == null, search_all() was called and trips are not bookable
 			this.journeys_from_db[index].show_book_button
-				=this.journeys_from_db[index].sufficient_balance;
+				=this.journeys_from_db[index].sufficient_balance&&this.search_criteria;
 			//add_form(journey);
 
-			let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
-			pair.p1.icon_type= DotIcon ;
-			pair.p2.icon_type= DotIcon ;
-			pair.p1.marker_text= 'D'+ (Number(index)+1);
-			pair.p2.marker_text= 'D'+ (Number(index)+1);
-			this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+			//let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
+			//pair.p1.icon_type= DotIcon ;
+			//pair.p2.icon_type= DotIcon ;
+			//pair.p1.marker_text= 'D'+ (Number(index)+1);
+			//pair.p2.marker_text= 'D'+ (Number(index)+1);
+			//this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+			//this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, pair);
 		}
+		this.place_all_markers();
+		console.debug("201809262246 JourneyComponent.ngOnInit() exit");
   	}
 
 	book(journey: any): void {
@@ -129,21 +133,40 @@ export class JourneyComponent extends Ridebase implements OnInit{
         	console.debug("201810212243 JourneyComponent.subscriptio_action(). ignore msg");
 	}
 
+	place_all_markers ()
+	{
+		for ( let index in this.journeys_from_db) {
+			let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
+			pair.p1.icon_type= DotIcon ;
+			pair.p2.icon_type= DotIcon ;
+			pair.p1.marker_text= 'D'+ (Number(index)+1);
+			pair.p2.marker_text= 'D'+ (Number(index)+1);
+			this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+			pair.line_color=null;
+			this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, pair);
+		}
+	}
+
         show_map(index: number){
                 this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
                 this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+		this.place_all_markers();
                 let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
                 this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
-		pair.p1.icon_type=DotIcon;
-		pair.p2.icon_type=DotIcon;
-		pair.p1.marker_text=index+1;
-		pair.p2.marker_text=index+1;
-                this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+		//pair.p1.icon_type=DotIcon;
+		//pair.p2.icon_type=DotIcon;
+		//pair.p1.marker_text='D'+(index+1);
+		//pair.p2.marker_text='D'+(index+1);
+                //this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+		pair.line_color = C.MAP_LINE_COLOR_HIGHLIGHT;
+                this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, pair);
 
-                pair = C.convert_trip_to_pair(this.search_criteria);
-		pair.p1.icon_type=PinIcon;
-		pair.p2.icon_type=PinIcon;
-                this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+		if(this.search_criteria){
+                	pair = C.convert_trip_to_pair(this.search_criteria);
+			pair.p1.icon_type=PinIcon;
+			pair.p2.icon_type=PinIcon;
+                	this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+		}
         }
 
 }

@@ -10,12 +10,12 @@
 				<th>Seats</th>
 				<th>Price($)</th>
 				<th *ngIf='is_signed_in'>Booked</th>
-				<td *ngIf='is_signed_in && !journey.sufficient_balance' class=warning >
+				<th *ngIf='is_signed_in && !journey.sufficient_balance' class=warning >
 					Insufficient<br/>Balance
-				</td>
-				<td *ngIf='!is_signed_in'  class=warning >
+				</th>
+				<th *ngIf='!is_signed_in'  class=warning >
 					Not Signed in	
-				</td>
+				</th>
 			</tr>
 		</thead>
 		<tbody>

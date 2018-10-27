@@ -26,11 +26,11 @@
 					{{bookings_from_db[i].departure_time}}</td>
 				<td *ngIf='bookings_from_db[i].book_id == null' > 
 					{{booking.value.seats}}<br/>
-	<input type="range" formControlName="seats" min="0" max="{{C.MAX_SEATS}}" step=1 />
+	<input class=zoom type="range" formControlName="seats" min="0" max="{{C.MAX_SEATS}}" step=1 />
 				</td>
 				<td *ngIf='bookings_from_db[i].book_id == null' > 
 					{{booking.value.price}}<br/>
-	<input type="range" formControlName="price" min="0" max="{{C.MAX_PRICE}}" step=0.01 />
+	<input class=zoom type="range" formControlName="price" min="0" max="{{C.MAX_PRICE}}" step=0.01 />
 				</td>
 				<td *ngIf='bookings_from_db[i].book_id != null'>{{bookings_from_db[i].seats}}</td>
 				<td *ngIf='bookings_from_db[i].book_id != null'>{{bookings_from_db[i].unified_cost}}</td>

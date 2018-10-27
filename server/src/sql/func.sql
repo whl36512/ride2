@@ -568,7 +568,7 @@ $body$
 			, case when u.balance >=  funcs.calc_cost(j.price , trip0.distance , trip0.seats , true)
 			  then true else false 
 			  end sufficient_balance
-			, ut.sm_link
+			--, ut.sm_link
 			, ut.headline
 		from trip0
 		join user0 on (1=1)  -- usr0 may not ba available because of not signed in
@@ -616,6 +616,130 @@ $body$
 		--and j.seats >= trip0.seats
 		--and j.status_code='A'
 		--where t.driver_id != user0.usr_id
+	)
+	select row_to_json(a) 
+	from a
+	order by a.journey_date, a.departure_time
+	;
+$body$
+language sql;
+
+create or replace function funcs.search_all( dummy text, in_user text)
+  returns setof json
+as
+$body$
+	with user0  as ( 
+		-- if usr_id is null, populated it with random uuid
+		SELECT coalesce(t.usr_id, uuid_generate_v4()) usr_id  
+		FROM funcs.json_populate_record(NULL::usr , in_user) t 
+	)
+	, a as (
+		select t.start_display_name, t.end_display_name 
+			, t.start_lat
+			, t.start_lon
+			, t.end_lat
+			, t.end_lon
+			--, t.distance 
+			, t.description
+			, t.driver_id        
+			, j.journey_id        
+ 			, j.trip_id         
+ 			, j.journey_date    
+ 			, j.departure_time  
+		--	, u.balance
+			, j.seats
+			, funcs.calc_cost(j.price, t.distance , 1 , true) || ' per seat' rider_cost
+			, coalesce (b.seats,0) seats_booked
+			, case when u.balance >=  funcs.calc_cost(j.price , t.distance  , 1 , true)
+			  then true else false 
+			  end sufficient_balance
+			--, ut.sm_link
+			, ut.headline
+		from journey j
+		join user0 on (1=1)  -- usr0 may not ba available because of not signed in
+		join trip t on  ( t.trip_id	=	j.trip_id
+				and t.driver_id	!= 	user0.usr_id
+		)
+		join usr 	ut on (ut.usr_id=t.driver_id) -- to get driver sm_link
+		left outer join usr u on (u.usr_id= user0.usr_id) -- to get bookings
+		left outer join book b on (	b.rider_id = user0.usr_id
+						and b.journey_id=j.journey_id
+						and b.status_cd in ('P', 'B')
+					)
+		where j.journey_date between now()::date and (now()::date + 10) 
+		and j.status_code='A'
+		and j.seats>0
+		order by j.journey_date , j.departure_time
+		limit 100
+	)
+	select row_to_json(a) 
+	from a
+	order by a.journey_date, a.departure_time
+	;
+$body$
+language sql;
+
+create or replace function funcs.search_region( in_criteria text, in_user text)
+  returns setof json
+as
+$body$
+	with user0  as ( 
+		-- if usr_id is null, populated it with random uuid
+		SELECT coalesce(t.usr_id, uuid_generate_v4()) usr_id  
+		FROM funcs.json_populate_record(NULL::usr , in_user) t 
+	)
+	, c0 as (
+		SELECT    least	  (t.start_lat, t.end_lat) start_lat  
+			, greatest(t.start_lat, t.end_lat) end_lat  
+			, least	  (t.start_lon, t.end_lon) start_lon
+			, greatest(t.start_lon, t.end_lon) end_lon  
+		FROM funcs.json_populate_record(NULL::criteria , in_criteria) t 
+	)
+	, a as (
+		select t.start_display_name, t.end_display_name 
+			, t.start_lat
+			, t.start_lon
+			, t.end_lat
+			, t.end_lon
+			--, t.distance 
+			, t.description
+			, t.driver_id        
+			, j.journey_id        
+ 			, j.trip_id         
+ 			, j.journey_date    
+ 			, j.departure_time  
+		--	, u.balance
+			, j.seats
+			, funcs.calc_cost(j.price, t.distance , 1 , true) || ' per seat' rider_cost
+			, coalesce (b.seats,0) seats_booked
+			, case when u.balance >=  funcs.calc_cost(j.price , t.distance  , 1 , true)
+			  then true else false 
+			  end sufficient_balance
+			--, ut.sm_link
+			, ut.headline
+		from journey j
+		join user0 on (1=1)  -- usr0 may not ba available because of not signed in
+		join c0 on (1=1)
+		join trip t on  ( t.trip_id	=	j.trip_id
+				and t.driver_id	!= 	user0.usr_id
+				and t.start_lat between c0.start_lat and c0.end_lat
+				and t.start_lon between c0.start_lon and c0.end_lon
+				and t.end_lat between c0.start_lat and c0.end_lat
+				and t.end_lon between c0.start_lon and c0.end_lon
+				and t.distance  > 
+				greatest(c0.end_lat- c0.start_lat , c0.end_lon - c0.start_lon)*60/20
+		)
+		join usr 	ut on (ut.usr_id=t.driver_id) -- to get driver sm_link
+		left outer join usr u on (u.usr_id= user0.usr_id) -- to get bookings
+		left outer join book b on (	b.rider_id = user0.usr_id
+						and b.journey_id=j.journey_id
+						and b.status_cd in ('P', 'B')
+					)
+		where j.status_code='A'
+		and j.seats>0
+		--and j.journey_date between now()::date and (now()::date + 10) 
+		order by j.journey_date , j.departure_time
+		limit 100
 	)
 	select row_to_json(a) 
 	from a

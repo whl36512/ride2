@@ -49,6 +49,7 @@ pub fn router_setup() -> iron::Chain  {
     router.post("/get_session", handlers::get_session, "get_session");
     router.post("/upd_trip", handlers::upd_trip, "upd_trip");
     router.post("/search", handlers::search, "search");
+    router.post("/search_all", handlers::search_all, "search_all");
     router.post("/book", handlers::book, "book");
     router.post("/activity", handlers::activity, "activity");
     router.post("/myoffers", handlers::myoffers, "myoffers");

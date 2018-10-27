@@ -3,13 +3,13 @@ div#map {
         height: 100%;
         width: 100%;
         border: 0px solid #AAA;
-        z-index: 200;
+        z-index: 100;
         position: fixed;
         left: 0rem;
         top: 0rem;
+        transform: scale(1);
 /* these are not working
         zoom:100%;
-        transform: scale(1);
 */
 /*
         position: absolute;
