@@ -67,7 +67,7 @@ export class JourneyComponent extends Ridebase implements OnInit{
 		console.debug("201809262246 JourneyComponent.ngOnInit() enter");
 		//this.subscription1 = this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		//this.subscription2 = this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
-                //this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+                this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
 		for ( let index in this.journeys_from_db) {
 			this.journeys_from_db[index].show_fail_msg=false;
 			this.journeys_from_db[index].show_book_msg=false;
@@ -86,9 +86,20 @@ export class JourneyComponent extends Ridebase implements OnInit{
 			//this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
 			//this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, pair);
 		}
-		this.place_all_markers();
+		//this.place_all_markers();
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS, this.journeys_from_db);
+		this.mark_search_pair();
 		console.debug("201809262246 JourneyComponent.ngOnInit() exit");
   	}
+
+	mark_search_pair(){
+		if(this.search_criteria){
+                	let pair = C.convert_trip_to_pair(this.search_criteria);
+			pair.p1.icon_type=PinIcon;
+			pair.p2.icon_type=PinIcon;
+                	this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+		}
+	}
 
 	book(journey: any): void {
 		let book_to_db = { 
@@ -133,40 +144,18 @@ export class JourneyComponent extends Ridebase implements OnInit{
         	console.debug("201810212243 JourneyComponent.subscriptio_action(). ignore msg");
 	}
 
-	place_all_markers ()
-	{
-		for ( let index in this.journeys_from_db) {
-			let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
-			pair.p1.icon_type= DotIcon ;
-			pair.p2.icon_type= DotIcon ;
-			pair.p1.marker_text= 'D'+ (Number(index)+1);
-			pair.p2.marker_text= 'D'+ (Number(index)+1);
-			this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
-			pair.line_color=null;
-			this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, pair);
-		}
-	}
-
         show_map(index: number){
                 this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
                 this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
-		this.place_all_markers();
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS, this.journeys_from_db);
+		//this.place_all_markers();
                 let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
                 this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
-		//pair.p1.icon_type=DotIcon;
-		//pair.p2.icon_type=DotIcon;
-		//pair.p1.marker_text='D'+(index+1);
-		//pair.p2.marker_text='D'+(index+1);
-                //this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
 		pair.line_color = C.MAP_LINE_COLOR_HIGHLIGHT;
+		pair.line_weight = C.MAP_LINE_WEIGHT_HIGHLIGHT;
                 this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, pair);
 
-		if(this.search_criteria){
-                	pair = C.convert_trip_to_pair(this.search_criteria);
-			pair.p1.icon_type=PinIcon;
-			pair.p2.icon_type=PinIcon;
-                	this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
-		}
+		this.mark_search_pair();
         }
 
 }

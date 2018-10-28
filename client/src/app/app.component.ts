@@ -5,6 +5,7 @@ import { Subscription }   from 'rxjs';
 import {CommunicationService} 	from "./models/communication.service" ;
 import {C} 			from "./models/constants" ;
 import {Ridebase} 		from "./models/ridebase" ;
+import {Util} 			from "./models/gui.service" ;
 
 
 @Component({
@@ -23,7 +24,7 @@ export class AppComponent extends Ridebase {
 		super(communicationService);
   		this.setFalse();
     		this.pages.nav		= true ;
-    		this.pages.map		= true ;
+		this.list_global_objects();
 	}
 
 	setFalse () {
@@ -37,6 +38,7 @@ export class AppComponent extends Ridebase {
 		this.pages.withdraw	= false ;
 		this.pages.contact_us	= false ;
 		this.pages.tou		= false ;
+    		this.pages.map		= false ;
 	}
 
   	select(page:string) {
@@ -47,6 +49,7 @@ export class AppComponent extends Ridebase {
 		this.pages = { ...this.pages, ...json} ;
 		console.info("201808221510 AppComponent.select()  this.pages="
 			,  C.stringify(this.pages) ) ;
+		if (this.pages.map==false) this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_NOSHOW, {});
   	}
 
   	deselect(page:string) {

@@ -52,6 +52,84 @@ export class Util {
 	        while(new Date().getTime() < now + sleepDuration){ /* do nothing */ } 
 	}
 
+/*  not working. error TS2339: Property 'chrome' does not exist on type 'Window'.
+	get_browser_vender() {
+	// https://stackoverflow.com/questions/4565112/javascript-how-to-find-out-if-the-user-browser-is-chrome
+		let isChromium = window.chrome;
+		let winNav = window.navigator;
+		let vendorName = winNav.vendor;
+		let isOpera = typeof window.opr !== "undefined";
+		let isIEedge = winNav.userAgent.indexOf("Edge") > -1;
+		let isIOSChrome = winNav.userAgent.match("CriOS");
+		vender: string;
+
+
+		if (isIOSChrome) {
+   			// is Google Chrome on IOS
+			vender ='IOSChrome';
+			
+		} else if (isOpera) {
+			vender = 'Opera' ;
+		} else if (isIEedge) {
+			vender = 'Edge' ;
+		} else if(
+  			isChromium !== null &&
+  			typeof isChromium !== "undefined" &&
+  			vendorName === "Google Inc." &&
+  			isOpera === false &&
+  			isIEedge === false
+			) {
+   			// is Google Chrome
+			vender='Google Chrome'
+		} else { 
+   			// not Google Chrome 
+			vender = 'Generic Chromium';
+		}
+	}
+*/
+
+	static list_global_objects () {
+   		var keys=Object.keys( window ).sort();
+   		for (var i in keys)
+   		{
+      		if (typeof window[keys[i]] != 'function')
+      			console.debug('2018270951 Util.list_global_objects()', keys[i], window[keys[i]]);
+   		}
+	}
+
+	static onError(error) {
+  		console.log(`Error: ${error}`);
+	}
+
+	static reset_zoom() {
+		console.debug('201810272157 Util.reset_zoom enter');
+		let browser=window['chrome'] ;
+		if ( browser ) {
+			if(browser.tabs) {
+			let func_var = Util.onGot_reset;
+			let gettingZoom = browser.tabs.getZoom(function(zoom) { func_var(zoom)});
+			//gettingZoom.then(Util.onGot_reset, Util.onError);
+			} else {
+				console.debug('201810272157 Util.reset_zoom browser.tabs==null');
+			}
+			
+		}
+		else {
+			console.debug('201810272157 Util.reset_zoom browser == null');
+		}
+		
+	}
+
+	static onGot_reset(zoom) {
+		console.debug('201810272157 Util.onGot_reset zoom=', zoom);
+		if (zoom==1) return;
+		let browser=window['chrome'] ;
+		if ( browser) {
+			var setting = browser.tabs.setZoom(1.0);
+		//	setting.then(null, Util.onError);
+  		//	console.log(zoom);
+		}
+	}
 }
 
 /*

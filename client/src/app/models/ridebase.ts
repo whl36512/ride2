@@ -27,6 +27,7 @@ import {CommunicationService} from './communication.service' ;
 import { C } from './constants';
 //import { StorageService } from '../../models/gui.service';
 //import { UserService } from '../../models/gui.service';
+import { Util } from './gui.service';
 
 
 export abstract class Ridebase implements OnDestroy{
@@ -105,5 +106,9 @@ export abstract class Ridebase implements OnDestroy{
                 if (!item) return null;
                 return index;
         }
+
+	list_global_objects() {
+		Util.list_global_objects();
+	}
 
 }

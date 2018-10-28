@@ -689,6 +689,7 @@ $body$
 		FROM funcs.json_populate_record(NULL::usr , in_user) t 
 	)
 	, c0 as (
+		-- bounding box
 		SELECT    least	  (t.start_lat, t.end_lat) start_lat  
 			, greatest(t.start_lat, t.end_lat) end_lat  
 			, least	  (t.start_lon, t.end_lon) start_lon
@@ -722,10 +723,10 @@ $body$
 		join c0 on (1=1)
 		join trip t on  ( t.trip_id	=	j.trip_id
 				and t.driver_id	!= 	user0.usr_id
-				and t.start_lat between c0.start_lat and c0.end_lat
+				and (t.start_lat between c0.start_lat and c0.end_lat
 				and t.start_lon between c0.start_lon and c0.end_lon
-				and t.end_lat between c0.start_lat and c0.end_lat
-				and t.end_lon between c0.start_lon and c0.end_lon
+				or t.end_lat between c0.start_lat and c0.end_lat
+				and t.end_lon between c0.start_lon and c0.end_lon)
 				and t.distance  > 
 				greatest(c0.end_lat- c0.start_lat , c0.end_lon - c0.start_lon)*60/20
 		)
@@ -737,7 +738,7 @@ $body$
 					)
 		where j.status_code='A'
 		and j.seats>0
-		--and j.journey_date between now()::date and (now()::date + 10) 
+		and j.journey_date between now()::date and (now()::date + 10) 
 		order by j.journey_date , j.departure_time
 		limit 100
 	)

@@ -15,6 +15,7 @@ export class Constants{
 	static URL_UPD_TRIP 		= '/upd_trip'	;
 	static URL_SEARCH 		= '/search'	;
 	static URL_SEARCH_ALL 		= '/search_all'	;
+	static URL_SEARCH_REGION 	= '/search_region'	;
 	static URL_BOOK 		= '/book'	;
 	static URL_ACTIVITY 		= '/activity'	;
 	static URL_MYOFFERS 		= '/myoffers'	;
@@ -92,7 +93,8 @@ export class Constants{
  	static MSG_KEY_PAGE_OPEN	= 'msgKeyPageOpen' 		;
  	static MSG_KEY_PAGE_CLOSE	= 'msgKeyPageClose' 		;
  	static MSG_KEY_MARKER_CLEAR	= 'msgKeyMarkerClear' 		; // clear all markers on the map
- 	static MSG_KEY_MARKER_PAIR	= 'msgKeyMarkerPair' 		; // place marker fair on the map
+ 	static MSG_KEY_MARKER_PAIR	= 'msgKeyMarkerPair' 		; // place marker pair on the map
+ 	static MSG_KEY_MARKER_BOOKS	= 'msgKeyMarkerBooks' 		; 
  	static MSG_KEY_MARKER_FIT	= 'msgKeyMarkerFit' 		; // show map fitting the markers
  	static MSG_KEY_SHOW_ACTIVITY_BODY	= 'msgKeyShowActivityBody' ; // show map fitting the markers
  	static MSG_KEY_MAP_BODY_SHOW	= 'msgKeyShowMapBodyShow' 	; 
@@ -103,9 +105,11 @@ export class Constants{
  	static BODY_NOSHOW		= 'noshow' 		; 
 
 	// if markers overlap, draw subsequent marks at a offset location
- 	static MAP_OVERLAP_OFFSET	= 0.00004 		;  
- 	static MAP_LINE_COLOR_REGULAR	= 'blue'; 		;  
- 	static MAP_LINE_COLOR_HIGHLIGHT	= 'red'; 		;  
+ 	static MAP_OVERLAP_OFFSET	= 0.00004*5 		;  
+ 	static MAP_LINE_COLOR_REGULAR	= 'blue' ;
+ 	static MAP_LINE_COLOR_HIGHLIGHT	= 'red'
+ 	static MAP_LINE_WEIGHT_REGULAR	= 1; 		;  
+ 	static MAP_LINE_WEIGHT_HIGHLIGHT= 3; 		;  
 
 	constructor (){} 
         static TODAY() { // TODAY is browser local time
@@ -151,7 +155,8 @@ export class Constants{
 		return JSON.stringify(json,null,2);
 	}
 	
-	static convert_trip_to_pair(trip: any): any {
+	static convert_trip_to_pair(trip: any): any|null {
+		if(!trip) return null;
                 let p1 ={
                                   lat           : trip.start_lat
                                 , lon           : trip.start_lon
@@ -171,7 +176,8 @@ export class Constants{
                 return {p1: p1, p2:p2};
         }
 
-	static convert_book_to_pair(book: any): any {
+	static convert_book_to_pair(book: any): any|null {
+		if(!book) return null;
                 let p1 ={
                                   lat           : book.pickup_lat
                                 , lon           : book.pickup_lon

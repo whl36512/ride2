@@ -17,7 +17,10 @@ export class MapService {
 	private marker_arr: any =[];
 	private lines: any =[];
 
+	current_loc = {lat:null, lon:null};
+
 	constructor() {
+		this.getLocation();
 		const osmAttr =
 			"&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, " +
 			"Tiles courtesy of <a href='http://hot.openstreetmap.org/' target='_blank'>Humanitarian OpenStreetMap Team</a>";
@@ -97,12 +100,6 @@ export class MapService {
 	*/
 		
 	/*
-	fitBounds(bounds: L.LatLngBounds) {
-		this.map.fitBounds(bounds, {});
-	}
-	*/
-		
-	/*
 	private addMarker(e: L.LeafletMouseEvent) {
 		const shortLat = Math.round(e.latlng.lat * 1000000) / 1000000;
 		const shortLng = Math.round(e.latlng.lng * 1000000) / 1000000;
@@ -135,21 +132,6 @@ export class MapService {
 		return -1;
 	}
 
-	place_marker(lat: number, lon: number, popup_string:string
-			, icon_type: any, color: string, text: string):boolean {
-	
-	  	if (lat == null || lon == null ) return false	; // failed to place marker
-		if (this.search_marker(lat,lon) != -1) return true;
-		if (icon_type== undefined || icon_type== null ) icon_type= PinIcon;
-		if (color== undefined || icon_type== null ) color= 'blue';
-
-		let popup = `<div>${lat} ${lon}</div><div>${popup_string}<div>`;
-		let marker=   L.marker([lat,lon], {icon:icon_type.get(color,text)} )
-				.addTo(this.map).bindPopup(popup) ;
-		this.marker_arr.push(marker);
-		return true; // success
-	}
-
 	mark_point(point: any): boolean {
 		// point has properties: lat, lon, display_name, color, marker_text, icon_type
 
@@ -171,8 +153,8 @@ export class MapService {
 		p.lat_offset = p.lat_offset?p.lat_offset:p.lat ;
 		p.lon_offset = p.lon_offset?p.lon_offset:p.lon ;
 		if (this.search_marker(p.lat_offset, p.lon_offset) != -1) {
-			p.lat_offset = p.lat + C.MAP_OVERLAP_OFFSET * 5*(Math.random()-0.5);
-			p.lon_offset = p.lon + C.MAP_OVERLAP_OFFSET * 5*(Math.random()-0.5);
+			p.lat_offset = Number(p.lat) + C.MAP_OVERLAP_OFFSET * (Math.random()-0.5);
+			p.lon_offset = Number(p.lon) + C.MAP_OVERLAP_OFFSET * (Math.random()-0.5);
 		}
 		let marker=   L.marker([p.lat_offset, p.lon_offset]
 					, {icon:p.icon_type.get(p.color,p.marker_text)} )
@@ -181,35 +163,49 @@ export class MapService {
 		return true; // success
 	}
 
-	place_marker_pair(start_lat	, start_lon	, start_display_name
-			, end_lat	, end_lon	, end_display_name
-			, icon_type
-			, color:string
-			, text: string ):boolean
-	{
-		let color1 ='green';
-		let color2 ='red';
 
-		if ( color == undefined || color == null)
-		{
-		}
-		else if ( color == 'random') {
-			color1 = this.getRandomColor();
-			color2 = this.getRandomColor()
-		}
-		else if (  color == 'random_same' ) {
-			color1 = this.getRandomColor();
-			color2 = color1;
-		}
-		else {
-			color1=color;
-			color2=color;
-		}
-		let ok=this.place_marker( start_lat, start_lon,start_display_name,icon_type, color1, text);
-		if (! ok) return ok
-		ok = this.place_marker( end_lat, end_lon,end_display_name,icon_type, color2, text);
-		return ok;
-	}
+        mark_books (books, highlight_index: number)
+        {
+                for ( let index in books) {
+			let i = Number(index) ;
+                        let pair = C.convert_trip_to_pair(books[i]);
+			if(pair) {
+                        	pair.p1.icon_type= DotIcon ;
+                        	pair.p2.icon_type= DotIcon ;
+                        	pair.p1.marker_text= 'D'+ (i+1);
+                        	pair.p2.marker_text= 'D'+ (i+1);
+                        	this.mark_pair(pair);
+				if ( i !== highlight_index) {
+                        		pair.line_color=null;
+                        		pair.line_weight=null;
+				}
+				else {
+                        		pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
+                        		pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
+				}
+                        	this.draw_line(pair);
+			}
+
+			pair = C.convert_book_to_pair(books[i]);
+			if(pair) {
+                        	pair.p1.icon_type= DotIcon ;
+                        	pair.p2.icon_type= DotIcon ;
+                        	pair.p1.marker_text= 'P'+ (i+1);
+                        	pair.p2.marker_text= 'P'+ (i+1);
+                        	this.mark_pair(pair);
+				if ( i !== highlight_index) {
+                        		pair.line_color=null;
+                        		pair.line_weight=null;
+				}
+				else {
+                        		pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
+                        		pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
+				}
+                        	this.draw_line(pair);
+			}
+                }
+        }
+
 
  	getRandomColor():string {
   		var letters = '23456789AB';
@@ -229,15 +225,6 @@ export class MapService {
 		return this.map;
 	}
 
-	flyTo(lat,lon,display_name, icon_type, color:string): boolean{ // display_name will be shown in popup
-		console.debug("flyTo");
-		this.clear_markers();
-		let ok = this.place_marker(lat,lon, display_name, icon_type, color, '') ;
-		if (!ok) return ok;
-		this.map.setView([lat,lon],12);
-		//this.map.flyTo([lat,lon],12);
-		return true;
-	}
 
 	set_view(point: any) : boolean {
 		if ( point ==undefined || point == null) return false;
@@ -248,27 +235,6 @@ export class MapService {
 	}
 
 
-	flyToBounds(start_lat, start_lon, start_display_name, end_lat, end_lon, end_display_name, icon_type)
-		: boolean
-	{
-		console.debug("flyToBounds");
-		this.clear_markers();
-		let ok = this.place_marker_pair( start_lat, start_lon, start_display_name
-						, end_lat, end_lon, end_display_name, icon_type, null, '');
-	 	if (!ok) return ok;	
-
-		let corner1 = L.latLng(start_lat, start_lon);
-		let corner2 = L.latLng(end_lat, end_lon);
-		let bounds = L.latLngBounds(corner1, corner2);
-
-
-		//if(this.marker)     {     this.map.removeLayer(this.marker); }
-		//if(this.markerTo)   {     this.map.removeLayer(this.markerTo); }
-		//if(this.markerFrom) {     this.map.removeLayer(this.markerFrom); }
-		this.map.fitBounds(bounds);
-		//this.map.flyToBounds(bounds);
-		return true;
-	}
 
 	fit_pair(pair: any) : boolean
 	{
@@ -289,16 +255,16 @@ export class MapService {
 
 	mark_pair(pair:any) : boolean
 	{
+		if(!pair) return false;
 		let p1 = pair.p1 ;
 		let p2 = pair.p2 ;
-		if ( p1 == undefined) return false;
-		if ( p2 == undefined) return false;
-		if (p1.lat == undefined || p1.lat == null 
-			|| p2.lat == undefined || p2.lat == null) return false;
+		if(!p1) return false;
+		if(!p2) return false;
+		if(!p1.lat) return false;
+		if(!p2.lat) return false;
 		
-		
-		if( p1.color == undefined || p1.color == null)  p1.color = C.COLOR_GREEN;
-		if( p2.color == undefined || p2.color == null)  p2.color = C.COLOR_RED ;
+		p1.color =  p1.color? p1.color  : C.COLOR_GREEN;
+		p2.color =  p2.color? p2.color  : C.COLOR_RED ;
 
 		if (p1.color == 'random') p1.color = this.getRandomColor();
 		if (p2.color == 'random') p2.color = this.getRandomColor();
@@ -334,33 +300,6 @@ export class MapService {
 		return ok;
 	}
 
-        tryFlyTo (trip: any, icon_type: any): boolean
-        {
-                let ok= this.flyToBounds(trip.start_lat, trip.start_lon, trip.start_display_name
-                                , trip.end_lat, trip.end_lon, trip.end_display_name
-                                , icon_type 
-                        )
-                if (ok) return ok;
-
-                ok = this.flyTo(trip.start_lat, trip.start_lon, trip.start_display_name
-                                                , icon_type, 'green'
-                        );
-                if (ok) return ok;
-                ok=     this.flyTo(trip.end_lat, trip.end_lon, trip.end_display_name, icon_type, 'red');
-                return ok
-        }
-
-	
-	
-	routingUrl(start_lat, start_lon, end_lat, end_lon){
-	// curl 'http://router.project-osrm.org/route/v1/driving/13.388860,52.517037;13.397634,52.529407;13.428555,52.523219?overview=false'
-		let url= "https://router.project-osrm.org/route/v1/driving/" ;
-		let points=start_lon+","+ start_lat + ";" + end_lon+ ","+ end_lat  ;
-		let query="?overview=false"  ;
-		let urlEncoded=url+points+query ;
-		return urlEncoded;
-	}
-	
 	draw_line(pair: any):boolean {
 		if ( !pair) 		return false;
 		if ( !pair.p1) 		return false;
@@ -375,7 +314,7 @@ export class MapService {
             		],
             		{
                 		color: pair.line_color?pair.line_color:C.MAP_LINE_COLOR_REGULAR,
-                		weight: 1,
+                		weight: pair.line_weight?pair.line_weight:C.MAP_LINE_WEIGHT_REGULAR,
                 		opacity: 1 ,
                 		//dashArray: '20,15',
                 		//lineJoin: 'round'
@@ -384,6 +323,29 @@ export class MapService {
 		this.lines.push(polyline);
 		return true;
 	}
+
+	getLocation() {
+    		if (navigator.geolocation) {
+			let func_var= this.gotPosition;
+        		navigator.geolocation.getCurrentPosition(func_var);
+		}
+	}
+	gotPosition(position) {
+		this.current_loc.lat = position.coords.latitude;
+		this.current_loc.lon = position.coords.longitude ;
+		console.debug ( '201810271949 mapService.gotPosition() latitude longitude'
+			, this.current_loc.lat, this.current_loc.lon );
+	}
+
+	routingUrl(start_lat, start_lon, end_lat, end_lon){
+	// curl 'http://router.project-osrm.org/route/v1/driving/13.388860,52.517037;13.397634,52.529407;13.428555,52.523219?overview=false'
+		let url= "https://router.project-osrm.org/route/v1/driving/" ;
+		let points=start_lon+","+ start_lat + ";" + end_lon+ ","+ end_lat  ;
+		let query="?overview=false"  ;
+		let urlEncoded=url+points+query ;
+		return urlEncoded;
+	}
+	
 }
 
 

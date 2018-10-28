@@ -1,15 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { OnDestroy } from '@angular/core';
-import { Subscription }   from 'rxjs';
+import { Component, OnInit } 	from '@angular/core';
+import { OnDestroy } 		from '@angular/core';
+import { Subscription }   	from 'rxjs';
 
 import * as L from "leaflet";
 
-import {MapService} from "../../models/map.service"
+import {MapService} 	from "../../models/map.service"
 import {CommunicationService} from "../../models/communication.service"
-import {DotIcon} from "../../models/map.service"
-import {PinIcon} from "../../models/map.service"
-import {C} from "../../models/constants"
-import {Ridebase} from "../../models/ridebase"
+import {DotIcon} 	from "../../models/map.service"
+import {PinIcon} 	from "../../models/map.service"
+import {C} 		from "../../models/constants"
+import {Ridebase} 	from "../../models/ridebase"
+import {Util} 		from "../../models/gui.service"
+import {DBService} 	from '../../models/remote.service' ;
+
 
 
 @Component({
@@ -22,22 +25,42 @@ import {Ridebase} from "../../models/ridebase"
 export class Map2Component extends Ridebase implements OnInit  {
 
 	map: L.Map ;
+	journeys_from_db = [];
 
-	constructor(	  public communicationService: CommunicationService
-			, private mapService: MapService) 
+	constructor(	  public communicationService	: CommunicationService
+	                , private dbService             : DBService
+			, private mapService		: MapService) 
 	{ 
 		super(communicationService);
 		this.page_name=C.PAGE_MAP;
-		this.show_body=C.BODY_SHOW;
+
+		// body_show indicates the map page either has a high z-index or low z-index
+		// it does not control the z-index. It is a status indeicator.
+		this.show_body=C.BODY_NOSHOW; 
 	}
 
 	ngOnInit() {
 		console.debug('201810242021 Map2Component.ngOnInit() enter');
-		this.map=this.mapService.createMap('map', 39.264283, -96.786196, 4) ;
+		if( this.mapService.current_loc.lat) {
+			this.map=this.mapService.createMap('map'
+				, this.mapService.current_loc.lat, this.mapService.current_loc.lon, 12);
+		} else {
+			this.map=this.mapService.createMap('map', 39.264283, -96.786196, 4) ;
+		}
 		console.debug ('201810270221 this.map=\n', this.map);
-		//this.map.on('dragend', this.onDragEnd);
-		
-		this.map.on('moveend', this.onDragEnd);
+
+		// javascript style calling does not recognize this in this.map
+		// So create local variables
+		let this_var = this;
+		let func_var = this.search ;
+		this.map.on('moveend' , function(e){ func_var(e, this_var )} ) ;
+		this.search(null, this);
+
+		// resetting zoom not working.  It requires browser extension.
+		// and it causes problem in android chrome when try to change z-index of the map.
+		//let reset_zoom_var = Util.reset_zoom;
+            	//window.onresize = function(){ reset_zoom_var()};
+		//window.addEventListener("resize", function(){reset_zoom_var()} );
 	}
 
         subscription_action(msg): void {
@@ -45,6 +68,7 @@ export class Map2Component extends Ridebase implements OnInit  {
 			this.show_body=C.BODY_SHOW ;
 			document.getElementById('map').style.zIndex = '300';	
 			document.getElementById('map-close-button').style.zIndex = '301';	
+			//Util.reset_zoom();
 		}
 		if (msg.msgKey==C.MSG_KEY_MAP_BODY_NOSHOW) {
 			this.show_body=C.BODY_NOSHOW ;
@@ -56,6 +80,9 @@ export class Map2Component extends Ridebase implements OnInit  {
 		}
 		else if (msg.msgKey == C.MSG_KEY_MARKER_PAIR ) {
 			this.mapService.try_mark_pair(msg);
+		}
+		else if (msg.msgKey == C.MSG_KEY_MARKER_BOOKS ) {
+			this.mapService.mark_books(msg, -1);
 		}
 		else if (msg.msgKey == C.MSG_KEY_MARKER_FIT ) {
 			this.mapService.try_fit_pair(msg);
@@ -69,26 +96,64 @@ export class Map2Component extends Ridebase implements OnInit  {
         }
 	//override Ridebase.close_page()
 	close_page():boolean {
-			document.getElementById('map').style.zIndex = '100';
-			document.getElementById('map-close-button').style.zIndex = '100';	
+		// close page using a common interface
+		this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_NOSHOW, {});
+		
+		//document.getElementById('map').style.zIndex = '100';
+		//document.getElementById('map-close-button').style.zIndex = '100';	
 		return false;
 	}
 
-        onDragEnd(){
-		console.debug ('201810270219 Map2Component.onDragEnd() enter');
-		console.debug ('201810270221 this.map=\n', this.map);
-		return;
-/*
-                var width = this.map.getBounds().getEast() - this.map.getBounds().getWest();
-                var height = this.map.getBounds().getNorth() - this.map.getBounds().getSouth();
 
-                console.debug ('201810270146 mapService.onDragEnd()'
-                        + '\ncenter:' + this.map.getCenter()
-                        + '\neast:' + this.map.getBounds().getEast()
-                        + '\nwest:' + this.map.getBounds().getWest()
-                        + '\nnorth:' + this.map.getBounds().getNorth()
-                        + '\nsouth:' + this.map.getBounds().getSouth()
-                );
-*/
+        search(event, this_var){
+		console.debug ('201810271222 Map2Component.search() map=', this_var.map);
+		if(this_var.show_body == C.BODY_SHOW)
+		{
+			console.debug ('201810272312 map2Component.search() No searching.'
+				,' Only search when map is in background') ;
+			return;
+		}
+                this_var.reset_msg();
+                this_var.warning_msg = 'Searching ...';
+                this_var.journeys_from_db =[]; // remove previous search result from screen
+	
+		let search_criteria 
+			={	  start_lat	:this_var.map.getBounds().getSouth()
+				, start_lon	:this_var.map.getBounds().getWest()
+				, end_lat	:this_var.map.getBounds().getNorth()
+				, end_lon	:this_var.map.getBounds().getEast()
+			 } ;
+                console.debug ('201810270146 Map2Component.search() search_criteria=\n'
+			, search_criteria);
+		let data_from_db_observable     
+			= this_var.dbService.call_db(C.URL_SEARCH_REGION, search_criteria);
+
+
+                data_from_db_observable.subscribe(
+                        journeys_from_db => {
+                                console.info("201808201201 Map2Component.search() journeys_from_db ="
+                                        , C.stringify(journeys_from_db));
+                                this_var.reset_msg();
+                                this_var.journeys_from_db = journeys_from_db;
+                                if(this_var.journeys_from_db.length == 0 ) 
+					this_var.warning_msg = 'Nothing found in the map region';
+				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+
+				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS
+					, journeys_from_db);
+
+                        },
+                        error => {
+                                        this_var.error_msg=error;
+                                }
+                )
+        }
+
+ 	resize()
+        {// not working
+               //let height = window.innerHeight;
+               //let width  = window.innerWidth;
+               //document.getElementById("map").style.height = height + "px";
+               //document.getElementById("map").style.width = height + "px";
         }
 }

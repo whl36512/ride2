@@ -133,6 +133,9 @@ pub fn search(req: &mut Request) -> IronResult<Response> {
 pub fn search_all(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_SEARCH_ALL, 2)
 }
+pub fn search_region(req: &mut Request) -> IronResult<Response> {
+	request_sql(req, constants::SQL_SEARCH_REGION, 2)
+}
 pub fn activity(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_ACTIVITY, 2)
 }
