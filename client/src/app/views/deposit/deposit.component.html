@@ -1,9 +1,3 @@
-<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
-<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
-<div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
-<div class=warning *ngIf='false'>change_detect_count={{change_detect_counter()}}</div>
-<button type="button" class="close-button" (click)="close_page();" >X</button>
-
 <div>
 	<div class="center f15"  >Deposit Money</div>
 	<p>
@@ -42,3 +36,7 @@
 		Once you sign in, you will see more information about deposit.
 	</div>
 </div>
+<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
+<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
+<div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
+<div class=warning *ngIf='false'>change_detect_count={{change_detect_counter()}}</div>

@@ -694,6 +694,17 @@ $body$
 			, greatest(t.start_lat, t.end_lat) end_lat  
 			, least	  (t.start_lon, t.end_lon) start_lon
 			, greatest(t.start_lon, t.end_lon) end_lon  
+			, coalesce(t.seats    , 1)         seats
+			, coalesce(t.price    , 0.24)/1.2      max_drive_price
+			, coalesce(t.start_date    , now()::date )	start_date
+			, coalesce(t.end_date      
+				, coalesce(t.start_date    , now()::date ) + 10 )	end_date
+			-- if distance  is null, use 1/4 of longest side of map
+			-- min search distance in distance
+			, t.distance 
+			, coalesce(t.distance      , 
+				greatest(abs(t.start_lat - t.end_lat)
+					, abs(t.start_lon- t.end_lon))*60/4 ) min_distance
 		FROM funcs.json_populate_record(NULL::criteria , in_criteria) t 
 	)
 	, a as (
@@ -711,9 +722,10 @@ $body$
  			, j.departure_time  
 		--	, u.balance
 			, j.seats
-			, funcs.calc_cost(j.price, t.distance , 1 , true) || ' per seat' rider_cost
+			, funcs.calc_cost(j.price, c0.distance , c0.seats , true) rider_cost
+			, j.price*1.2 || ' per mile' rider_price
 			, coalesce (b.seats,0) seats_booked
-			, case when u.balance >=  funcs.calc_cost(j.price , t.distance  , 1 , true)
+			, case when u.balance >=  funcs.calc_cost(j.price ,t.distance  ,c0.seats , true)
 			  then true else false 
 			  end sufficient_balance
 			--, ut.sm_link
@@ -723,22 +735,23 @@ $body$
 		join c0 on (1=1)
 		join trip t on  ( t.trip_id	=	j.trip_id
 				and t.driver_id	!= 	user0.usr_id
-				and (t.start_lat between c0.start_lat and c0.end_lat
+				-- trip start and end must inside the bounding box
+				and t.start_lat between c0.start_lat and c0.end_lat
 				and t.start_lon between c0.start_lon and c0.end_lon
-				or t.end_lat between c0.start_lat and c0.end_lat
-				and t.end_lon between c0.start_lon and c0.end_lon)
-				and t.distance  > 
-				greatest(c0.end_lat- c0.start_lat , c0.end_lon - c0.start_lon)*60/20
+				and t.end_lat between c0.start_lat and c0.end_lat
+				and t.end_lon between c0.start_lon and c0.end_lon
+				and t.distance  between c0.min_distance/3 and c0.min_distance *4
 		)
 		join usr 	ut on (ut.usr_id=t.driver_id) -- to get driver sm_link
-		left outer join usr u on (u.usr_id= user0.usr_id) -- to get bookings
+		left outer join usr u on (u.usr_id = user0.usr_id) -- to get bookings
 		left outer join book b on (	b.rider_id = user0.usr_id
 						and b.journey_id=j.journey_id
 						and b.status_cd in ('P', 'B')
 					)
 		where j.status_code='A'
-		and j.seats>0
-		and j.journey_date between now()::date and (now()::date + 10) 
+		and j.seats >= c0.seats
+		and j.price <= c0.max_drive_price
+		and j.journey_date between c0.start_date and c0.end_date
 		order by j.journey_date , j.departure_time
 		limit 100
 	)

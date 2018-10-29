@@ -61,6 +61,72 @@ const appRoutes: Routes = [
   },
   { path: '**', component: PageNotFoundComponent }
   */
+	{
+		  path: 'Nav'
+		, component: NavComponent
+		, data: { title: 'Navigation' }
+	},
+	{
+		  path: 'map_search_start'
+		, redirectTo: '/Nav'
+		, pathMatch: 'full'
+	},
+	{
+		  path: 'map_search_stop'
+		, redirectTo: '/Nav'
+		, pathMatch: 'full'
+	},
+	{
+		  path: 'show_search_result'
+		, component: JourneyComponent
+		, data: { title: 'Search Result' }
+	},
+	{
+		  path: 'Search'
+		, component: SearchComponent
+		, data: { title: 'Search' }
+	},
+	{
+		  path: 'Trip'
+		, component: TripComponent
+		, data: { title: 'Trip' }
+	},
+	{
+		  path: 'Activity'
+		, component: ActivityComponent
+		, data: { title: 'Activity' }
+	},
+	{
+		  path: 'Profile'
+		, component: UserComponent
+		, data: { title: 'Profile'}
+	},
+	{
+		  path: 'Thist'
+		, component: ThistComponent
+		, data: { title: 'Trans History' }
+	},
+	{
+		  path: 'Deposit'
+		, component: DepositComponent
+		, data: { title: 'Deposit' }
+	},
+	{
+		  path: 'Withdraw'
+		, component: WithdrawComponent
+		, data: { title: 'Withdraw' }
+	},
+	{ 
+		path: ''
+		, redirectTo: '/Nav'
+		, pathMatch: 'full'
+	},
+	{ 
+		path: '**'
+		, redirectTo: '/Nav'
+		//, pathMatch: 'full'
+	},
+
 ]
 
 @NgModule({
@@ -86,20 +152,20 @@ const appRoutes: Routes = [
     ThistlistComponent,
   ],
   imports: [
-    BrowserModule,
-    // import HttpClientModule after BrowserModule.
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
-    //BrowserAnimationsModule,
-    //NoopAnimationsModule,
-    //MatButtonModule , 
-    //MatCheckboxModule,
-    //        LeafletModule.forRoot(),
-    RouterModule.forRoot(
-    appRoutes,
-    { enableTracing: true } // <-- debugging purposes only
-       ),
+	RouterModule.forRoot(
+		appRoutes,
+    		{ enableTracing: true } // <-- debugging purposes only
+    	),
+	BrowserModule,
+	// import HttpClientModule after BrowserModule.
+	HttpClientModule,
+	FormsModule,
+	ReactiveFormsModule,
+	//BrowserAnimationsModule,
+	//NoopAnimationsModule,
+	//MatButtonModule , 
+	//MatCheckboxModule,
+	//        LeafletModule.forRoot(),
   ],
   providers: [
     MapService,

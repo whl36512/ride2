@@ -1,4 +1,4 @@
-<app-map2  			  	class=map	></app-map2>
+<app-map2  	*ngIf="true"		class=map	></app-map2>
 <app-user 	*ngIf="pages.user" 	class=main	></app-user>
 <app-trip 	*ngIf="pages.trip" 	class=main	></app-trip>
 <app-search 	*ngIf="pages.search" 	class=main	></app-search>
@@ -8,4 +8,8 @@
 <app-withdraw 	*ngIf="pages.withdraw" 	class=main 	></app-withdraw>
 <app-nav  	*ngIf="pages.nav"       class=topnav	></app-nav>
 
+<div class=main>
 <router-outlet></router-outlet>
+</div>
+
+

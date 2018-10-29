@@ -57,7 +57,8 @@ export class DepositComponent extends Ridebase implements OnInit{
 	ngOnInit() {
 		console.debug("201809262246 DepositComponent.ngOnInit() enter");
 		this.warning_msg=C.WARN_NOT_SIGNED_IN;
-		this.action(null, null, C.GET_USER_URL);
+                this.is_signed_in= UserService.is_signed_in();
+		if(this.is_signed_in) this.action(null, null, C.GET_USER_URL);
 		console.debug("201809262246 DepositComponent.ngOnInit() exit");
   	}
 

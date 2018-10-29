@@ -148,7 +148,8 @@ export class MapService {
 		console.debug('201810210205 MapService.mark_point() p=\n', C.stringify(p));
 
 
-		let popup = `<div>${p.lat} ${p.lon}</div><div>${p.display_name}<div>`;
+		let popup = `<div>${p.lat},${p.lon}</div><div>${p.display_name}<div>`
+				+ p.popup
 		// if mark location has alread a marker, move a bit
 		p.lat_offset = p.lat_offset?p.lat_offset:p.lat ;
 		p.lon_offset = p.lon_offset?p.lon_offset:p.lon ;
@@ -164,45 +165,54 @@ export class MapService {
 	}
 
 
+        mark_book (book, index: number, is_highlight:boolean) {
+		let i= index;
+		let google_map_string = this.google_map_string(book);
+		let pair = C.convert_trip_to_pair(book);
+		if(pair) {
+			pair.p1.icon_type= DotIcon ;
+			pair.p2.icon_type= DotIcon ;
+			pair.p1.marker_text= 'D'+ (i+1);
+			pair.p2.marker_text= 'D'+ (i+1);
+			pair.p1.popup= google_map_string  ;
+			pair.p2.popup= google_map_string  ;
+			this.mark_pair(pair);
+			if ( is_highlight) {
+				pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
+				pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
+			} else {
+				pair.line_color=null;
+				pair.line_weight=null;
+			}
+			this.draw_line(pair);
+		}
+
+		pair = C.convert_book_to_pair(book);
+		if(pair) {
+			pair.p1.icon_type= DotIcon ;
+			pair.p2.icon_type= DotIcon ;
+			pair.p1.marker_text= 'P'+ (i+1);
+			pair.p2.marker_text= 'P'+ (i+1);
+			pair.p1.popup= google_map_string  ;
+			pair.p2.popup= google_map_string  ;
+			this.mark_pair(pair);
+			if ( is_highlight) {
+				pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
+				pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
+			}
+			else {
+				pair.line_color=null;
+				pair.line_weight=null;
+			}
+			this.draw_line(pair);
+		}
+        }
+
         mark_books (books, highlight_index: number)
         {
                 for ( let index in books) {
 			let i = Number(index) ;
-                        let pair = C.convert_trip_to_pair(books[i]);
-			if(pair) {
-                        	pair.p1.icon_type= DotIcon ;
-                        	pair.p2.icon_type= DotIcon ;
-                        	pair.p1.marker_text= 'D'+ (i+1);
-                        	pair.p2.marker_text= 'D'+ (i+1);
-                        	this.mark_pair(pair);
-				if ( i !== highlight_index) {
-                        		pair.line_color=null;
-                        		pair.line_weight=null;
-				}
-				else {
-                        		pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
-                        		pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
-				}
-                        	this.draw_line(pair);
-			}
-
-			pair = C.convert_book_to_pair(books[i]);
-			if(pair) {
-                        	pair.p1.icon_type= DotIcon ;
-                        	pair.p2.icon_type= DotIcon ;
-                        	pair.p1.marker_text= 'P'+ (i+1);
-                        	pair.p2.marker_text= 'P'+ (i+1);
-                        	this.mark_pair(pair);
-				if ( i !== highlight_index) {
-                        		pair.line_color=null;
-                        		pair.line_weight=null;
-				}
-				else {
-                        		pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
-                        		pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
-				}
-                        	this.draw_line(pair);
-			}
+			this.mark_book(books[i], i, i == highlight_index) ;
                 }
         }
 
@@ -345,7 +355,22 @@ export class MapService {
 		let urlEncoded=url+points+query ;
 		return urlEncoded;
 	}
-	
+
+	google_map_string(book): string | null {
+        	let dpair = C.convert_trip_to_pair(book);
+        	let rpair = C.convert_book_to_pair(book);
+		let url= null;
+		if(dpair && dpair.p1 && dpair.p1.lat && rpair && rpair.p1 && rpair.p1.lat){
+			url= `${C.URL_GOOGLE_MAP}${dpair.p1.lat},${dpair.p1.lon}/${rpair.p1.lat},${rpair.p1.lon}/${rpair.p2.lat},${rpair.p2.lon}/${dpair.p2.lat},${dpair.p2.lon}` ;
+		} else if (rpair && rpair.p1 && rpair.p1.lat) {
+			url= `${C.URL_GOOGLE_MAP}${rpair.p1.lat},${rpair.p1.lon}/${rpair.p2.lat},${rpair.p2.lon}` ;
+		} else if (dpair && dpair.p1 && dpair.p1.lat) {
+			url= `${C.URL_GOOGLE_MAP}${dpair.p1.lat},${dpair.p1.lon}/${dpair.p2.lat},${dpair.p2.lon}` ;
+		}
+		if (url) url = `<div><a href='${url}' target=_blank >Google Map</a></div>` ;
+		console.debug('201810290011 MapService.google_map_string() url=', url);
+		return url;
+	}
 }
 
 

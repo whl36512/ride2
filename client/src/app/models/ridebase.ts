@@ -28,6 +28,7 @@ import { C } from './constants';
 //import { StorageService } from '../../models/gui.service';
 //import { UserService } from '../../models/gui.service';
 import { Util } from './gui.service';
+import { Status } from './gui.service';
 
 
 export abstract class Ridebase implements OnDestroy{
@@ -55,6 +56,8 @@ export abstract class Ridebase implements OnDestroy{
 
         C = C;
         Constants = C;
+        Util = Util;
+        Status = Status;
 
 	constructor( 
     		// must use public or private

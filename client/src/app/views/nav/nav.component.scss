@@ -2,38 +2,34 @@ selected {
   background-color: #CFD8DC !important;
   color: white;
 }
+
 .nav {
   margin: 0rem ;
   padding: 0;
   list-style-type: none;
+	font-size: 1.5rem;
   clear: both;
-  /*
-  width: 15rem;
-  */
+
+	& a li {
+  		cursor: pointer;
+  		position: relative;
+  		left: 0;
+  		background-color: #EEE;
+  		margin: 0.2em;
+  		padding: 0.5rem 0.5rem;
+  		border-radius: 0.4rem ;
+		&:hover {
+  			color: #607D8B;
+  			background-color: #DDD;
+  			left: .1rem;
+		}
+	}
+	& a.active li {
+  		background-color: black;
+  		color: white;
+	}
 }
-.nav li {
-  cursor: pointer;
-  position: relative;
-  left: 0;
-  background-color: #EEE;
-  margin: .5rem;
-  padding: 0rem 0.5rem;
-  height: 1.3rem;
-  border-radius: 4px;
-}
-.nav li.selected:hover {
-  background-color: #BBD8DC !important;
-  color: white;
-}
-.nav li:hover , #navicon:hover {
-  color: #607D8B;
-  background-color: #DDD;
-  left: .1rem;
-}
-.nav .text {
-  position: relative;
-  top: -3px;
-}
+
 .nav .badge {
   display: inline-block;
   font-size: small;
@@ -59,22 +55,25 @@ div.topnav {
     border: 1px solid #AAA;
     font-size: 1rem;
     background-color: #eee; 
-    border-radius: 4px 4px 4px 4px;
+    border-radius: 0.4rem ;
     padding: 0rem;
 }
 
 #navicon{   
-    cursor: pointer;
-    float: right;
-    clear: both;
-    font-size: 2rem;
-    padding: 0rem;
-    margin: 0rem;
+	cursor: pointer;
+	float: right;
+	clear: both;
+	font-size: 2rem;
+	padding: 0rem;
+	margin: 0rem;
+    	border-radius: 0.4rem ;
+	&:hover {
+		color: #607D8B;
+		background-color: #DDD;
+	}
 }
 
-/*
 .topnav > .nav { display: none; }
 .topnav:focus-within > .nav { display:block; }
-*/
 
 

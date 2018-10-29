@@ -41,6 +41,7 @@ create type criteria as
 	, pickup_lon 		decimal(18,14)
 	, dropoff_lat 		decimal(18,14)
 	, dropoff_lon 		decimal(18,14)
+        , distance              decimal(8,2)
 	, departure_time 	time
 	, usr_id 		uuid
 	, driver_id 		uuid

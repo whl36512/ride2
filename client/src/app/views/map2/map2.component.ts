@@ -66,14 +66,11 @@ export class Map2Component extends Ridebase implements OnInit  {
         subscription_action(msg): void {
 		if (msg.msgKey==C.MSG_KEY_MAP_BODY_SHOW) {
 			this.show_body=C.BODY_SHOW ;
-			document.getElementById('map').style.zIndex = '300';	
-			document.getElementById('map-close-button').style.zIndex = '301';	
-			//Util.reset_zoom();
+			Util.show_map();
 		}
 		if (msg.msgKey==C.MSG_KEY_MAP_BODY_NOSHOW) {
 			this.show_body=C.BODY_NOSHOW ;
-			document.getElementById('map').style.zIndex = '100';	
-			document.getElementById('map-close-button').style.zIndex = '100';	
+			Util.hide_map();
 		}
 		else if (msg.msgKey==C.MSG_KEY_MARKER_CLEAR) {
 			this.mapService.clear_markers();
@@ -107,10 +104,10 @@ export class Map2Component extends Ridebase implements OnInit  {
 
         search(event, this_var){
 		console.debug ('201810271222 Map2Component.search() map=', this_var.map);
-		if(this_var.show_body == C.BODY_SHOW)
-		{
-			console.debug ('201810272312 map2Component.search() No searching.'
-				,' Only search when map is in background') ;
+
+		
+		if ( !Util.is_in_map_search()) {
+			console.debug ('201810272312 map2Component.search() No Map searching.') ;
 			return;
 		}
                 this_var.reset_msg();
@@ -123,6 +120,8 @@ export class Map2Component extends Ridebase implements OnInit  {
 				, end_lat	:this_var.map.getBounds().getNorth()
 				, end_lon	:this_var.map.getBounds().getEast()
 			 } ;
+                search_criteria = {...search_criteria, ...this_var.Status.rider_criteria};
+
                 console.debug ('201810270146 Map2Component.search() search_criteria=\n'
 			, search_criteria);
 		let data_from_db_observable     
@@ -134,6 +133,7 @@ export class Map2Component extends Ridebase implements OnInit  {
                                 console.info("201808201201 Map2Component.search() journeys_from_db ="
                                         , C.stringify(journeys_from_db));
                                 this_var.reset_msg();
+				this_var.Status.search_result= journeys_from_db;
                                 this_var.journeys_from_db = journeys_from_db;
                                 if(this_var.journeys_from_db.length == 0 ) 
 					this_var.warning_msg = 'Nothing found in the map region';

@@ -1,3 +1,35 @@
+.main {
+        /* use absolute so the main page can scroll */
+        position: absolute;
+        height: auto;
+        width: 100%;
+        top: 0rem;
+        left: 0rem;
+        overflow: visible;
+        z-index:250;
+        border: 0px solid #AAA;
+        font-size: 1rem;
+        background-color: #eee;
+        border-radius: 4px 4px 4px 4px;
+        padding: 0.2rem;
+        margin: 0.0rem, 0rem;
+}
+
+.signinout {
+        cursor: pointer;
+        position: fixed;
+        width: auto;
+        top: 0.5rem;
+        right: 3rem;
+        overflow: visible;
+        z-index:200;
+        border: 1px solid #AAA;
+        font-size: 1rem;
+        background-color: #eee;
+        border-radius: 4px 4px 4px 4px;
+        padding: 0.2rem;
+        margin: 0rem;
+}
 input:invalid+span:after {
 	content: 'X';
 	padding-left: 5px;
@@ -221,3 +253,6 @@ user-select: none;
     -webkit-transform: scale(1.5); /* Safari 3-8 */
     transform: scale(1.5); 
 }
+
+
+

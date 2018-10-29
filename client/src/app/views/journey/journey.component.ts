@@ -48,6 +48,8 @@ export class JourneyComponent extends Ridebase implements OnInit{
 	search_criteria: any;
 
 
+
+
 	journey_forms: any =[];
 
 	constructor(
@@ -60,6 +62,10 @@ export class JourneyComponent extends Ridebase implements OnInit{
 		super(communicationService);
   		console.debug("201809262245 JourneyComponent.constructor() enter")  ;
 		this.is_signed_in= UserService.is_signed_in();
+
+ 		this.journeys_from_db = this.Status.search_result;
+        	this.search_criteria = this.Status.search_criteria
+
   		console.debug("201809262245 JourneyComponent.constructor() exit")  ;
   	} 
 

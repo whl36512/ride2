@@ -17,6 +17,32 @@ export class GuiService {
   constructor() { } ;
 }
 
+export interface RiderCriteria {
+	  pickup_display_name  	?: string|null
+	; pickup_lat		?: number|null
+	; pickup_lon		?: number|null
+	; dropoff_display_name 	?: string|null
+	; dropoff_lat	 	?: number|null
+	; dropoff_lon 		?: number|null
+	; seats 		 : number
+	; price 		 : number
+	; distance 		?: number
+	; start_date		 : string
+	; end_date		?: string
+	; departure_time	?: string
+}
+
+export class Status {
+	static is_in_map_search = true;
+	static search_result = [];
+	static search_criteria :any|null = null;
+	static rider_criteria : RiderCriteria 
+		= {	  seats		:1
+			, price		:C.MAX_PRICE_RIDER
+			, start_date	:C.TODAY()
+		}
+}
+
 export class UserService {
 	constructor(  ) {};
 
@@ -46,6 +72,7 @@ export class UserService {
 }
 
 export class Util {
+	
 	constructor(  ) {};
 	static sleepFor( sleepDuration: number ){
 		var now = new Date().getTime();
@@ -88,6 +115,26 @@ export class Util {
 	}
 */
 
+
+	static hide_map() {
+                document.getElementById('map').style.zIndex = C.MAP_Z_INDEX_HIDE + ''
+                document.getElementById('map-close-button').style.zIndex = C.MAP_Z_INDEX_HIDE + '';
+	}
+
+	static show_map() {
+		document.getElementById('map').style.zIndex = C.MAP_Z_INDEX_SHOW + '';
+                document.getElementById('map-close-button').style.zIndex = (C.MAP_Z_INDEX_SHOW +1) +'';
+	}
+
+	static toggle_map() {
+		if (Util.get_z_index('map') == C.MAP_Z_INDEX_SHOW) Util.hide_map();
+		else  Util.show_map();
+	}
+
+	static get_z_index(elem_id :string) : number {
+		return Number(document.getElementById(elem_id).style.zIndex);
+	}
+
 	static list_global_objects () {
    		var keys=Object.keys( window ).sort();
    		for (var i in keys)
@@ -96,6 +143,25 @@ export class Util {
       			console.debug('2018270951 Util.list_global_objects()', keys[i], window[keys[i]]);
    		}
 	}
+
+	static map_search_start() {
+		Status.is_in_map_search = true;
+	}
+
+	static map_search_stop() {
+		Status.is_in_map_search = false;
+	}
+
+	static is_in_map_search() :boolean {
+		if (!Status.is_in_map_search) return false;
+		if( Util.get_z_index('map') == C.MAP_Z_INDEX_SHOW ){
+			Status.is_in_map_search = false;
+		}
+		return Status.is_in_map_search ;
+	}
+	
+
+	
 
 	static onError(error) {
   		console.log(`Error: ${error}`);

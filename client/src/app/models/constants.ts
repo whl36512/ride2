@@ -29,6 +29,7 @@ export class Constants{
 	static URL_SAVE_MSG 		= '/save_msg'	; 
 	static URL_WITHDRAW	 	= '/withdraw'	; 
 	static URL_THIST		= '/thist'	; 
+	static URL_GOOGLE_MAP		= 'https://www.google.com/maps/dir/' ;
 
 	static USER_PAGE 		= 'user'	;
 	static TRIP_PAGE 		= 'trip'	;
@@ -110,6 +111,9 @@ export class Constants{
  	static MAP_LINE_COLOR_HIGHLIGHT	= 'red'
  	static MAP_LINE_WEIGHT_REGULAR	= 1; 		;  
  	static MAP_LINE_WEIGHT_HIGHLIGHT= 3; 		;  
+
+ 	static MAP_Z_INDEX_SHOW= 300; 		;  
+ 	static MAP_Z_INDEX_HIDE= 100; 		;  
 
 	constructor (){} 
         static TODAY() { // TODAY is browser local time
