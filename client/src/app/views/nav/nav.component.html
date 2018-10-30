@@ -22,7 +22,7 @@
     	<ul class="nav" *ngIf="show_nav"  >
         	<a routerLink='/search_setting' 	
 			routerLinkActive='active' 
-			(click)="nav_menu_off()"	>
+			(click)="nav_menu_off(); map_search_stop()"	>
 			<li>
 				Search Setting
 			</li>			

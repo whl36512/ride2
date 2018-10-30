@@ -48,24 +48,24 @@ export class UserService {
 
 	static is_signed_in ():boolean
 	{
-        	let profile =  UserService.get_profile_from_session();
-        	let jwt = UserService.get_jwt_from_session();
-        	if ( profile == null  || jwt == null)
-        	{
-                	return false;
-        	}
-        	return true;
+		let profile =  UserService.get_profile_from_session();
+		let jwt = UserService.get_jwt_from_session();
+		if ( profile == null  || jwt == null)
+		{
+			return false;
+		}
+		return true;
   	}
 
 	static get_profile_from_session(): object|null {
-        	let encrypted_profile = StorageService.getSession(C.PROFILE);
+		let encrypted_profile = StorageService.getSession(C.PROFILE);
 		let profile = CryptoService.decrypt(encrypted_profile);
 		if ( profile == null) {return null;} ;
 		return JSON.parse(profile);
 	}
 
 	static get_jwt_from_session(): object|null {
-        	let jwt = StorageService.getSession(C.JWT);
+		let jwt = StorageService.getSession(C.JWT);
 		if (jwt == undefined || jwt==null || jwt=='' ) { return null;} ;
 		return {'jwt' : jwt}
 	}
@@ -76,7 +76,7 @@ export class Util {
 	constructor(  ) {};
 	static sleepFor( sleepDuration: number ){
 		var now = new Date().getTime();
-	        while(new Date().getTime() < now + sleepDuration){ /* do nothing */ } 
+		while(new Date().getTime() < now + sleepDuration){ /* do nothing */ } 
 	}
 
 /*  not working. error TS2339: Property 'chrome' does not exist on type 'Window'.
@@ -117,13 +117,17 @@ export class Util {
 
 
 	static hide_map() {
-                document.getElementById('map').style.zIndex = C.MAP_Z_INDEX_HIDE + ''
-                document.getElementById('map-close-button').style.zIndex = C.MAP_Z_INDEX_HIDE + '';
+		let map = document.getElementById('map');
+	let button = document.getElementById('map-close-button');
+		if(map) map.style.zIndex = C.MAP_Z_INDEX_HIDE + '';
+		if(button) button.style.zIndex = C.MAP_Z_INDEX_HIDE + '';
 	}
 
 	static show_map() {
-		document.getElementById('map').style.zIndex = C.MAP_Z_INDEX_SHOW + '';
-                document.getElementById('map-close-button').style.zIndex = (C.MAP_Z_INDEX_SHOW +1) +'';
+		let map = document.getElementById('map');
+	let button = document.getElementById('map-close-button');
+		if(map) map.style.zIndex = C.MAP_Z_INDEX_SHOW + '';
+		if(button) button.style.zIndex = (C.MAP_Z_INDEX_SHOW +1) +'';
 	}
 
 	static toggle_map() {
@@ -131,8 +135,12 @@ export class Util {
 		else  Util.show_map();
 	}
 
-	static get_z_index(elem_id :string) : number {
-		return Number(document.getElementById(elem_id).style.zIndex);
+	static get_z_index(elem_id :string) : number|null {
+		let elem= document.getElementById(elem_id);
+		if (elem) {
+			return Number(elem.style.zIndex);
+		}
+		return null;
 	}
 
 	static list_global_objects () {
@@ -196,6 +204,50 @@ export class Util {
   		//	console.log(zoom);
 		}
 	}
+
+	static convert_pair_to_trip(pair): any|null {
+		if(!pair) return null;
+		let p1=pair.p1;
+		let p2=pair.p2;
+		let trip: any={};
+			
+		if(p1) {
+			trip.start_loc=p1.loc
+			trip.start_lat=p1.lat
+			trip.start_lon=p1.lon
+			trip.start_display_name=p1.display_name ;
+		}
+		if(p2) {
+			trip.end_loc=p2.loc
+			trip.end_lat=p2.lat
+			trip.end_lon=p2.lon
+			trip.end_display_name=p2.display_name ;
+		}
+		return trip;
+	}
+
+	static convert_pair_to_book(pair): any {
+		if(!pair) return null;
+		let p1=pair.p1;
+		let p2=pair.p2;
+		let book: any={};
+			
+		if(p1) {
+			book.pickup_loc=p1.loc
+			book.pickup_lat=p1.lat
+			book.pickup_lon=p1.lon
+			book.pickup_display_name=p1.display_name ;
+		}
+		if(p2) {
+			book.dropoff_loc=p2.loc
+			book.dropoff_lat=p2.lat
+			book.dropoff_lon=p2.lon
+			book.dropoff_display_name=p2.display_name ;
+		}
+		return book;
+	}
+
+
 }
 
 /*
@@ -204,9 +256,9 @@ export class CookieService {
 	
 	static setCookie (cname, cvalue, exhours) {
     		let d = new Date();
-        	d.setTime(d.getTime() + (exhours*60*60*1000));
+		d.setTime(d.getTime() + (exhours*60*60*1000));
 	    	let expires = "expires="+ d.toUTCString();
-	        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+		document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 	}
 
 	static getCookie (cname) : string {

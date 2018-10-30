@@ -690,21 +690,20 @@ $body$
 	)
 	, c0 as (
 		-- bounding box
-		SELECT    least	  (t.start_lat, t.end_lat) start_lat  
-			, greatest(t.start_lat, t.end_lat) end_lat  
-			, least	  (t.start_lon, t.end_lon) start_lon
-			, greatest(t.start_lon, t.end_lon) end_lon  
+		SELECT    least	  ((t.p1).lat, (t.p2).lat) p1_lat  
+			, greatest((t.p1).lat, (t.p2).lat) p2_lat  
+			, least	  ((t.p1).lon, (t.p2).lon) p1_lon
+			, greatest((t.p1).lon, (t.p2).lon) p2_lon  
 			, coalesce(t.seats    , 1)         seats
 			, coalesce(t.price    , 0.24)/1.2      max_drive_price
-			, coalesce(t.start_date    , now()::date )	start_date
-			, coalesce(t.end_date      
-				, coalesce(t.start_date    , now()::date ) + 10 )	end_date
+			, coalesce(t.date1    , now()::date )	date1
+			, coalesce(t.date2      
+				, coalesce(t.date2    , now()::date ) + 10 )	date2
 			-- if distance  is null, use 1/4 of longest side of map
-			-- min search distance in distance
 			, t.distance 
 			, coalesce(t.distance      , 
-				greatest(abs(t.start_lat - t.end_lat)
-					, abs(t.start_lon- t.end_lon))*60/4 ) min_distance
+				greatest(abs((t.p2).lat - (t.p1).lat)
+					, abs((t.p2).lon- (t.p1).lon))*60/4 ) min_distance
 		FROM funcs.json_populate_record(NULL::criteria , in_criteria) t 
 	)
 	, a as (
@@ -736,11 +735,11 @@ $body$
 		join trip t on  ( t.trip_id	=	j.trip_id
 				and t.driver_id	!= 	user0.usr_id
 				-- trip start and end must inside the bounding box
-				and t.start_lat between c0.start_lat and c0.end_lat
-				and t.start_lon between c0.start_lon and c0.end_lon
-				and t.end_lat between c0.start_lat and c0.end_lat
-				and t.end_lon between c0.start_lon and c0.end_lon
-				and t.distance  between c0.min_distance/3 and c0.min_distance *4
+				and t.start_lat between c0.p1_lat and c0.p2_lat
+				and t.start_lon between c0.p1_lon and c0.p2_lon
+				and t.end_lat between c0.p1_lat and c0.p2_lat
+				and t.end_lon between c0.p1_lon and c0.p2_lon
+				and t.distance  between c0.min_distance/4 and c0.min_distance *4
 		)
 		join usr 	ut on (ut.usr_id=t.driver_id) -- to get driver sm_link
 		left outer join usr u on (u.usr_id = user0.usr_id) -- to get bookings
@@ -751,7 +750,7 @@ $body$
 		where j.status_code='A'
 		and j.seats >= c0.seats
 		and j.price <= c0.max_drive_price
-		and j.journey_date between c0.start_date and c0.end_date
+		and j.journey_date between c0.date1 and c0.date2
 		order by j.journey_date , j.departure_time
 		limit 100
 	)

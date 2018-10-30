@@ -1,10 +1,10 @@
-<div id=mapmain >
+<div id=map-controller>
 	<button *ngIf='false' id="map-close-button" type="button" class="close-button " 
         	(click)="close_page()" >X
 	</button>
         <div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
-        <div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
-        <div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
+        <div *ngIf='warning_msg!=null' class='warning fade'>{{warning_msg}}</div>
+        <div *ngIf='info_msg!=null' class='info fade'>{{info_msg}}</div>
 </div>
 <div id="map" >
 </div>

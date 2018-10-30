@@ -63,8 +63,8 @@ export class JourneyComponent extends Ridebase implements OnInit{
   		console.debug("201809262245 JourneyComponent.constructor() enter")  ;
 		this.is_signed_in= UserService.is_signed_in();
 
- 		this.journeys_from_db = this.Status.search_result;
-        	this.search_criteria = this.Status.search_criteria
+		this.journeys_from_db = this.Status.search_result;
+		this.search_criteria = this.Status.search_criteria
 
   		console.debug("201809262245 JourneyComponent.constructor() exit")  ;
   	} 
@@ -73,7 +73,9 @@ export class JourneyComponent extends Ridebase implements OnInit{
 		console.debug("201809262246 JourneyComponent.ngOnInit() enter");
 		//this.subscription1 = this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		//this.subscription2 = this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
-                this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+        this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+		if (this.journeys_from_db.length==0) this.warning_msg='Nothing found'
+		else this.info_msg='Found ' + this.journeys_from_db.length; 
 		for ( let index in this.journeys_from_db) {
 			this.journeys_from_db[index].show_fail_msg=false;
 			this.journeys_from_db[index].show_book_msg=false;

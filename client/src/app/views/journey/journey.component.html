@@ -1,4 +1,8 @@
 <div class='center f12'>Available Trips</div>
+<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
+<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
+<div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
+
 <div 
 	*ngFor="let journey of journeys_from_db ;let i=index;
 		let even=even;let odd=odd; let first = first; let last = last; trackBy:trackByFunc"

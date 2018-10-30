@@ -42,7 +42,9 @@ import { MessageComponent } from './views/message/message.component';
 import { DepositComponent } from './views/deposit/deposit.component';
 import { WithdrawComponent } from './views/withdraw/withdraw.component';
 import { ThistComponent } from './views/thist/thist.component';
-import { ThistlistComponent } from './views/thistlist/thistlist.component' ;
+import { ThistlistComponent } from './views/thistlist/thistlist.component';
+import { MapControllerComponent } from './views/map-controller/map-controller.component';
+import { SearchSettingComponent } from './views/search-setting/search-setting.component' ;
 
 
 const appRoutes: Routes = [
@@ -67,9 +69,14 @@ const appRoutes: Routes = [
 		, data: { title: 'Navigation' }
 	},
 	{
+		  path: 'search_setting'
+		, component: SearchSettingComponent
+		, data: { title: 'Search Setting' }
+	},
+	{
 		  path: 'map_search_start'
-		, redirectTo: '/Nav'
-		, pathMatch: 'full'
+		, component: MapControllerComponent
+		, data: { title: 'Map Search' }
 	},
 	{
 		  path: 'map_search_stop'
@@ -118,12 +125,12 @@ const appRoutes: Routes = [
 	},
 	{ 
 		path: ''
-		, redirectTo: '/Nav'
+		, redirectTo: '/map_search_start'
 		, pathMatch: 'full'
 	},
 	{ 
 		path: '**'
-		, redirectTo: '/Nav'
+		, redirectTo: '/map_search_start'
 		//, pathMatch: 'full'
 	},
 
@@ -150,6 +157,8 @@ const appRoutes: Routes = [
     WithdrawComponent,
     ThistComponent,
     ThistlistComponent,
+    MapControllerComponent,
+    SearchSettingComponent,
   ],
   imports: [
 	RouterModule.forRoot(

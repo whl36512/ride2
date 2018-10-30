@@ -51,10 +51,12 @@ export class Map2Component extends Ridebase implements OnInit  {
 
 		// javascript style calling does not recognize this in this.map
 		// So create local variables
+/*
 		let this_var = this;
 		let func_var = this.search ;
 		this.map.on('moveend' , function(e){ func_var(e, this_var )} ) ;
 		this.search(null, this);
+*/
 
 		// resetting zoom not working.  It requires browser extension.
 		// and it causes problem in android chrome when try to change z-index of the map.
@@ -102,6 +104,7 @@ export class Map2Component extends Ridebase implements OnInit  {
 	}
 
 
+/*
         search(event, this_var){
 		console.debug ('201810271222 Map2Component.search() map=', this_var.map);
 
@@ -148,6 +151,7 @@ export class Map2Component extends Ridebase implements OnInit  {
                                 }
                 )
         }
+*/
 
  	resize()
         {// not working

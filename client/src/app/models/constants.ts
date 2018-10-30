@@ -29,7 +29,7 @@ export class Constants{
 	static URL_SAVE_MSG 		= '/save_msg'	; 
 	static URL_WITHDRAW	 	= '/withdraw'	; 
 	static URL_THIST		= '/thist'	; 
-	static URL_GOOGLE_MAP		= 'https://www.google.com/maps/dir/' ;
+	static URL_GOOGLE_MAP		= 'https://www.google.com/maps/dir' ;
 
 	static USER_PAGE 		= 'user'	;
 	static TRIP_PAGE 		= 'trip'	;
@@ -116,7 +116,7 @@ export class Constants{
  	static MAP_Z_INDEX_HIDE= 100; 		;  
 
 	constructor (){} 
-        static TODAY() { // TODAY is browser local time
+	static TODAY() { // TODAY is browser local time
 		let utc = new Date();
 		let d = new Date(utc.getTime() - utc.getTimezoneOffset() * 60000)
 		let s = d.toJSON() ;
@@ -161,45 +161,49 @@ export class Constants{
 	
 	static convert_trip_to_pair(trip: any): any|null {
 		if(!trip) return null;
-                let p1 ={
-                                  lat           : trip.start_lat
-                                , lon           : trip.start_lon
-                                , display_name  : trip.start_display_name
-                                , marker_text   : trip.start_marker_text
-                                , icon_type     : trip.start_icon_type
-                                , color         : trip.start_color
-                        };
-                let p2 ={
-                                  lat           : trip.end_lat
-                                , lon           : trip.end_lon
-                                , display_name  : trip.end_display_name
-                                , marker_text   : trip.end_marker_text
-                                , icon_type     : trip.end_icon_type
-                                , color         : trip.end_color
-                        };
-                return {p1: p1, p2:p2};
-        }
+		let p1 ={
+				  loc	   : trip.start_loc
+				, lat	   : trip.start_lat
+				, lon	   : trip.start_lon
+				, display_name  : trip.start_display_name
+				, marker_text   : trip.start_marker_text
+				, icon_type     : trip.start_icon_type
+				, color	 : trip.start_color
+			};
+		let p2 ={
+				  loc	   : trip.end_loc
+				, lat	   : trip.end_lat
+				, lon	   : trip.end_lon
+				, display_name  : trip.end_display_name
+				, marker_text   : trip.end_marker_text
+				, icon_type     : trip.end_icon_type
+				, color	 : trip.end_color
+			};
+		return {p1: p1, p2:p2};
+	}
 
 	static convert_book_to_pair(book: any): any|null {
 		if(!book) return null;
-                let p1 ={
-                                  lat           : book.pickup_lat
-                                , lon           : book.pickup_lon
-                                , display_name  : book.pickup_display_name
-                                , marker_text   : book.pickup_marker_text
-                                , icon_type     : book.pickup_icon_type
-                                , color         : book.pickup_color
-                        };
-                let p2 ={
-                                  lat           : book.dropoff_lat
-                                , lon           : book.dropoff_lon
-                                , display_name  : book.dropoff_display_name
-                                , marker_text   : book.dropoff_marker_text
-                                , icon_type     : book.dropoff_icon_type
-                                , color         : book.dropoff_color
-                        };
-                return {p1: p1, p2:p2};
-        }
+		let p1 ={
+				  loc	   : book.pickup_loc
+				, lat	   : book.pickup_lat
+				, lon	   : book.pickup_lon
+				, display_name  : book.pickup_display_name
+				, marker_text   : book.pickup_marker_text
+				, icon_type     : book.pickup_icon_type
+				, color	 : book.pickup_color
+			};
+		let p2 ={
+				  loc	   : book.dropoff_loc
+				, lat	   : book.dropoff_lat
+				, lon	   : book.dropoff_lon
+				, display_name  : book.dropoff_display_name
+				, marker_text   : book.dropoff_marker_text
+				, icon_type     : book.dropoff_icon_type
+				, color	 : book.dropoff_color
+			};
+		return {p1: p1, p2:p2};
+	}
 
 
 

@@ -75,11 +75,14 @@ export abstract class Ridebase implements OnDestroy{
 	} 
 
 	ngOnDestroy(): void {
+		let class_name=this.constructor.name;
+		console.debug ('201810290932 ', class_name,'.ngOnDestroy() enter.');
 		// prevent memory leak when component destroyed
 		if( this.subscription0!= null) this.subscription0.unsubscribe();
 		if( this.subscription1!= null) this.subscription1.unsubscribe();
 		if( this.subscription2!= null) this.subscription2.unsubscribe();
 		if( this.subscription3!= null) this.subscription3.unsubscribe();
+                this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_NOSHOW, {});
 	}
 	
 	abstract subscription_action(msg): void;

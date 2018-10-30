@@ -7,6 +7,7 @@ import { C } from "./constants";
 
 @Injectable()
 export class MapService {
+	public static static_map: L.Map;
 	public map: L.Map;
 	public baseMaps: any;
 	private vtLayer: any;
@@ -40,7 +41,7 @@ export class MapService {
 		  		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 			  	subdomains: ['a', 'b', 'c']
 				}
-		        ) ,
+			) ,
 			OpenStreetMap: L.tileLayer(
 				"https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
 				{
@@ -151,9 +152,9 @@ export class MapService {
 		let popup = `<div>${p.lat},${p.lon}</div><div>${p.display_name}<div>`
 				+ p.popup
 		// if mark location has alread a marker, move a bit
-		p.lat_offset = p.lat_offset?p.lat_offset:p.lat ;
-		p.lon_offset = p.lon_offset?p.lon_offset:p.lon ;
-		if (this.search_marker(p.lat_offset, p.lon_offset) != -1) {
+		p.lat_offset = p.lat ;
+		p.lon_offset = p.lon ;
+		if (this.search_marker(p.lat, p.lon) != -1) {
 			p.lat_offset = Number(p.lat) + C.MAP_OVERLAP_OFFSET * (Math.random()-0.5);
 			p.lon_offset = Number(p.lon) + C.MAP_OVERLAP_OFFSET * (Math.random()-0.5);
 		}
@@ -165,17 +166,19 @@ export class MapService {
 	}
 
 
-        mark_book (book, index: number, is_highlight:boolean) {
+	mark_book (book, index: number, is_highlight:boolean) {
+		if (!book) return;
 		let i= index;
-		let google_map_string = this.google_map_string(book);
+		let google_map_string = MapService.google_map_string(book);
 		let pair = C.convert_trip_to_pair(book);
+		let popup = `<div>${book.journey_date} ${book.departure_time} ${google_map_string}</div>`
 		if(pair) {
 			pair.p1.icon_type= DotIcon ;
 			pair.p2.icon_type= DotIcon ;
 			pair.p1.marker_text= 'D'+ (i+1);
 			pair.p2.marker_text= 'D'+ (i+1);
-			pair.p1.popup= google_map_string  ;
-			pair.p2.popup= google_map_string  ;
+			pair.p1.popup= popup  ;
+			pair.p2.popup= popup  ;
 			this.mark_pair(pair);
 			if ( is_highlight) {
 				pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
@@ -193,8 +196,8 @@ export class MapService {
 			pair.p2.icon_type= DotIcon ;
 			pair.p1.marker_text= 'P'+ (i+1);
 			pair.p2.marker_text= 'P'+ (i+1);
-			pair.p1.popup= google_map_string  ;
-			pair.p2.popup= google_map_string  ;
+			pair.p1.popup= popup  ;
+			pair.p2.popup= popup  ;
 			this.mark_pair(pair);
 			if ( is_highlight) {
 				pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
@@ -206,15 +209,15 @@ export class MapService {
 			}
 			this.draw_line(pair);
 		}
-        }
+	}
 
-        mark_books (books, highlight_index: number)
-        {
-                for ( let index in books) {
-			let i = Number(index) ;
-			this.mark_book(books[i], i, i == highlight_index) ;
-                }
-        }
+	mark_books (books, highlight_index: number)
+	{
+	    for ( let index in books) {
+				let i = Number(index) ;
+				this.mark_book(books[i], i, i == highlight_index) ;
+	     }
+	}
 
 
  	getRandomColor():string {
@@ -230,6 +233,7 @@ export class MapService {
 	{
 		//map = L.map('map').setView([lat, long], zoom);
 		this.map = L.map(mapTag).setView([lat, long], zoom);
+		MapService.static_map= this.map;
 
 		this.baseMaps.OpenStreetMapBusy.addTo( this.map ) ;
 		return this.map;
@@ -319,17 +323,17 @@ export class MapService {
 		var polyline = L.polyline
 		(
 			[
-            			[pair.p1.lat, pair.p1.lon],
-            			[pair.p2.lat, pair.p2.lon],
-            		],
-            		{
-                		color: pair.line_color?pair.line_color:C.MAP_LINE_COLOR_REGULAR,
-                		weight: pair.line_weight?pair.line_weight:C.MAP_LINE_WEIGHT_REGULAR,
-                		opacity: 1 ,
-                		//dashArray: '20,15',
-                		//lineJoin: 'round'
-            		}
-            	).addTo(this.map);
+	    			[pair.p1.lat, pair.p1.lon],
+	    			[pair.p2.lat, pair.p2.lon],
+	    		],
+	    		{
+				color: pair.line_color?pair.line_color:C.MAP_LINE_COLOR_REGULAR,
+				weight: pair.line_weight?pair.line_weight:C.MAP_LINE_WEIGHT_REGULAR,
+				opacity: 1 ,
+				//dashArray: '20,15',
+				//lineJoin: 'round'
+	    		}
+	    	).addTo(this.map);
 		this.lines.push(polyline);
 		return true;
 	}
@@ -337,7 +341,7 @@ export class MapService {
 	getLocation() {
     		if (navigator.geolocation) {
 			let func_var= this.gotPosition;
-        		navigator.geolocation.getCurrentPosition(func_var);
+			navigator.geolocation.getCurrentPosition(func_var);
 		}
 	}
 	gotPosition(position) {
@@ -356,18 +360,33 @@ export class MapService {
 		return urlEncoded;
 	}
 
-	google_map_string(book): string | null {
-        	let dpair = C.convert_trip_to_pair(book);
-        	let rpair = C.convert_book_to_pair(book);
-		let url= null;
-		if(dpair && dpair.p1 && dpair.p1.lat && rpair && rpair.p1 && rpair.p1.lat){
-			url= `${C.URL_GOOGLE_MAP}${dpair.p1.lat},${dpair.p1.lon}/${rpair.p1.lat},${rpair.p1.lon}/${rpair.p2.lat},${rpair.p2.lon}/${dpair.p2.lat},${dpair.p2.lon}` ;
-		} else if (rpair && rpair.p1 && rpair.p1.lat) {
-			url= `${C.URL_GOOGLE_MAP}${rpair.p1.lat},${rpair.p1.lon}/${rpair.p2.lat},${rpair.p2.lon}` ;
-		} else if (dpair && dpair.p1 && dpair.p1.lat) {
-			url= `${C.URL_GOOGLE_MAP}${dpair.p1.lat},${dpair.p1.lon}/${dpair.p2.lat},${dpair.p2.lon}` ;
+	static google_map_string(book): string | null {
+		let dpair = C.convert_trip_to_pair(book);
+		let rpair = C.convert_book_to_pair(book);
+		if (rpair && dpair) 
+			return MapService.google_map_string_from_points([dpair.p1, rpair.p1, rpair.p2, dpair.p2]);
+		else if (  dpair)
+			return MapService.google_map_string_from_points([dpair.p1, dpair.p2]);
+		else if ( rpair)
+			return MapService.google_map_string_from_points([rpair.p1, rpair.p2]);
+		return null
+
+	}
+
+	static google_map_string_from_points(points): string | null {
+		if(!points) return null;
+		let ps: any = null;
+		if(Array.isArray(points))  ps = points;
+		else ps=[points];
+
+		let url = '';
+		for(let index in ps ){
+			let p= ps[index];
+			if(p && Number(p.lat) && Number(p.lon) ) url += `/${p.lat},${p.lon}` ;
 		}
-		if (url) url = `<div><a href='${url}' target=_blank >Google Map</a></div>` ;
+			
+		if (url === '')  return url;
+		url = `<a href='${C.URL_GOOGLE_MAP}${url}' target=_blank >Google Map</a>` ;
 		console.debug('201810290011 MapService.google_map_string() url=', url);
 		return url;
 	}

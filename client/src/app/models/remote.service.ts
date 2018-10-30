@@ -197,6 +197,7 @@ export class DBService {
 		return response_body;
 	}
 
+
 	get_user_from_db(user: any): Observable<any> {
 		return this.call_db(C.GET_USER_URL, user);
 	}
