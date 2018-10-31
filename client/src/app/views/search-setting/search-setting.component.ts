@@ -72,24 +72,7 @@ export class SearchSettingComponent extends Ridebase implements OnInit{
 		let today = C.TODAY();
 		let trip = StorageService.getForm(C.KEY_FORM_SEARCH);
 		if ( !trip ) { 
-			trip = {  
-					  departure_time		: ''
-					, distance				: C.ERROR_NO_ROUTE
-					, seats					: 1
-					, price					: C.MAX_PRICE_RIDER
-					, p1: 	{ loc 			: ''
-							, lat 			: null
-							, lon 			: null
-							, displace_name	: null
-						  	}
-					, p2: 	{ loc 			: ''
-							, lat 			: null
-							, lon 			: null
-							, displace_name	: null
-							}
-					, date1					: today
-					, date2					: today
-					}
+			trip = this.Util.create_rider_criteria();
 		}
 		console.debug("201810291814 SearchSettingComponent.ngOnInit() trip=",
 			C.stringify(trip));
@@ -98,8 +81,8 @@ export class SearchSettingComponent extends Ridebase implements OnInit{
 
 		trip.date2 = trip.date1 > trip.date2 ? trip.date1: trip.date2 ;
 
-		StorageService.storeForm(C.KEY_FORM_SEARCH, trip); 
 		this.trip=trip;
+		StorageService.storeForm(C.KEY_FORM_SEARCH, trip);
 		this.form = this.form_builder.group({
 			date1			: [trip.date1, [Validators.min,Validators.required]], 
 			date2			: [trip.date2, [Validators.min, Validators.required]], 
@@ -128,72 +111,74 @@ export class SearchSettingComponent extends Ridebase implements OnInit{
 		delete this.trip.p1_loc;
 		delete this.trip.p2_loc;
 		StorageService.storeForm(C.KEY_FORM_SEARCH, this.trip); 
-		this.info_msg = 'Saved as default';
+		this.info_msg = 'Saved successfully';
 	}
 	
 	geocode(element_id: string) {
 		console.info("201800111346 SearchSettingComponent.geocode() element_id =" + element_id);
 
-		this.trip_before_geocode = JSON.parse(C.stringify(this.trip)) ; // make a copy
-		var loc: string =null;
-		var lat: number =null;
-		var lon: number =null;
-		var display_name: string =null;
-
-		this.trip.distance=C.ERROR_NO_ROUTE ;
+		this.trip_before_geocode = this.Util.deep_copy(this.trip) ; 
+		var p :any ;
+		let loc_old  ='';
 
 		if (element_id == "p1_loc" ) {
-			this.trip.p1.lat=null;
-			this.trip.p1.lon=null;
-			this.trip.p1.display_name=null;
+			p= this.trip.p1 ;
+			loc_old = p.loc
+			p.loc = this.form.value.p1_loc;
 		} else {
-			this.trip.p2.lat=null;
-			this.trip.p2.lon=null;
-			this.trip.p2.display_name=null;
+			p= this.trip.p2;
+			loc_old= p.loc
+			p.loc = this.form.value.p2_loc;
 		}
 
+		if(loc_old.trim() === p.loc.trim()) return; // no change
+		if (p.loc.length < 3) {
+			p.lat = null;
+			p.lon = null;
+			p.display_name= null;
+			this.changeDetectorRef.detectChanges();
+			this.routing();
+			return; // must type at least 3 letters before geocoding starts
+		} 
 
-		if (element_id =="p1_loc") {
-			loc = this.form.value.p1_loc ;
+		else {
+			let loc_response = this.geoService.geocode(p.loc) ;
+			loc_response.subscribe(
+				body => 	{
+					console.debug("201809111347 SearchSettingComponent.geocode()  body=" );
+					console.debug( C.stringify(body) );
+					if (body[0]) {
+						p.lat			=body[0].lat ;
+						p.lon			=body[0].lon ;
+						p.display_name=body[0].display_name ;
+					}
+					else {
+						p.lat = null;
+						p.lon = null;
+						p.display_name= null;
+					}
+					this.changeDetectorRef.detectChanges();
+					this.routing();
+				//	this.show_map()
+				}
+			);
 		}
-		else loc= this.form.value.p2_loc ;
-
-		if (loc.length < 3)  return // must type at least 3 letters before geocoding starts
-
-		let loc_response = this.geoService.geocode(loc) ;
-		loc_response.subscribe(
-			body => 	{
-				console.debug("201809111347 SearchSettingComponent.geocode()  body =\n" +  C.stringify(body));
-				if (body[0]) {
-					lat			=body[0].lat ;
-					lon			=body[0].lon ;
-					display_name=body[0].display_name ;
-				}
-				if (element_id == "p1_loc" ) {
-					this.trip.p1.lat=lat;
-					this.trip.p1.lon=lon;
-					this.trip.p1.display_name=display_name;
-				} else {
-					this.trip.p2.lat=lat;
-					this.trip.p2.lon=lon;
-					this.trip.p2.display_name=display_name;
-				}
-                this.changeDetectorRef.detectChanges();
-				this.routing();
-				this.show_map()
-			}
-		);
 	}
 
 	routing() 
 	{
-		if ( !this.trip.p1.display_name || ! this.trip.p2.display_name) return;
+		if ( !this.trip.p1.display_name || ! this.trip.p2.display_name) {
+			this.trip.distance=C.ERROR_NO_ROUTE ;
+			this.changeDetectorRef.detectChanges();
+			return;
+		}
 		if ( 	this.trip.p1.lat == this.trip_before_geocode.p1.lat
 				&&	this.trip.p1.lon == this.trip_before_geocode.p1.lon
 				&&	this.trip.p2.lat == this.trip_before_geocode.p2.lat
 				&&	this.trip.p2.lon == this.trip_before_geocode.p2.lon) { 
 				// no change of latlon. Skip routing
 				this.trip.distance= this.trip_before_geocode.distance;
+				this.changeDetectorRef.detectChanges();
 				return;
 		}
 	
@@ -210,10 +195,16 @@ export class SearchSettingComponent extends Ridebase implements OnInit{
 				if( body.routes.length >0 ) {
 					let distance=body.routes[0].distance ;
 					this.trip.distance= Math.round(distance /160)/10;
-                	this.changeDetectorRef.detectChanges();
+					this.changeDetectorRef.detectChanges();
+				}
+				else {
+					this.trip.distance=C.ERROR_NO_ROUTE ;
+					this.changeDetectorRef.detectChanges();
 				}
 			},
 			error => {
+				this.trip.distance=C.ERROR_NO_ROUTE ;
+				this.changeDetectorRef.detectChanges();
 			}
 		);
 	}

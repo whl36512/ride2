@@ -241,10 +241,9 @@ export class MapService {
 
 
 	set_view(point: any) : boolean {
-		if ( point ==undefined || point == null) return false;
-		let p = point;
-		if ( p.lat == undefined || p.lat == null) return false;
-		this.map.setView([p.lat, p.lon],12);
+		let p = MapService.point_guard(point) ;
+		if (!p) return false; ;
+		this.map.setView([p.lat, p.lon] , 12);
 		return true;
 	}
 
@@ -252,12 +251,9 @@ export class MapService {
 
 	fit_pair(pair: any) : boolean
 	{
+		if( ! MapService.pair_guard(pair) ) return false;
 		let p1 = pair.p1 ;
 		let p2 = pair.p2 ;
-		if (p1 == undefined) return false;
-		if (p2 == undefined) return false;
-		if (p1.lat == undefined || p1.lat == null 
-			|| p2.lat == undefined || p2.lat == null) return false;
 		let corner1 = L.latLng(p1.lat, p1.lon);
 		let corner2 = L.latLng(p2.lat, p2.lon);
 		let bounds = L.latLngBounds(corner1, corner2);
@@ -304,6 +300,7 @@ export class MapService {
 	}
 
 	try_fit_pair (pair: any) : boolean {
+		if (!pair) return false;
 		let ok = this.fit_pair (pair);
 		if (ok) return ok;
 
@@ -390,6 +387,51 @@ export class MapService {
 		console.debug('201810290011 MapService.google_map_string() url=', url);
 		return url;
 	}
+
+	static map_viewport_with_margin(pair: any, margin_percent):any {
+		if( ! MapService.pair_guard(pair) ) return null;
+		let p1 =pair.p1;
+		let p2 =pair.p2;
+		let south 	= Math.min ( p1.lat, p2.lat);
+		let north 	= Math.max ( p1.lat, p2.lat);
+		let west 	= Math.min ( p1.lon, p2.lon);
+		let east 	= Math.max ( p1.lon, p2.lon);
+
+		let more_south 	= south - (north-south) * margin_percent/100;
+		let more_north 	= north + (north-south) * margin_percent/100;
+		let more_west	= west 	- (east-west) 	* margin_percent/100;
+		let more_east	= east 	+ (east-west) 	* margin_percent/100;
+		let viewport=  {	
+					p1: {lat: more_south, lon: more_west}
+				,	p2: {lat: more_north, lon: more_east}
+				};
+		console.debug ( '2018101121 MapService.map_viewport_with_margin pair=');
+		console.debug ( C.stringify(pair));
+		console.debug ( '2018101121 MapService.map_viewport_with_margin viewport=');
+		console.debug ( C.stringify(viewport));
+		return viewport;
+	}
+
+	static pair_guard(pair: any): any | null {
+        if(!pair) return null;
+        if(!MapService.point_guard(pair.p1)) return null;
+        if(!MapService.point_guard(pair.p2)) return null;
+		return pair;
+	}
+
+	static point_guard(point: any): any | null {
+        if(!point) return null;
+        let p = point;
+        if(!p) return null;
+        if ( ! p.lat ) return null;
+        if ( ! p.lon ) return null;
+        if ( ! Number(p.lat) ) return null;
+        if ( ! Number(p.lon) ) return null;
+		p.lat= Number(p.lat);
+		p.lon= Number(p.lon);
+		return point;
+	}
+
 }
 
 

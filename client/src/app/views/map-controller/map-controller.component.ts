@@ -4,19 +4,16 @@ import { Subscription }   	from 'rxjs';
 
 import * as L from "leaflet";
 
-import {MapService} 	from "../../models/map.service"
-import {CommunicationService} from "../../models/communication.service"
+import {MapService} from "../../models/map.service"
 import {DotIcon} 	from "../../models/map.service"
 import {PinIcon} 	from "../../models/map.service"
-import {C} 		from "../../models/constants"
+import {C} 			from "../../models/constants"
 import {Ridebase} 	from "../../models/ridebase"
 import {Util} 		from "../../models/gui.service"
 import {DBService} 	from '../../models/remote.service' ;
-import {Status} 		from "../../models/gui.service"
+import {Status} 	from "../../models/gui.service"
 import { StorageService     } from '../../models/gui.service';
-
-
-
+import {CommunicationService} from "../../models/communication.service"
 
 @Component({
 	selector: 'app-map-controller',
@@ -26,23 +23,38 @@ import { StorageService     } from '../../models/gui.service';
 		
 })
 export class MapControllerComponent extends Ridebase implements OnInit  {
+
+	rider_criteria : any = null;
 	constructor(public communicationService	: CommunicationService
 			    , private dbService             : DBService
 			)
 	{ 
 		super(communicationService);
+        this.rider_criteria = StorageService.getForm(C.KEY_FORM_SEARCH) ;
+		if (! this.rider_criteria || this.rider_criteria.distance== C.ERROR_NO_ROUTE ) 
+			this.error_msg
+				='Search criteria is not available.<br/> Please use Search Setting to set it up';
+		else {
+		// javascript style calling does not recognize this in this.map
+		// So create local variables
+			let this_var = this;
+			let func_var = this.search ;
+			MapService.static_map.on('moveend' , function(e){ func_var(e, this_var )} ) ;
+			Util.map_search_start();
+
+
+			//move map viewport to contain rider_criteria
+			let rc_pair = Util.deep_copy(this.rider_criteria);
+			let viewport= MapService.map_viewport_with_margin(rc_pair, C.MAP_VIEWPORT_MARGIN);
+            this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, viewport);
+
+			//this.search(null, this);
+		}
 	}
 		
 	ngOnInit() {
 		console.debug('201810291007 MapControllerComponent.ngOnInit() enter');
 		
-		// javascript style calling does not recognize this in this.map
-		// So create local variables
-		let this_var = this;
-		let func_var = this.search ;
-		MapService.static_map.on('moveend' , function(e){ func_var(e, this_var )} ) ;
-		Util.map_search_start();
-		this.search(null, this);
 		//Util.show_map();
 	
 		// resetting zoom not working.  It requires browser extension.
@@ -51,6 +63,8 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 		//window.onresize = function(){ reset_zoom_var()};
 		//window.addEventListener("resize", function(){reset_zoom_var()} );
 	}
+
+	
 		
 	search(event, this_var){
 		if ( !Util.is_in_map_search()) {
@@ -61,7 +75,7 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 		this_var.warning_msg = 'Searching ...';
 		this_var.journeys_from_db =[]; // remove previous search result from screen
 
-        let rider_criteria = StorageService.getForm(C.KEY_FORM_SEARCH);
+						
 
 			
 		let region_search_criteria  
@@ -78,7 +92,7 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 
 
 		// region p1,p2 overwrite rider_criteria.p1,p2
-		let search_criteria_combined = {...rider_criteria, ... region_search_criteria};
+		let search_criteria_combined = {...this_var.rider_criteria, ... region_search_criteria};
 		
 		console.debug ('201810270146 MapControllerComponent.search() search_criteria_combined=\n'
 					, search_criteria_combined);
@@ -90,13 +104,13 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 				this_var.reset_msg();
 				console.info("201808201201 MapControllerComponent.search() journeys_from_db ="
 						, C.stringify(journeys_from_db));
+				// save both search result and rider criteria at the same time
 				this_var.Status.search_result= journeys_from_db;
-				//this_var.journeys_from_db = journeys_from_db;
-				if(journeys_from_db.length == 0 ) 
-					this_var.warning_msg = 'Nothing found in the map region';
+				this_var.Status.rider_criteria= this_var.rider_criteria;
+				if(journeys_from_db.length == 0 ) this_var.warning_msg = 'Nothing found in the map region';
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS , journeys_from_db);
-				let pair = JSON.parse(C.stringify(rider_criteria));
+				let pair = Util.deep_copy(this_var.rider_criteria);
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR , pair);
 			},
 			error => {
@@ -113,8 +127,15 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 		//document.getElementById("map").style.height = height + "px";
 		//document.getElementById("map").style.width = height + "px";
 	}
+
 	subscription_action ( msg: any): void{
 		console.debug("201810271226 MapControllerComponent.subscriptio_action(). ignore msg");
+	}
+
+	onngdestroy()
+	{
+		Util.map_search_stop();
+		
 	}
 }
 		

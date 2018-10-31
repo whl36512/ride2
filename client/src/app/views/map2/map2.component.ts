@@ -29,7 +29,7 @@ export class Map2Component extends Ridebase implements OnInit  {
 
 	constructor(	  public communicationService	: CommunicationService
 	                , private dbService             : DBService
-			, private mapService		: MapService) 
+					, private mapService		: MapService) 
 	{ 
 		super(communicationService);
 		this.page_name=C.PAGE_MAP;
@@ -66,6 +66,7 @@ export class Map2Component extends Ridebase implements OnInit  {
 	}
 
         subscription_action(msg): void {
+			let msg_body= msg.value ;
 		if (msg.msgKey==C.MSG_KEY_MAP_BODY_SHOW) {
 			this.show_body=C.BODY_SHOW ;
 			Util.show_map();
@@ -78,16 +79,16 @@ export class Map2Component extends Ridebase implements OnInit  {
 			this.mapService.clear_markers();
 		}
 		else if (msg.msgKey == C.MSG_KEY_MARKER_PAIR ) {
-			this.mapService.try_mark_pair(msg);
+			this.mapService.try_mark_pair(msg.body);
 		}
 		else if (msg.msgKey == C.MSG_KEY_MARKER_BOOKS ) {
-			this.mapService.mark_books(msg, -1);
+			this.mapService.mark_books(msg.body, -1);
 		}
 		else if (msg.msgKey == C.MSG_KEY_MARKER_FIT ) {
-			this.mapService.try_fit_pair(msg);
+			this.mapService.try_fit_pair(msg.body);
 		}
 		else if (msg.msgKey == C.MSG_KEY_MAP_LINE ) {
-			this.mapService.draw_line(msg);
+			this.mapService.draw_line(msg.body);
 		}
 		else {
 			console.debug("201808222332 Map2Component.subscription_action. ignore msg");

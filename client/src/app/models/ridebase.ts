@@ -37,11 +37,11 @@ export abstract class Ridebase implements OnDestroy{
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
 
 
-        error_msg	: string|null 	= null;
-        warning_msg	: string|null 	= null;
-        info_msg	: string|null 	= null;
-        change_detect_count: number =0;
-	show_body			='show';
+	error_msg	: string|null 	= null;
+	warning_msg	: string|null 	= null;
+	info_msg	: string|null 	= null;
+	change_detect_count: number =0;
+		show_body			='show';
 	is_signed_in: boolean = false;
 	page_name : string| null = null;
 
@@ -54,23 +54,23 @@ export abstract class Ridebase implements OnDestroy{
 	subscription3: Subscription |null = null;
 	//communicationService: CommunicationService = new CommunicationService();
 
-        C = C;
-        Constants = C;
-        Util = Util;
-        Status = Status;
+	C = C;
+	Constants = C;
+	Util = Util;
+	Status = Status;
 
 	constructor( 
     		// must use public or private
 		//otherwise Compiler error: Property 'communicationService' does not exist on type 'Ridebase'.
 		public communicationService: CommunicationService
 	){ 
-                this.subscription0 =this.communicationService.msg.subscribe(
-                        msg  => {
-                                //console.debug("201810211343 Ridebase.subscription0. msg=\n"
-                                        //, C.stringify(msg));
+		this.subscription0 =this.communicationService.msg.subscribe(
+			msg  => {
+				//console.debug("201810211343 Ridebase.subscription0. msg=\n"
+					//, C.stringify(msg));
 				this.subscription_action(msg);
-                        }
-                );
+			}
+		);
 
 	} 
 
@@ -82,8 +82,11 @@ export abstract class Ridebase implements OnDestroy{
 		if( this.subscription1!= null) this.subscription1.unsubscribe();
 		if( this.subscription2!= null) this.subscription2.unsubscribe();
 		if( this.subscription3!= null) this.subscription3.unsubscribe();
-                this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_NOSHOW, {});
+	this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_NOSHOW, {});
+		this.onngdestroy();
 	}
+
+	onngdestroy(){}
 	
 	abstract subscription_action(msg): void;
 //{
@@ -96,11 +99,11 @@ export abstract class Ridebase implements OnDestroy{
 		this.info_msg=null ;
 	}
 
-        change_detect_counter(e): number
-        {
-                console.debug("201810131845 Constants.change_detect_counter() event=", e)  ;
-                return this.change_detect_count ++;
-        }
+	change_detect_counter(e): number
+	{
+		console.debug("201810131845 Constants.change_detect_counter() event=", e)  ;
+		return this.change_detect_count ++;
+	}
 	
 	close_page(): boolean{
 		this.communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE, {page:this.page_name});
@@ -108,10 +111,10 @@ export abstract class Ridebase implements OnDestroy{
 	}
 	onSubmit(){}
 
-        trackByFunc (index, item) {
-                if (!item) return null;
-                return index;
-        }
+	trackByFunc (index, item) {
+		if (!item) return null;
+		return index;
+	}
 
 	list_global_objects() {
 		Util.list_global_objects();

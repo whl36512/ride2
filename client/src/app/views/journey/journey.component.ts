@@ -28,6 +28,7 @@ import { StorageService } from '../../models/gui.service';
 import { UserService } from '../../models/gui.service';
 import { DotIcon } from '../../models/map.service';
 import { PinIcon } from '../../models/map.service';
+import { MapService } from '../../models/map.service';
 
 
 @Component({
@@ -48,6 +49,9 @@ export class JourneyComponent extends Ridebase implements OnInit{
 	search_criteria: any;
 
 
+	rider_criteria :any= null
+
+
 
 
 	journey_forms: any =[];
@@ -63,8 +67,15 @@ export class JourneyComponent extends Ridebase implements OnInit{
   		console.debug("201809262245 JourneyComponent.constructor() enter")  ;
 		this.is_signed_in= UserService.is_signed_in();
 
-		this.journeys_from_db = this.Status.search_result;
+		this.journeys_from_db = JSON.parse(C.stringify(this.Status.search_result)); // make a deep copy
+  		console.debug("201809262245 JourneyComponent.constructor() this.Status.search_result=\n"
+				, C.stringify(this.Status.search_result))  ;
+  		console.debug("201809262245 JourneyComponent.constructor() this.journeys_from_db=\n"
+				, C.stringify(this.journeys_from_db))  ;
 		this.search_criteria = this.Status.search_criteria
+		this.rider_criteria = this.Status.rider_criteria
+							? this.Status.rider_criteria
+							:this.Util.create_rider_criteria() ;
 
   		console.debug("201809262245 JourneyComponent.constructor() exit")  ;
   	} 
@@ -84,6 +95,17 @@ export class JourneyComponent extends Ridebase implements OnInit{
 			//if search_criteria == null, search_all() was called and trips are not bookable
 			this.journeys_from_db[index].show_book_button
 				=this.journeys_from_db[index].sufficient_balance&&this.search_criteria;
+
+			let driver_pair=C.convert_trip_to_pair(this.journeys_from_db[index]);
+
+
+			this.journeys_from_db[index].google_map_url
+				= MapService.google_map_string_from_points([
+									, driver_pair.p1
+									, this.rider_criteria.p1
+									, this.rider_criteria.p2
+									, driver_pair.p2
+					]);
 			//add_form(journey);
 
 			//let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
@@ -96,16 +118,16 @@ export class JourneyComponent extends Ridebase implements OnInit{
 		}
 		//this.place_all_markers();
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS, this.journeys_from_db);
-		this.mark_search_pair();
+		this.mark_rider_pair();
 		console.debug("201809262246 JourneyComponent.ngOnInit() exit");
   	}
 
-	mark_search_pair(){
-		if(this.search_criteria){
-                	let pair = C.convert_trip_to_pair(this.search_criteria);
+	mark_rider_pair(){
+		if(this.rider_criteria){
+            let pair = this.Util.deep_copy ( this.rider_criteria);
 			pair.p1.icon_type=PinIcon;
 			pair.p2.icon_type=PinIcon;
-                	this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+            this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
 		}
 	}
 
@@ -163,7 +185,7 @@ export class JourneyComponent extends Ridebase implements OnInit{
 		pair.line_weight = C.MAP_LINE_WEIGHT_HIGHLIGHT;
                 this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, pair);
 
-		this.mark_search_pair();
+		this.mark_rider_pair();
         }
 
 }

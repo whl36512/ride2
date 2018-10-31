@@ -1,4 +1,4 @@
-<div  class="topnav" tabindex="-1"  id="topnav"    >
+<div  class="topnav" tabindex="-1"  id="topnav"	 >
 	<div id=navicon type=button (click)="toggle()" > &#9776; </div>
 	<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
 	<div *ngIf='warning_msg!=null' class='fade warning'>{{warning_msg}}</div>
@@ -6,55 +6,40 @@
 
 
 
-        <ul class="nav" *ngIf="show_nav&&false"  >
-            	<li                   (click)="select(C.PAGE_SEARCH)" 		>Search</li>
-	    	<li *ngIf="is_signed_in" (click)="select(C.PAGE_TRIP)" 		>Post a Trip</li>
-	    	<li *ngIf="is_signed_in" (click)="select(C.PAGE_ACTIVITY)"		>My Activities</li>
-	    	<li *ngIf="is_signed_in" (click)="select(C.PAGE_THIST)"		>Transaction History</li>
+	<ul class="nav" *ngIf="show_nav&&false"  >
+		 	<li			(click)="select(C.PAGE_SEARCH)" 		>Search</li>
+		 	<li *ngIf="is_signed_in" (click)="select(C.PAGE_TRIP)" 		>Post a Trip</li>
+		 	<li *ngIf="is_signed_in" (click)="select(C.PAGE_ACTIVITY)"		>My Activities</li>
+		 	<li *ngIf="is_signed_in" (click)="select(C.PAGE_THIST)"		>Transaction History</li>
 		<li *ngIf="is_signed_in" (click)="select(C.PAGE_USER)" 		>My Profile</li>
-		<li                   (click)="select(C.PAGE_DEPOSIT)"  	>Deposit</li>
-		<li                   (click)="select(C.PAGE_WITHDRAW)"  	>Withdraw</li>
-		<li                   (click)="select(C.PAGE_CONTACT_US)"  	>Contact Us</li>
-		<li                   (click)="select(C.PAGE_TOU)"  		>Terms of Use</li>
-		<li                   (click)="list_global_objects()"  		>List Global</li>
-        </ul>
+		<li			(click)="select(C.PAGE_DEPOSIT)"  	>Deposit</li>
+		<li			(click)="select(C.PAGE_WITHDRAW)"  	>Withdraw</li>
+		<li			(click)="select(C.PAGE_CONTACT_US)"  	>Contact Us</li>
+		<li			(click)="select(C.PAGE_TOU)"  		>Terms of Use</li>
+		<li			(click)="list_global_objects()"  		>List Global</li>
+	</ul>
 
-    	<ul class="nav" *ngIf="show_nav"  >
-        	<a routerLink='/search_setting' 	
+	 	<ul class="nav" *ngIf="show_nav"  >
+		<a routerLink='/search_setting' 	
 			routerLinkActive='active' 
 			(click)="nav_menu_off(); map_search_stop()"	>
 			<li>
 				Search Setting
 			</li>			
 		</a>
-        	<a routerLink='/map_search_start' 		
+		<a routerLink='/map_search_start' 		
 			routerLinkActive='active' 
 			*ngIf="!Status.is_in_map_search" 
 			(click)="nav_menu_off(); map_search_start()">
 			<li>
-				Start Map Search
+				Search on Map
 			</li>			
 		</a>
-        	<a routerLink='/map_search_stop' 		
-			routerLinkActive='active' 
-			*ngIf="Status.is_in_map_search" 
-			(click)="nav_menu_off(); map_search_stop()">
-			<li>
-				Freeze Map Search
-			</li>			
-		</a>
-        	<a routerLink='/show_search_result' 		
+		<a routerLink='/show_search_result' 		
 			routerLinkActive='active' 
 			(click)="nav_menu_off(); map_search_stop()">
 			<li>
-				List Search Results
-			</li>			
-		</a>
-        	<a routerLink='/Search' 	
-			routerLinkActive='active' 
-			(click)="nav_menu_off()"	>
-			<li>
-				Search Trips
+				List Search Result
 			</li>			
 		</a>
 		<a routerLink='/Trip' 		
@@ -125,6 +110,6 @@
 			</li>
 		</a>
 		<li	(click)='list_global_objects()' 			>List Global		</li>
-   	</ul>
+		</ul>
 	
 </div>

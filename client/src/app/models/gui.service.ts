@@ -5,7 +5,7 @@ import { C} from './constants';
 
 
 //in order for require to work, change  src/tsconfig.app.json to read 
-//     "types": ["node"]
+//	 "types": ["node"]
 
 var forge = require('node-forge');
 
@@ -17,30 +17,11 @@ export class GuiService {
   constructor() { } ;
 }
 
-export interface RiderCriteria {
-	  pickup_display_name  	?: string|null
-	; pickup_lat		?: number|null
-	; pickup_lon		?: number|null
-	; dropoff_display_name 	?: string|null
-	; dropoff_lat	 	?: number|null
-	; dropoff_lon 		?: number|null
-	; seats 		 : number
-	; price 		 : number
-	; distance 		?: number
-	; start_date		 : string
-	; end_date		?: string
-	; departure_time	?: string
-}
-
 export class Status {
-	static is_in_map_search = true;
+	static is_in_map_search = false;
 	static search_result = [];
 	static search_criteria :any|null = null;
-	static rider_criteria : RiderCriteria 
-		= {	  seats		:1
-			, price		:C.MAX_PRICE_RIDER
-			, start_date	:C.TODAY()
-		}
+	static rider_criteria : any | null = null
 }
 
 export class UserService {
@@ -77,6 +58,18 @@ export class Util {
 	static sleepFor( sleepDuration: number ){
 		var now = new Date().getTime();
 		while(new Date().getTime() < now + sleepDuration){ /* do nothing */ } 
+	}
+
+	static deep_copy(obj : any): any {
+		if( typeof( obj ) == 'string' )
+		{
+			let obj1 = {value: obj};
+			return JSON.parse(C.stringify(obj)).value;
+			
+		}
+		else {
+			return JSON.parse(C.stringify(obj));
+		}
 	}
 
 /*  not working. error TS2339: Property 'chrome' does not exist on type 'Window'.
@@ -147,8 +140,8 @@ export class Util {
    		var keys=Object.keys( window ).sort();
    		for (var i in keys)
    		{
-      		if (typeof window[keys[i]] != 'function')
-      			console.debug('2018270951 Util.list_global_objects()', keys[i], window[keys[i]]);
+	  		if (typeof window[keys[i]] != 'function')
+	  			console.debug('2018270951 Util.list_global_objects()', keys[i], window[keys[i]]);
    		}
 	}
 
@@ -167,9 +160,28 @@ export class Util {
 		}
 		return Status.is_in_map_search ;
 	}
-	
 
-	
+	static create_rider_criteria () : any{
+
+			return   {
+			  departure_time	: ''
+			, distance		  : C.ERROR_NO_ROUTE
+			, seats		 : 1
+			, price		 : C.MAX_PRICE_RIDER
+			, p1:   { loc	   : ''
+				, lat	   : null
+				, lon	   : null
+				, display_name  : null
+				}
+			, p2:   { loc	   : ''
+				, lat	   : null
+				, lon	   : null
+				, display_name  : null
+				}
+			, date1		 : C.TODAY()
+			, date2		 : C.TODAY()
+			}
+	}
 
 	static onError(error) {
   		console.log(`Error: ${error}`);
@@ -255,9 +267,9 @@ export class CookieService {
   	constructor() { } ;
 	
 	static setCookie (cname, cvalue, exhours) {
-    		let d = new Date();
+			let d = new Date();
 		d.setTime(d.getTime() + (exhours*60*60*1000));
-	    	let expires = "expires="+ d.toUTCString();
+			let expires = "expires="+ d.toUTCString();
 		document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 	}
 
@@ -323,7 +335,7 @@ export class CryptoService {
 		// decrypt some bytes using CBC mode
 		// (other modes include: CFB, OFB, CTR, and GCM)
 		let encrypted = forge.util.hexToBytes(encrypted_hex) ;
-		let buffer    = forge.util.createBuffer(encrypted);
+		let buffer	= forge.util.createBuffer(encrypted);
 
 		let decipher = forge.cipher.createDecipher('AES-CBC', CryptoService.key);
 		decipher.start({iv: CryptoService.iv});
@@ -352,7 +364,7 @@ export class CryptoService {
 	
 	private hexStringToByte (str: String): Uint8Array {
 		if (!str) {
-		      	return new Uint8Array();
+			  	return new Uint8Array();
 		}
 		var a = [];
 		for (var i = 0, len = str.length; i < len; i+=2) {

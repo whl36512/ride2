@@ -74,8 +74,10 @@ export class Constants{
 	// close msg window afer n seconds of no activity
 	static MSG_NO_ACTIVITY_COUNT_DOWN	= 30	;   
 
-	static ICON_ARROW_UP  		= '&#xfe3f;'	;
- 	static ICON_ARROW_DOWN		= '&#xfe40;' 	;
+	//static ICON_ARROW_UP  		= &#xfe3f;	;
+	static ICON_ARROW_UP  		= '\ufe3f';	;
+ 	//static ICON_ARROW_DOWN		= &#xfe40; 	;
+ 	static ICON_ARROW_DOWN		= '\ufe40'; 	;
 
  	static EMAIL_DEPOSIT		= 'deposit@beegrove.com' ;
 
@@ -111,6 +113,7 @@ export class Constants{
  	static MAP_LINE_COLOR_HIGHLIGHT	= 'red'
  	static MAP_LINE_WEIGHT_REGULAR	= 1; 		;  
  	static MAP_LINE_WEIGHT_HIGHLIGHT= 3; 		;  
+ 	static MAP_VIEWPORT_MARGIN= 50; 		;  
 
  	static MAP_Z_INDEX_SHOW= 300; 		;  
  	static MAP_Z_INDEX_HIDE= 100; 		;  

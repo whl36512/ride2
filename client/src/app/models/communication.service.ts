@@ -26,12 +26,11 @@ export class CommunicationService {
 	msg = this.msg_subject.asObservable();  
 
 	send_msg(msg_key:string, message: any) {
-		let outgoing = {};
+		let outgoing = message;
 		if (typeof(message) == 'string') outgoing = JSON.parse(message);
-		else outgoing = {...message};
-		outgoing= {...outgoing, msgKey: msg_key};
-		console.debug("201808230806 CommunicationService.send_msg() key and message=\n" 
-			, C.stringify(outgoing));
-	    	this.msg_subject.next(outgoing) ;
+		let msg= { msgKey: msg_key, body: outgoing};
+		console.debug("201808230806 CommunicationService.send_msg() key and msg=\n" 
+			, C.stringify(msg));
+	    	this.msg_subject.next(msg) ;
 	}
 }
