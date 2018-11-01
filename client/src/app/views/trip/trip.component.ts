@@ -10,7 +10,7 @@ import { Validators } from '@angular/forms';
 import { ValidatorFn } from '@angular/forms';
 import { ValidationErrors } from '@angular/forms';
 import { AbstractControl} from '@angular/forms';
-//import { Subscription }   from 'rxjs';
+//import { Subscription }	from 'rxjs';
 import { ChangeDetectionStrategy } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { NgZone } from '@angular/core';
@@ -26,6 +26,8 @@ import { AppComponent } from '../../app.component';
 import { C} from '../../models/constants';
 import { Ridebase} from '../../models/ridebase';
 import { StorageService } from '../../models/gui.service';
+import { Util } from '../../models/gui.service';
+import { BaseComponent } from '../base/base.component' ;
 
 
 
@@ -38,133 +40,105 @@ import { StorageService } from '../../models/gui.service';
 
 })
 
-export class TripComponent extends Ridebase implements OnInit{
+export class TripComponent extends BaseComponent {
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
-    	form_saved_to_db: boolean=false;
+		form_saved_to_db: boolean=false;
 
 	trip:any;
-	trip_form: any;
 	step=1;
 	today = C.TODAY();
 
-	//show_body='show';
-
 	constructor(
-		  private geoService		: GeoService
-		, private dbService		: DBService
-		, private form_builder		: FormBuilder
-		, private changeDetectorRef	: ChangeDetectorRef
-		, public  communicationService	: CommunicationService
+		  //private geoService		: GeoService
+		//, private dbService		: DBService
+		//, private form_builder		: FormBuilder
+		public changeDetectorRef	: ChangeDetectorRef
+		//, public  communicationService	: CommunicationService
   		//, private zone			: NgZone
 	){ 
-		super(communicationService)
+		super()
   		console.log("TripComponent.constructor() enter")  ;
 		this.page_name= C.PAGE_TRIP;
-		this.trip = { 
-			  "start_lat": null
-			, "start_lon": null
-			, "start_display_name":null
-			, "end_lat": null
-			, "end_lon": null
-			, "end_display_name":null
-			, "distance": null
-			};
-  		console.debug("201809081033 TripComponent.constructor() this.trip="+ this.trip)  ;
   		console.debug("201809081034 TripComponent.constructor() exit")  ;
   	} 
 
 	ngOnInit() {
-		console.debug("201810122335 TripComponent.ngOnInit() enter");
-                let form_value_from_storage = StorageService.getForm(C.KEY_FORM_TRIP);
-		console.debug("201810122336 TripComponent.ngOnInit() form_value_from_storage=");
-		console.debug(C.stringify(form_value_from_storage));
-
-		if( form_value_from_storage == null ) {
-			this.trip_form = this.form_builder.group(
-				{
-				start_loc	: ['', [Validators.required]], //sync validators must be in an array
-				//start_lat	: ['', []],     
-				//start_lon	: ['', []],     
-				//start_display_name	: ['', []], 
-				end_loc		: ['', [Validators.required]], 
-				//end_lat		: ['', []], 
-				//end_lon		: ['', []],
-				//end_display_name	: ['', []],
-				start_date	: [C.TODAY(), [Validators.required, Validators.min]], 
-				departure_time	: ['10:00', [Validators.required]], 
-				seats		: [3, [Validators.required]], 
-				price		: [0.1, [Validators.required]], 
-				recur_ind	: [false, []], 
-				end_date	: [null,[Validators.min] ], 
-				day0_ind	: [false, ], 
-				day1_ind	: [false, ], 
-				day2_ind	: [false, ], 
-				day3_ind	: [false, ], 
-				day4_ind	: [false, ], 
-				day5_ind	: [false, ], 
-				day6_ind	: [false, ], 
-				description	: ['', ], 
-				}, 
-				{ 
-					validator: this.validate_trip
-				}
-			);
+		console.debug("201810291814", this.class_name, '.ngOnInit() enter');
+		let today = C.TODAY();
+		let trip = StorageService.getForm(C.KEY_FORM_TRIP);
+		if ( !trip ) {
+			trip = this.Util.create_empty_trip();
 		}
-		else {
-			this.trip_form = this.form_builder.group(
-				{
-				start_loc	: [form_value_from_storage.start_loc, [Validators.required]], //sync validators must be in an array
-				//start_lat	: ['', []],     
-				//start_lon	: ['', []],     
-				//start_display_name	: ['', []], 
-				end_loc		: [form_value_from_storage.end_loc, [Validators.required]], 
-				//end_lat		: ['', []], 
-				//end_lon		: ['', []],
-				//end_display_name	: ['', []],
-				start_date	: [C.TODAY(), [Validators.required, Validators.min]], 
-				departure_time	: [form_value_from_storage.departure_time, [Validators.required]], 
-				seats		: [form_value_from_storage.seats, [Validators.required]], 
-				price		: [form_value_from_storage.price, [Validators.required]], 
-				recur_ind	: [form_value_from_storage.recur_ind, []], 
-				end_date	: [form_value_from_storage.end_date,[Validators.min] ], 
-				day0_ind	: [form_value_from_storage.day0_ind, ], 
-				day1_ind	: [form_value_from_storage.day1_ind, ], 
-				day2_ind	: [form_value_from_storage.day2_ind, ], 
-				day3_ind	: [form_value_from_storage.day3_ind, ], 
-				day4_ind	: [form_value_from_storage.day4_ind, ], 
-				day5_ind	: [form_value_from_storage.day5_ind, ], 
-				day6_ind	: [form_value_from_storage.day6_ind, ], 
-				description	: [form_value_from_storage.description, ], 
-				}, 
-				{ 
-					validator: this.validate_trip
-				}
-			);
-		}
-		this.geocode('start_loc');
-                this.geocode('end_loc');
-
-
+		console.debug("201810291814 SearchSettingComponent.ngOnInit() trip=",
+			C.stringify(trip));
 	
-		this.subscription1 = this.trip_form.valueChanges.subscribe(data=> console.log('Form value changes', data),);
-		this.subscription2 = this.trip_form.statusChanges.subscribe(data=> console.log('Form status changes', data),);
+		trip.date1 =  today > trip.date1 ? today: trip.date1 ;
+	
+		trip.date2 = trip.date1 > trip.date2 ? trip.date1: trip.date2 ;
+	
+		this.trip=trip;
+		StorageService.storeForm(C.KEY_FORM_TRIP, trip);
+		//this.subscription1 = this.form.valueChanges
+		//.subscribe( data => console.log('Form value changes', data));
+		//this.subscription2 = this.form.statusChanges
+		//.subscribe(data => console.log('Form status changes', data));
 
-		console.info("TripComponent.ngOnInit() exit");
+		this.form= this.form_builder.group(
+			{
+				//sync validators must be in an array
+				p1_loc				: [trip.p1.loc, [Validators.required]], 
+				//start_lat	: ['', []],	 
+				//start_lon	: ['', []],	 
+				//start_display_name	: ['', []], 
+				p2_loc				: [trip.p2.loc, [Validators.required]], 
+				//end_lat			: ['', []], 
+				//end_lon			: ['', []],
+				//end_display_name	: ['', []],
+				date1				: [trip.date1, [Validators.required, Validators.min]], 
+				departure_time		: [trip.departure_time, [Validators.required]], 
+				seats				: [trip.seats, [Validators.required]], 
+				price				: [trip.price, [Validators.required]], 
+				recur_ind			: [trip.recur_ind, []], 
+				date2				: [trip.date1,[Validators.min] ], 
+				day0_ind			: [trip.day0_ind, ], 
+				day1_ind			: [trip.day1_ind, ], 
+				day2_ind			: [trip.day2_ind, ], 
+				day3_ind			: [trip.day3_ind, ], 
+				day4_ind			: [trip.day4_ind, ], 
+				day5_ind			: [trip.day5_ind, ], 
+				day6_ind			: [trip.day6_ind, ], 
+				description			: [trip.description, ], 
+			},	 
+			{ 
+				validator		: this.validate_trip
+			}
+		);
+	
+		this.subscription1 = this.form.valueChanges.subscribe(data=> console.log('Form value changes', data),);
+		this.subscription2 = this.form.statusChanges.subscribe(data=> console.log('Form status changes', data),);
+
+		this.show_map();
+		console.debug("201810291814", this.class_name, '.ngOnInit() exit');
   	}
 
 	onSubmit() {
 		this.reset_msg() ;
-	    	console.warn("201808201534 TripComponent.onSubmit() this.trip_form.value=" 
-			, C.stringify(this.trip_form.value) );
+			console.warn("201808201534 TripComponent.onSubmit() this.form.value=" 
+			, C.stringify(this.form.value) );
 		// save trip to db
 		// combining data
-		let trip = { ...this.trip_form.value, ...this.trip};
-		StorageService.storeForm(C.KEY_FORM_TRIP, trip);
-		let trip_from_db_observable     = this.dbService.call_db(C.UPD_TRIP_URL, trip);
+		this.trip = { ...this.trip, ...this.form.value};
+		this.trip.p1.loc = this.form.value.p1_loc;
+		this.trip.p2.loc = this.form.value.p2_loc;
+		delete this.trip.p1_loc;
+		delete this.trip.p2_loc;
+
+		StorageService.storeForm(C.KEY_FORM_TRIP, this.trip);
+		let trip_from_db_observable	 = this.dbService.call_db(C.UPD_TRIP_URL, this.trip);
 		trip_from_db_observable.subscribe(
-	    		trip_from_db => {
+				trip_from_db => {
 				console.info("201808201201 TripComponent.constructor() trip_from_db =" 
 					, C.stringify(trip_from_db));
 				this.form_saved_to_db=true;
@@ -181,13 +155,14 @@ export class TripComponent extends Ridebase implements OnInit{
 
 	show_map(){
 		console.debug('201810242001 TripComponent.show_map()');
-		this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
-		let pair = C.convert_trip_to_pair(this.trip);
-                this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
-                this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
-                this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
+		//this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
+		let pair = Util.deep_copy(this.trip);
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
 	};
 
+/*
 	geocode(element_id: string) {
 		var lat: number 	| null;
 		var lon: number 	| null;
@@ -210,7 +185,7 @@ export class TripComponent extends Ridebase implements OnInit{
 
 
 
-		let loc = element_id =="start_loc"?this.trip_form.value.start_loc:this.trip_form.value.end_loc ;
+		let loc = element_id =="start_loc"?this.form.value.start_loc:this.form.value.end_loc ;
 
 		if (loc.length >= 3)  // must type at least 3 letters before geocoding starts
 		{	
@@ -250,9 +225,9 @@ export class TripComponent extends Ridebase implements OnInit{
 					}
 					this.routing();
 					let pair = C.convert_trip_to_pair(this.trip);
-                			this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
-                			this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
-                			this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
+					this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+					this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+					this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
 					this.changeDetectorRef.detectChanges() ;
 				}
 			);
@@ -289,31 +264,32 @@ export class TripComponent extends Ridebase implements OnInit{
 		} else this.trip.distance=C.ERROR_NO_ROUTE;
 		this.changeDetectorRef.detectChanges() ;
 	}
+*/
 
 	validate_trip(fg: FormGroup): ValidationErrors | null {
-		console.log("INFO 2018009080943 validate_trip fg.value=\n" ) ; 
-		console.log(fg.value ) ; 
-		//	console.log("INFO 2018009080943 validate_trip this.trip=" + this.trip ) ;  // this error out. this.trip is undefined. why?
+		console.debug('DEBUG 2018009080943 TripComponent.validate_trip() fg.value=\n' ) ; 
+		console.debug(fg.value ) ; 
+		//	console.debug("INFO 2018009080943 validate_trip this.trip=" + this.trip ) ;  
 		/*
-		if( isNaN( this.trip.distance )   ) {
+		if( isNaN( this.trip.distance )	) {
 			console.log("ERROR 201807142049 validate_trip() distance unset, not routable") ; 
 			return {"distance":"not routable"} ;
 		}
 		*/
-		if (fg.value.recur_ind ===true && fg.value.end_date==null ) 
+		if (fg.value.recur_ind ===true && fg.value.date2==null ) 
 		{
 			console.log("ERROR 201807142049 validate_trip() recurring but end_date unset") ; 
-			return {"end_date":"is not set"} ;
+			return {"date2":"is not set"} ;
 		}
-		else if (fg.value.recur_ind ===true && (fg.value.end_date <= fg.value.start_date)   ) 
+		else if (fg.value.recur_ind ===true && (fg.value.date2 <= fg.value.date1)	) 
 		{
-			console.log("ERROR 201807142020 validate_trip() end_date <= start_date " );
-			return {"end_date":"is before start_date"} ;
+			console.log("ERROR 201807142020 validate_trip() date2 <= date1 " );
+			return {"date2":"is before date1"} ;
 		}
 		/*
-		else if (fg.value.recur_ind ===true && fg.value.end_date > this.next_n_days(fg.value.start_date, 92) ) 
+		else if (fg.value.recur_ind ===true && fg.value.date2 > this.next_n_days(fg.value.date1, 92) ) 
 		{
-			console.log("ERROR 201807142301  end_date - start_date = " + (fg.value.end_date - fg.value.start_date) + " > 92" );
+			console.log("ERROR 201807142301  date2 - date1 = " + (fg.value.date2 - fg.value.date1) + " > 92" );
 			return {"end_date":"is 92 days after start_date"} ;
 		}
 		*/
@@ -335,17 +311,17 @@ export class TripComponent extends Ridebase implements OnInit{
 		return next_n_day;
 	}
 
-        subscription_action ( msg: any): void{
-                console.debug("201810212010 TripComponent.subscriptio_action(). ignore msg");
-        }
+	subscription_action ( msg: any): void{
+		console.debug("201810212010 TripComponent.subscriptio_action(). ignore msg");
+	}
 
 /*
   	mouseDown(event) {
-    		this.element = event.target;
+			this.element = event.target;
 
-    		this.zone.runOutsideAngular(() => {
-      		window.document.addEventListener('mousemove', this.mouseMove.bind(this));
-    		});
+			this.zone.runOutsideAngular(() => {
+	  		window.document.addEventListener('mousemove', this.mouseMove.bind(this));
+			});
 	}
 
   	mouseMove(event) {
@@ -356,10 +332,11 @@ export class TripComponent extends Ridebase implements OnInit{
 */
 
 	// the getter is required for reactive form validation to work 
-	get start_loc		() { return this.trip_form.get('start_loc'	); }  
-	get end_loc		() { return this.trip_form.get('end_loc'	); }  
-	get start_date		() { return this.trip_form.get('start_date'	); }
-	get departure_time	() { return this.trip_form.get('departure_time'	); }
-	get seats		() { return this.trip_form.get('seats'		); }
-	get price		() { return this.trip_form.get('price'		); }
+	get p1_loc		() { return this.form.get('p1_loc'	); }  
+	get p2_loc		() { return this.form.get('p2_loc'	); }  
+	get date1		() { return this.form.get('date1'	); }
+	get date2		() { return this.form.get('date2'	); }
+	get departure_time	() { return this.form.get('departure_time'	); }
+	get seats		() { return this.form.get('seats'		); }
+	get price		() { return this.form.get('price'		); }
 }

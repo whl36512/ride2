@@ -5,30 +5,31 @@
 import { OnDestroy } from '@angular/core';
 //import { HostListener } from '@angular/core';
 //import { NgZone  } from '@angular/core';
-//import { ChangeDetectionStrategy } from '@angular/core';
-//import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 //import { FormControl } from '@angular/forms';
 //import { FormGroup } from '@angular/forms';
 //import { FormArray } from '@angular/forms';
-//import { FormBuilder } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 //import { Validators } from '@angular/forms';
 //import { ValidatorFn } from '@angular/forms';
 //import { ValidationErrors } from '@angular/forms';
 //import { AbstractControl} from '@angular/forms';
 import { Subscription }   from 'rxjs';
 
+
 //import { EventEmitter, Input, Output} from '@angular/core';
 //import { timer } from 'rxjs' ;
 
-//import {GeoService} from '../../models/remote.service' ;
-//import {DBService} from '../../models/remote.service' ;
-import {CommunicationService} from './communication.service' ;
-//import { AppComponent } from '../../app.component';
-import { C } from './constants';
-//import { StorageService } from '../../models/gui.service';
-//import { UserService } from '../../models/gui.service';
-import { Util } from './gui.service';
-import { Status } from './gui.service';
+import {GeoService} 			from './remote.service' ;
+import {DBService} 				from './remote.service' ;
+import {CommunicationService} 	from './communication.service' ;
+//import { AppComponent } 		from '../../app.component';
+import { C } 					from './constants';
+import { StorageService } 		from './gui.service';
+import { UserService } 			from './gui.service';
+import { Util } 				from './gui.service';
+import { Status } 				from './gui.service';
 
 
 export abstract class Ridebase implements OnDestroy{
@@ -44,6 +45,14 @@ export abstract class Ridebase implements OnDestroy{
 		show_body			='show';
 	is_signed_in: boolean = false;
 	page_name : string| null = null;
+
+/*
+    public  p_dbService	       : DBService 
+    public  p_form_builder	    : FormBuilder
+    public  p_communicationService    : CommunicationService
+    public  p_changeDetectorRef   : ChangeDetectorRef
+*/
+
 
 
 

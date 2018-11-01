@@ -29,6 +29,8 @@ import { UserService } from '../../models/gui.service';
 import { DotIcon } from '../../models/map.service';
 import { PinIcon } from '../../models/map.service';
 import { MapService } from '../../models/map.service';
+import { BaseComponent      } from '../base/base.component' ;
+
 
 
 @Component({
@@ -38,7 +40,8 @@ import { MapService } from '../../models/map.service';
   changeDetection: ChangeDetectionStrategy.OnPush ,  // prevent change detection unless @Input reference is changed
 })
 
-export class JourneyComponent extends Ridebase implements OnInit{
+//export class JourneyComponent extends Ridebase implements OnInit{
+export class JourneyComponent extends BaseComponent {
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
 	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
@@ -57,13 +60,14 @@ export class JourneyComponent extends Ridebase implements OnInit{
 	journey_forms: any =[];
 
 	constructor(
-		  private dbService		: DBService
-		, private form_builder		: FormBuilder
-		, private changeDetectorRef	: ChangeDetectorRef
-		, public communicationService	: CommunicationService
-	//	, private zone: NgZone
+		  //private dbService		: DBService
+		//, private form_builder		: FormBuilder
+		 public changeDetectorRef	: ChangeDetectorRef
+		//, public communicationService	: CommunicationService
+	////	, private zone: NgZone
 	){ 
-		super(communicationService);
+		//super(communicationService);
+		super();
   		console.debug("201809262245 JourneyComponent.constructor() enter")  ;
 		this.is_signed_in= UserService.is_signed_in();
 

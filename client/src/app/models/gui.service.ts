@@ -4,17 +4,17 @@ import {DBService} from './remote.service'
 import { C} from './constants';
 
 
-//in order for require to work, change  src/tsconfig.app.json to read 
+//in order for require to work, change	src/tsconfig.app.json to read 
 //	 "types": ["node"]
 
 var forge = require('node-forge');
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root'
 })
 export class GuiService {
 
-  constructor() { } ;
+	constructor() { } ;
 }
 
 export class Status {
@@ -25,18 +25,18 @@ export class Status {
 }
 
 export class UserService {
-	constructor(  ) {};
+	constructor(	) {};
 
 	static is_signed_in ():boolean
 	{
-		let profile =  UserService.get_profile_from_session();
+		let profile =	UserService.get_profile_from_session();
 		let jwt = UserService.get_jwt_from_session();
-		if ( profile == null  || jwt == null)
+		if ( profile == null	|| jwt == null)
 		{
 			return false;
 		}
 		return true;
-  	}
+		}
 
 	static get_profile_from_session(): object|null {
 		let encrypted_profile = StorageService.getSession(C.PROFILE);
@@ -54,7 +54,7 @@ export class UserService {
 
 export class Util {
 	
-	constructor(  ) {};
+	constructor(	) {};
 	static sleepFor( sleepDuration: number ){
 		var now = new Date().getTime();
 		while(new Date().getTime() < now + sleepDuration){ /* do nothing */ } 
@@ -72,7 +72,7 @@ export class Util {
 		}
 	}
 
-/*  not working. error TS2339: Property 'chrome' does not exist on type 'Window'.
+/*	not working. error TS2339: Property 'chrome' does not exist on type 'Window'.
 	get_browser_vender() {
 	// https://stackoverflow.com/questions/4565112/javascript-how-to-find-out-if-the-user-browser-is-chrome
 		let isChromium = window.chrome;
@@ -85,7 +85,7 @@ export class Util {
 
 
 		if (isIOSChrome) {
-   			// is Google Chrome on IOS
+				// is Google Chrome on IOS
 			vender ='IOSChrome';
 			
 		} else if (isOpera) {
@@ -93,16 +93,16 @@ export class Util {
 		} else if (isIEedge) {
 			vender = 'Edge' ;
 		} else if(
-  			isChromium !== null &&
-  			typeof isChromium !== "undefined" &&
-  			vendorName === "Google Inc." &&
-  			isOpera === false &&
-  			isIEedge === false
+				isChromium !== null &&
+				typeof isChromium !== "undefined" &&
+				vendorName === "Google Inc." &&
+				isOpera === false &&
+				isIEedge === false
 			) {
-   			// is Google Chrome
+				// is Google Chrome
 			vender='Google Chrome'
 		} else { 
-   			// not Google Chrome 
+				// not Google Chrome 
 			vender = 'Generic Chromium';
 		}
 	}
@@ -125,7 +125,7 @@ export class Util {
 
 	static toggle_map() {
 		if (Util.get_z_index('map') == C.MAP_Z_INDEX_SHOW) Util.hide_map();
-		else  Util.show_map();
+		else	Util.show_map();
 	}
 
 	static get_z_index(elem_id :string) : number|null {
@@ -137,12 +137,12 @@ export class Util {
 	}
 
 	static list_global_objects () {
-   		var keys=Object.keys( window ).sort();
-   		for (var i in keys)
-   		{
-	  		if (typeof window[keys[i]] != 'function')
-	  			console.debug('2018270951 Util.list_global_objects()', keys[i], window[keys[i]]);
-   		}
+			var keys=Object.keys( window ).sort();
+			for (var i in keys)
+			{
+				if (typeof window[keys[i]] != 'function')
+					console.debug('2018270951 Util.list_global_objects()', keys[i], window[keys[i]]);
+			}
 	}
 
 	static map_search_start() {
@@ -163,28 +163,61 @@ export class Util {
 
 	static create_rider_criteria () : any{
 
-			return   {
-			  departure_time	: ''
-			, distance		  : C.ERROR_NO_ROUTE
-			, seats		 : 1
-			, price		 : C.MAX_PRICE_RIDER
-			, p1:   { loc	   : ''
-				, lat	   : null
-				, lon	   : null
-				, display_name  : null
+			return	{
+			  version				: 1
+			, departure_time		: ''
+			, distance				: C.ERROR_NO_ROUTE
+			, seats		 			: 1
+			, price		 			: C.MAX_PRICE_RIDER
+			, p1:	{ loc			: ''
+					, lat			: null
+					, lon			: null
+					, display_name	: null
 				}
-			, p2:   { loc	   : ''
-				, lat	   : null
-				, lon	   : null
-				, display_name  : null
+			, p2:	{ loc			: ''
+					, lat			: null
+					, lon			: null
+					, display_name	: null
 				}
-			, date1		 : C.TODAY()
-			, date2		 : C.TODAY()
+			, date1		 			: C.TODAY()
+			, date2		 			: C.TODAY()
+			}
+	}
+
+	static create_empty_trip () : any{
+
+			return	{
+			  version 				: 1
+			, departure_time		: ''
+			, distance				: C.ERROR_NO_ROUTE
+			, seats		 			: 1
+			, price		 			: C.MAX_PRICE
+			, p1	:{ 	loc			: ''
+					, 	lat			: null
+					, 	lon			: null
+					, 	display_name: null
+				}
+			, p2:	{ 	loc			: ''
+					, 	lat			: null
+					, 	lon			: null
+					, 	display_name: null
+				}
+			, date1		 			: C.TODAY()
+			, date2		 			: C.TODAY()
+			, recur_ind				: false
+			, day0_ind				: false
+			, day1_ind				: false
+			, day2_ind				: false
+			, day3_ind				: false
+			, day4_ind				: false
+			, day5_ind				: false
+			, day6_ind				: false
+			, description			: ''
 			}
 	}
 
 	static onError(error) {
-  		console.log(`Error: ${error}`);
+			console.log(`Error: ${error}`);
 	}
 
 	static reset_zoom() {
@@ -213,7 +246,7 @@ export class Util {
 		if ( browser) {
 			var setting = browser.tabs.setZoom(1.0);
 		//	setting.then(null, Util.onError);
-  		//	console.log(zoom);
+			//	console.log(zoom);
 		}
 	}
 
@@ -264,7 +297,7 @@ export class Util {
 
 /*
 export class CookieService {
-  	constructor() { } ;
+		constructor() { } ;
 	
 	static setCookie (cname, cvalue, exhours) {
 			let d = new Date();
@@ -302,7 +335,7 @@ export class CryptoService {
 	private static key = forge.pkcs5.pbkdf2('password', CryptoService.salt, CryptoService.numIterations, 16);
 	private static iv = forge.util.hexToBytes(CryptoService.salt_hex);
 
-	constructor(  ) {
+	constructor(	) {
 	}
 
 
@@ -318,7 +351,7 @@ export class CryptoService {
 	// (other modes include: ECB, CFB, OFB, CTR, and GCM)
 	// Note: CBC and ECB modes use PKCS#7 padding as default
 
-	static encrypt  (content : string) : string {
+	static encrypt	(content : string) : string {
 		let cipher = forge.cipher.createCipher('AES-CBC', CryptoService.key);
 		cipher.start({iv: CryptoService.iv});
 		cipher.update(forge.util.createBuffer(content));
@@ -351,20 +384,20 @@ export class CryptoService {
 		if (!uint8arr) {
 			return '';
 		}
-	  	
+			
 		var hexStr = '';
 		for (var i = 0; i < uint8arr.length; i++) {
 			var hex = (uint8arr[i] & 0xff).toString(16);
 			hex = (hex.length === 1) ? '0' + hex : hex;
 			hexStr += hex;
 		}
-	  	
+			
 		return hexStr.toUpperCase();
 	}
 	
 	private hexStringToByte (str: String): Uint8Array {
 		if (!str) {
-			  	return new Uint8Array();
+			return new Uint8Array();
 		}
 		var a = [];
 		for (var i = 0, len = str.length; i < len; i+=2) {

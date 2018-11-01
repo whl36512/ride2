@@ -24,14 +24,13 @@ import {CommunicationService} from "../../models/communication.service"
 })
 export class MapControllerComponent extends Ridebase implements OnInit  {
 
-	rider_criteria : any = null;
 	constructor(public communicationService	: CommunicationService
 			    , private dbService             : DBService
 			)
 	{ 
 		super(communicationService);
-        this.rider_criteria = StorageService.getForm(C.KEY_FORM_SEARCH) ;
-		if (! this.rider_criteria || this.rider_criteria.distance== C.ERROR_NO_ROUTE ) 
+        let rider_criteria = StorageService.getForm(C.KEY_FORM_SEARCH) ;
+		if (! rider_criteria || rider_criteria.distance== C.ERROR_NO_ROUTE ) 
 			this.error_msg
 				='Search criteria is not available.<br/> Please use Search Setting to set it up';
 		else {
@@ -44,8 +43,8 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 
 
 			//move map viewport to contain rider_criteria
-			let rc_pair = Util.deep_copy(this.rider_criteria);
-			let viewport= MapService.map_viewport_with_margin(rc_pair, C.MAP_VIEWPORT_MARGIN);
+			//let rc_pair = Util.deep_copy(rider_criteria);
+			let viewport= MapService.map_viewport_with_margin(rider_criteria, C.MAP_VIEWPORT_MARGIN);
             this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, viewport);
 
 			//this.search(null, this);
@@ -91,8 +90,9 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 			} ;
 
 
+        let rider_criteria = StorageService.getForm(C.KEY_FORM_SEARCH) ;
 		// region p1,p2 overwrite rider_criteria.p1,p2
-		let search_criteria_combined = {...this_var.rider_criteria, ... region_search_criteria};
+		let search_criteria_combined = {...rider_criteria, ... region_search_criteria};
 		
 		console.debug ('201810270146 MapControllerComponent.search() search_criteria_combined=\n'
 					, search_criteria_combined);
@@ -106,11 +106,11 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 						, C.stringify(journeys_from_db));
 				// save both search result and rider criteria at the same time
 				this_var.Status.search_result= journeys_from_db;
-				this_var.Status.rider_criteria= this_var.rider_criteria;
+				this_var.Status.rider_criteria= rider_criteria;
 				if(journeys_from_db.length == 0 ) this_var.warning_msg = 'Nothing found in the map region';
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS , journeys_from_db);
-				let pair = Util.deep_copy(this_var.rider_criteria);
+				let pair = Util.deep_copy(rider_criteria);
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR , pair);
 			},
 			error => {

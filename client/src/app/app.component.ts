@@ -4,7 +4,7 @@ import { Subscription }   from 'rxjs';
 
 import {CommunicationService} 	from "./models/communication.service" ;
 import {C} 			from "./models/constants" ;
-import {Ridebase} 		from "./models/ridebase" ;
+//import {Ridebase} 		from "./models/ridebase" ;
 import {Util} 			from "./models/gui.service" ;
 
 
@@ -13,7 +13,8 @@ import {Util} 			from "./models/gui.service" ;
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent extends Ridebase {
+//export class AppComponent extends Ridebase {
+export class AppComponent  {
   	title = 'ride2';
 	pages: any ={}	;
 
@@ -21,10 +22,10 @@ export class AppComponent extends Ridebase {
 		public communicationService: CommunicationService
 	)
 	{
-		super(communicationService);
+		//super(communicationService);
   		this.setFalse();
     		this.pages.nav		= true ;
-		this.list_global_objects();
+		//this.list_global_objects();
 	}
 
 	setFalse () {

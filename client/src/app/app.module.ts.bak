@@ -8,8 +8,6 @@ import { FormsModule }          from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ChangeDetectorRef }    from '@angular/core';
-
 
 //import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 //import {NoopAnimationsModule} from '@angular/platform-browser/animations';
@@ -29,7 +27,6 @@ import { Map2Component } 	from './views/map2/map2.component';
 
 //appplication services
 import { LinkedinService } 	from './models/linkedin.service';
-import { StorageService }       from './models/gui.service';
 import { MapService } 		from './models/map.service';
 import { GeoService } 		from './models/remote.service';
 import { DBService } 		from './models/remote.service';
@@ -48,9 +45,16 @@ import { WithdrawComponent } from './views/withdraw/withdraw.component';
 import { ThistComponent } from './views/thist/thist.component';
 import { ThistlistComponent } from './views/thistlist/thistlist.component';
 import { MapControllerComponent } from './views/map-controller/map-controller.component';
-import { SearchSettingComponent } from './views/search-setting/search-setting.component';
-//import { BaseComponent } from './views/base/base.component' ;
+import { SearchSettingComponent } from './views/search-setting/search-setting.component' ;
 
+//export class AppModule { }  // this is the original generated code
+// this ia trick to get injected services without specifying them in  the compoments contructor()
+export let appInjector: Injector;  // export it so other classes can import and use it.
+export class AppModule {
+	constructor(private injector: Injector) {
+		appInjector = this.injector;
+  	}
+}
 
 const appRoutes: Routes = [
 /*
@@ -164,7 +168,6 @@ const appRoutes: Routes = [
     ThistlistComponent,
     MapControllerComponent,
     SearchSettingComponent,
-    //BaseComponent,
   ],
   imports: [
 	RouterModule.forRoot(
@@ -183,17 +186,13 @@ const appRoutes: Routes = [
 	//        LeafletModule.forRoot(),
   ],
   providers: [
-	//ChangeDetectorRef	,  // causing compiler error. Research turned up no solution
-    StorageService,
     MapService,
     GeoService,
     DBService,
     HttpService,
     CommunicationService,
-
   ],
 
   bootstrap: [AppComponent]
 })
 
-export class AppModule { }  // this is the original generated code

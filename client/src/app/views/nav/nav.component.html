@@ -45,7 +45,7 @@
 		<a routerLink='/Trip' 		
 			routerLinkActive='active' 	
 			*ngIf="is_signed_in" 
-			(click)="nav_menu_off()">
+			(click)="nav_menu_off();map_search_stop()">
 			<li>
 				Post a Trip		
 			</li>			
@@ -53,7 +53,7 @@
 		<a routerLink='/Activity'	
 			routerLinkActive='active' 	
 			*ngIf="is_signed_in"	 
-			(click)="nav_menu_off()">
+			(click)="nav_menu_off(); map_search_stop()">
 			<li>
 				My Activities	
 			</li>			
@@ -61,7 +61,7 @@
 		<a routerLink='/Thist' 		
 			routerLinkActive='active'	
 			*ngIf="is_signed_in" 
-			(click)="nav_menu_off()">
+			(click)="nav_menu_off(); map_search_stop()">
 			<li>
 				Transaction History
 			</li>			
@@ -69,21 +69,21 @@
 		<a routerLink='/Profile'	
 			routerLinkActive='active'	
 			*ngIf="is_signed_in" 
-			(click)="nav_menu_off()">
+			(click)="nav_menu_off(); map_search_stop()">
 			<li>
 				My Profile
 			</li>			
 		</a>
 		<a routerLink='/Deposit' 	
 			routerLinkActive='active '		 
-			(click)="nav_menu_off()">
+			(click)="nav_menu_off(); map_search_stop()">
 			<li>
 				Deposit
 			</li>			
 		</a>
 		<a routerLink='/Withdraw' 	
 			routerLinkActive='active '		 
-			(click)="nav_menu_off()">
+			(click)="nav_menu_off(); map_search_stop()">
 			<li>
 				Withdraw	
 			</li>			
