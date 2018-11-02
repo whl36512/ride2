@@ -1,4 +1,8 @@
 <div *ngIf="false"> https://material.angular.io/components/menu/overview </div>
+<div class=hide-unhide>
+	<button (click)='show_body=C.BODY_NOSHOW' > {{C.ICON_ARROW_UP}}  </button>
+	<button (click)='show_body=C.BODY_SHOW'   > {{C.ICON_ARROW_DOWN}}</button>
+</div>
 
 <div class="center f12" >Offer a Trip (I am a drive) </div>
 <div class={{show_body}} >

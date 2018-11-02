@@ -6,6 +6,28 @@ create schema funcs ;
 grant all on schema funcs to ride;
 --grant all on all functions in schema funcs to ride;
 
+create type funcs.criteria as
+(
+        date1           date
+    ,   date2           date
+    ,   p1              location
+    ,   p2              location
+    ,   rp1             location        -- rider pickup location
+    ,   rp2             location        -- rider dropoff location
+    ,   distance        decimal(8,2)
+    ,   departure_time  time
+    ,   usr_id          uuid
+    ,   driver_id       uuid
+    ,   rider_id        uuid
+    ,   trip_id         uuid
+    ,   journey_id      uuid
+    ,   book_id         uuid
+    ,   oauth_id        text
+    ,   price           ridemoney
+    ,   seats           integer
+);
+
+
 create or replace function funcs.test1( )
   returns book
 as
@@ -704,7 +726,7 @@ $body$
 			, coalesce(t.distance      , 
 				greatest(abs((t.p2).lat - (t.p1).lat)
 					, abs((t.p2).lon- (t.p1).lon))*60/4 ) min_distance
-		FROM funcs.json_populate_record(NULL::criteria , in_criteria) t 
+		FROM funcs.json_populate_record(NULL::funcs.criteria , in_criteria) t 
 	)
 	, a as (
 		select t.start_display_name, t.end_display_name 
@@ -886,7 +908,7 @@ $body$
 		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user) 
 	)
 	, c0 as ( 
-		SELECT * FROM funcs.json_populate_record(NULL::criteria , in_criteria)
+		SELECT * FROM funcs.json_populate_record(NULL::funcs.criteria , in_criteria)
 	)
 	, s1 as (select  
 			coalesce(t.actual_ts, t.request_ts) date
@@ -897,11 +919,11 @@ $body$
 		join  c0 on (1=1)  
 		left outer join money_trnx_trnx_cd cd on (  cd.cd = t.trnx_cd)
 		where (
-			t.actual_ts between coalesce(c0.start_date, '1970-01-01') 
-			and coalesce(c0.end_date, '3000-01-01')
+			t.actual_ts between coalesce(c0.date1, '1970-01-01') 
+			and coalesce(c0.date2, '3000-01-01')
 			or 
-			t.request_ts between coalesce(c0.start_date, '1970-01-01') 
-			and coalesce(c0.end_date, '3000-01-01')
+			t.request_ts between coalesce(c0.date1, '1970-01-01') 
+			and coalesce(c0.date2, '3000-01-01')
 		)
 	)
 	select row_to_json (s1)  from s1
@@ -986,14 +1008,14 @@ $body$
 language plpgsql;
 
 
-create or replace function funcs.activity(in_trip text, in_user text)
+create or replace function funcs.activity(in_criteria text, in_user text)
   returns setof json
 as
 $body$
 -- in_trip has start_date and end_date
 -- if input json string has fields with "" value, change their value to null in order to avoid error when converting empty string to date
-	with trip0 as (
-		SELECT * FROM funcs.json_populate_record(NULL::trip , in_trip)
+	with c0 as (
+		SELECT * FROM funcs.json_populate_record(NULL::funcs.criteria , in_criteria)
 	)
 	, user0  as ( 
 		SELECT * FROM funcs.json_populate_record(NULL::usr , in_user)
@@ -1001,33 +1023,33 @@ $body$
 	, ids as (
 		select  t.trip_id, j.journey_id, b.book_id, t.driver_id, b.rider_id, u0.usr_id
 		from user0 	u0
-		join trip0 	t0 	on (1=1)
+		join c0	 	on (1=1)
 		join trip 	t 	on ( t.driver_id=u0.usr_id )
 		join journey 	j	on (t.trip_id=j.trip_id
-			and  j.journey_date between coalesce(t0.start_date	, '1970-01-01') 
-						and coalesce(t0.end_date	, '3000-01-01')
+			and  j.journey_date between coalesce(c0.date1	, '1970-01-01') 
+						and coalesce(c0.date2	, '3000-01-01')
 			)
 		join book 	b	on (b.journey_id=j.journey_id )
 		-- join book_status s on (s.status_cd= b.status_cd)
 		union
 		select  t.trip_id, j.journey_id, b.book_id, t.driver_id, b.rider_id, u0.usr_id
 		from user0 	u0
-		join trip0 	t0 	on (1=1)
+		join c0 	on (1=1)
 		join book 	b 	on ( b.rider_id= u0.usr_id)
 		join journey 	j 	on ( j.journey_id = b.journey_id
-			and  j.journey_date between coalesce(t0.start_date	, '1970-01-01') 
-						and coalesce(t0.end_date	, '3000-01-01')
+			and  j.journey_date between coalesce(c0.date1	, '1970-01-01') 
+						and coalesce(c0.date2	, '3000-01-01')
 			)
 		join trip 	t 	on ( t.trip_id = j.trip_id)
 		union 
 		-- get bookable journeys to allow its driver to change seats and price
 		select  t.trip_id, j.journey_id, null book_id, t.driver_id, null rider_id, u0.usr_id
 		from user0	u0
-		join trip0	t0 	on ( 1=1)
+		join c0	 	on ( 1=1)
 		join trip 	t 	on ( t.driver_id=u0.usr_id )
 		join journey	j	on (t.trip_id=j.trip_id
-			and  j.journey_date between coalesce(t0.start_date	, '1970-01-01') 
-						and coalesce(t0.end_date	, '3000-01-01')
+			and  j.journey_date between coalesce(c0.date1	, '1970-01-01') 
+						and coalesce(c0.date2	, '3000-01-01')
 			and j.status_code = 'A'
 			)
 	)

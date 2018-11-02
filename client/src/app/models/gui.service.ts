@@ -250,47 +250,89 @@ export class Util {
 		}
 	}
 
-	static convert_pair_to_trip(pair): any|null {
+	static convert_pair_to_trip(pair): any| null {
 		if(!pair) return null;
 		let p1=pair.p1;
 		let p2=pair.p2;
-		let trip: any={};
 			
 		if(p1) {
-			trip.start_loc=p1.loc
-			trip.start_lat=p1.lat
-			trip.start_lon=p1.lon
-			trip.start_display_name=p1.display_name ;
+			pair.start_loc			=p1.loc
+			pair.start_lat			=p1.lat
+			pair.start_lon			=p1.lon
+			pair.start_display_name	=p1.display_name ;
 		}
 		if(p2) {
-			trip.end_loc=p2.loc
-			trip.end_lat=p2.lat
-			trip.end_lon=p2.lon
-			trip.end_display_name=p2.display_name ;
+			pair.end_loc			=p2.loc
+			pair.end_lat			=p2.lat
+			pair.end_lon			=p2.lon
+			pair.end_display_name	=p2.display_name ;
 		}
-		return trip;
+		if(pair.date1)	pair.start_date	=pair.date1;
+		if(pair.date2)	pair.end_date	=pair.date2;
+		return pair;
 	}
 
-	static convert_pair_to_book(pair): any {
+	static convert_pair_to_book(pair): any| null {
 		if(!pair) return null;
 		let p1=pair.p1;
 		let p2=pair.p2;
-		let book: any={};
 			
 		if(p1) {
-			book.pickup_loc=p1.loc
-			book.pickup_lat=p1.lat
-			book.pickup_lon=p1.lon
-			book.pickup_display_name=p1.display_name ;
+			pair.pickup_loc=p1.loc
+			pair.pickup_lat=p1.lat
+			pair.pickup_lon=p1.lon
+			pair.pickup_display_name=p1.display_name ;
 		}
 		if(p2) {
-			book.dropoff_loc=p2.loc
-			book.dropoff_lat=p2.lat
-			book.dropoff_lon=p2.lon
-			book.dropoff_display_name=p2.display_name ;
+			pair.dropoff_loc=p2.loc
+			pair.dropoff_lat=p2.lat
+			pair.dropoff_lon=p2.lon
+			pair.dropoff_display_name=p2.display_name ;
 		}
-		return book;
+		return pair;
 	}
+
+    static convert_book_to_pairs(book: any): any|null {
+        if(!book) return null;
+        book.p1 ={
+                  loc      : book.start_loc
+                , lat      : book.start_lat
+                , lon      : book.start_lon
+                , display_name  : book.start_display_name
+                //, marker_text   : book.pickup_marker_text
+                //, icon_type     : book.pickup_icon_type
+                //, color    : book.pickup_color
+            };
+        book.p2 ={
+                  loc      : book.end_loc
+                , lat      : book.end_lat
+                , lon      : book.end_lon
+                , display_name  : book.end_display_name
+                //, marker_text   : book.dropoff_marker_text
+                //, icon_type     : book.dropoff_icon_type
+                //, color    : book.dropoff_color
+            };
+        book.rp1 ={
+                  loc      : book.pickup_loc
+                , lat      : book.pickup_lat
+                , lon      : book.pickup_lon
+                , display_name  : book.pickup_display_name
+                //, marker_text   : book.pickup_marker_text
+                //, icon_type     : book.pickup_icon_type
+                //, color    : book.pickup_color
+            };
+        book.rp2 ={
+                  loc      : book.dropoff_loc
+                , lat      : book.dropoff_lat
+                , lon      : book.dropoff_lon
+                , display_name  : book.dropoff_display_name
+                //, marker_text   : book.dropoff_marker_text
+                //, icon_type     : book.dropoff_icon_type
+                //, color    : book.dropoff_color
+            };
+        return book;
+    }
+
 
 
 }

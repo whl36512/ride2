@@ -59,22 +59,21 @@ export class TripComponent extends BaseComponent {
   		//, private zone			: NgZone
 	){ 
 		super()
-  		console.log("TripComponent.constructor() enter")  ;
+  		console.log("201811011724", this.class_name, '.constructor() enter')  ;
 		this.page_name= C.PAGE_TRIP;
-  		console.debug("201809081034 TripComponent.constructor() exit")  ;
+  		console.log("201811011725", this.class_name, '.constructor() exit')  ;
   	} 
 
 	ngOnInit() {
 		console.debug("201810291814", this.class_name, '.ngOnInit() enter');
-		let today = C.TODAY();
 		let trip = StorageService.getForm(C.KEY_FORM_TRIP);
 		if ( !trip ) {
 			trip = this.Util.create_empty_trip();
 		}
-		console.debug("201810291814 SearchSettingComponent.ngOnInit() trip=",
+		console.debug("201810291814", this.class_name, ".ngOnInit() trip=",
 			C.stringify(trip));
 	
-		trip.date1 =  today > trip.date1 ? today: trip.date1 ;
+		trip.date1 =  this.today > trip.date1 ? this.today: trip.date1 ;
 	
 		trip.date2 = trip.date1 > trip.date2 ? trip.date1: trip.date2 ;
 	
@@ -101,7 +100,7 @@ export class TripComponent extends BaseComponent {
 				seats				: [trip.seats, [Validators.required]], 
 				price				: [trip.price, [Validators.required]], 
 				recur_ind			: [trip.recur_ind, []], 
-				date2				: [trip.date1,[Validators.min] ], 
+				date2				: [trip.date2,[Validators.min] ], 
 				day0_ind			: [trip.day0_ind, ], 
 				day1_ind			: [trip.day1_ind, ], 
 				day2_ind			: [trip.day2_ind, ], 
@@ -116,16 +115,17 @@ export class TripComponent extends BaseComponent {
 			}
 		);
 	
-		this.subscription1 = this.form.valueChanges.subscribe(data=> console.log('Form value changes', data),);
-		this.subscription2 = this.form.statusChanges.subscribe(data=> console.log('Form status changes', data),);
-
+		this.subscription1 
+			= this.form.valueChanges.subscribe(data=> console.log('Form value changes', data),);
+		this.subscription2 
+			= this.form.statusChanges.subscribe(data=> console.log('Form status changes', data),);
 		this.show_map();
 		console.debug("201810291814", this.class_name, '.ngOnInit() exit');
   	}
 
 	onSubmit() {
 		this.reset_msg() ;
-			console.warn("201808201534 TripComponent.onSubmit() this.form.value=" 
+			console.warn("201808201534", this.class_name, ".onSubmit() this.form.value=" 
 			, C.stringify(this.form.value) );
 		// save trip to db
 		// combining data
@@ -134,16 +134,20 @@ export class TripComponent extends BaseComponent {
 		this.trip.p2.loc = this.form.value.p2_loc;
 		delete this.trip.p1_loc;
 		delete this.trip.p2_loc;
-
 		StorageService.storeForm(C.KEY_FORM_TRIP, this.trip);
-		let trip_from_db_observable	 = this.dbService.call_db(C.UPD_TRIP_URL, this.trip);
+
+		let trip_to_db = Util.deep_copy( this.trip);
+		// convert p1,p2, date1, date2 to column names in db 
+		Util.convert_pair_to_trip(trip_to_db);
+
+		let trip_from_db_observable	 = this.dbService.call_db(C.UPD_TRIP_URL, trip_to_db);
 		trip_from_db_observable.subscribe(
 				trip_from_db => {
 				console.info("201808201201 TripComponent.constructor() trip_from_db =" 
 					, C.stringify(trip_from_db));
 				this.form_saved_to_db=true;
 				this.info_msg
-				='The trip is published. Other users can start to book the trip.';
+					='The trip is published. Other users can start to book the trip.';
 				this.changeDetectorRef.detectChanges() ;
 			},
 			error => {
@@ -162,109 +166,6 @@ export class TripComponent extends BaseComponent {
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
 	};
 
-/*
-	geocode(element_id: string) {
-		var lat: number 	| null;
-		var lon: number 	| null;
-		var display_name: string| null ;
-		console.info("201808212149 TripComponent.geocode() element_id =" + element_id);
-		//console.info("201808212149 TripComponent.geocode()  this.geoService =" +  this.geoService);
-		//console.info("201808212149 TripComponent.geocode()  this.dbService =" +  this.dbService);
-
-		
-		this.trip.distance=C.ERROR_NO_ROUTE ;
-		if (element_id == "start_loc" ) {
-			this.trip.start_lat=lat;
-			this.trip.start_lon=lon;
-			this.trip.start_display_name=display_name;
-		} else {
-			this.trip.end_lat=lat;
-			this.trip.end_lon=lon;
-			this.trip.end_display_name=display_name;
-		}
-
-
-
-		let loc = element_id =="start_loc"?this.form.value.start_loc:this.form.value.end_loc ;
-
-		if (loc.length >= 3)  // must type at least 3 letters before geocoding starts
-		{	
-			let loc_response = this.geoService.geocode(loc) ;
-			loc_response.subscribe(
-				body => 	{
-					console.info("201808212149 TripComponent.geocode()  body =\n" 
-						,  C.stringify(body));
-					if (body[0]) {
-						lat=body[0].lat ;
-						lon=body[0].lon ;
-						display_name=body[0].display_name ;
-						console.info("201808212149 TripComponent.geocode()  lat=" +  lat);
-						console.info("201808212149 TripComponent.geocode()  lon=" +  lon);
-						console.info("201808212149 TripComponent.geocode()  display_name=" +  display_name);
-					}
-					else
-					{
-						lat=null;
-						lon=null;
-						display_name= null;
-					}
-					if (element_id == "start_loc" ) {
-						this.trip.start_lat=lat;
-						this.trip.start_lon=lon;
-						this.trip.start_display_name=display_name;
-						console.info("201808212149 TripComponent.geocode()  this.trip.start_lat=" +  this.trip.start_lat);
-						console.info("201808212149 TripComponent.geocode()  this.trip.start_lon=" +  this.trip.start_lon);
-						console.info("201808212149 TripComponent.geocode()  this.trip.start_display_name=" +  this.trip.start_display_name);
-					} else {
-						this.trip.end_lat=lat;
-						this.trip.end_lon=lon;
-						this.trip.end_display_name=display_name;
-						console.info("201808212149 TripComponent.geocode()  this.trip.end_lat=" +  this.trip.end_lat);
-						console.info("201808212149 TripComponent.geocode()  this.trip.end_lon=" +  this.trip.end_lon);
-						console.info("201808212149 TripComponent.geocode()  this.trip.end_display_name=" +  this.trip.end_display_name);
-					}
-					this.routing();
-					let pair = C.convert_trip_to_pair(this.trip);
-					this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
-					this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
-					this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
-					this.changeDetectorRef.detectChanges() ;
-				}
-			);
-		}
-		this.changeDetectorRef.detectChanges() ;
-	}
-
-	routing() 
-	{
-		if ( this.trip.start_display_name && this.trip.end_display_name)
-		{
-			//both start and end are geocoded. So we can calc routes
-			let route_response = this.geoService.routing(
-				  this.trip.start_lat
-				, this.trip.start_lon
-				, this.trip.end_lat
-				, this.trip.end_lon
-			);
-			route_response.subscribe(
-				body => {
-					console.debug("201808201201 TripComponent.routing() body =" 
-						, C.stringify(body));
-					if(body.routes.length>0) 
-						this.trip.distance =Math.round(body.routes[0].distance/160)/10 ;
-					else 
-						this.trip.distance=C.ERROR_NO_ROUTE;
-					this.changeDetectorRef.detectChanges() ;
-				},
-				error => {
-					this.trip.distance=C.ERROR_NO_ROUTE;
-					this.changeDetectorRef.detectChanges() ;
-				}
-			);
-		} else this.trip.distance=C.ERROR_NO_ROUTE;
-		this.changeDetectorRef.detectChanges() ;
-	}
-*/
 
 	validate_trip(fg: FormGroup): ValidationErrors | null {
 		console.debug('DEBUG 2018009080943 TripComponent.validate_trip() fg.value=\n' ) ; 
@@ -309,10 +210,6 @@ export class TripComponent extends BaseComponent {
 		let next_n_day= new Date(next_n_day_since_epoch).toJSON().slice(0,10)	
 		console.log("2018009081220 next_day =" + next_n_day);
 		return next_n_day;
-	}
-
-	subscription_action ( msg: any): void{
-		console.debug("201810212010 TripComponent.subscriptio_action(). ignore msg");
 	}
 
 /*

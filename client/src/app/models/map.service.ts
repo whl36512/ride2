@@ -3,7 +3,9 @@ import { Injectable } from "@angular/core";
 //import { Location } from "./location";
 import * as L from "leaflet";
 
-import { C } from "./constants";
+import { C } 				from "./constants";
+import { Util     }			from './gui.service';
+
 
 @Injectable()
 export class MapService {
@@ -150,7 +152,7 @@ export class MapService {
 
 
 		let popup = `<div>${p.lat},${p.lon}</div><div>${p.display_name}<div>`
-				+ p.popup
+				+ (p.popup?p.popup:'') ;
 		// if mark location has alread a marker, move a bit
 		p.lat_offset = p.lat ;
 		p.lon_offset = p.lon ;
@@ -170,45 +172,47 @@ export class MapService {
 		if (!book) return;
 		let i= index;
 		let google_map_string = MapService.google_map_string(book);
-		let pair = C.convert_trip_to_pair(book);
-		let popup = `<div>${book.journey_date} ${book.departure_time} ${google_map_string}</div>`
-		if(pair) {
-			pair.p1.icon_type= DotIcon ;
-			pair.p2.icon_type= DotIcon ;
-			pair.p1.marker_text= 'D'+ (i+1);
-			pair.p2.marker_text= 'D'+ (i+1);
-			pair.p1.popup= popup  ;
-			pair.p2.popup= popup  ;
-			this.mark_pair(pair);
-			if ( is_highlight) {
-				pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
-				pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
-			} else {
-				pair.line_color=null;
-				pair.line_weight=null;
-			}
-			this.draw_line(pair);
-		}
 
-		pair = C.convert_book_to_pair(book);
-		if(pair) {
-			pair.p1.icon_type= DotIcon ;
-			pair.p2.icon_type= DotIcon ;
-			pair.p1.marker_text= 'P'+ (i+1);
-			pair.p2.marker_text= 'P'+ (i+1);
-			pair.p1.popup= popup  ;
-			pair.p2.popup= popup  ;
-			this.mark_pair(pair);
-			if ( is_highlight) {
-				pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
-				pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
-			}
-			else {
-				pair.line_color=null;
-				pair.line_weight=null;
-			}
-			this.draw_line(pair);
+		Util.convert_book_to_pairs(book);
+		let popup = `<div>${book.journey_date} ${book.departure_time} ${google_map_string}</div>`
+
+		let pair: any = {};
+		pair.p1	= 	book.p1	;
+		pair.p2 =	book.p2	;
+		pair.p1.icon_type= DotIcon ;
+		pair.p2.icon_type= DotIcon ;
+		pair.p1.marker_text= 'D'+ (i+1);
+		pair.p2.marker_text= 'D'+ (i+1);
+		pair.p1.popup= popup  ;
+		pair.p2.popup= popup  ;
+		this.mark_pair(pair);
+		if ( is_highlight) {
+			pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
+			pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
+		} else {
+			pair.line_color=null;
+			pair.line_weight=null;
 		}
+		this.draw_line(pair);
+
+		pair.p1	= 	book.rp1	;
+		pair.p2 =	book.rp2	;
+		pair.p1.icon_type= PinIcon ;
+		pair.p2.icon_type= PinIcon ;
+		pair.p1.marker_text= 'P'+ (i+1);
+		pair.p2.marker_text= 'P'+ (i+1);
+		pair.p1.popup= popup  ;
+		pair.p2.popup= popup  ;
+		this.mark_pair(pair);
+		if ( is_highlight) {
+			pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
+			pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
+		}
+		else {
+			pair.line_color=null;
+			pair.line_weight=null;
+		}
+		this.draw_line(pair);
 	}
 
 	mark_books (books, highlight_index: number)
@@ -358,16 +362,14 @@ export class MapService {
 	}
 
 	static google_map_string(book): string | null {
-		let dpair = C.convert_trip_to_pair(book);
-		let rpair = C.convert_book_to_pair(book);
-		if (rpair && dpair) 
-			return MapService.google_map_string_from_points([dpair.p1, rpair.p1, rpair.p2, dpair.p2]);
-		else if (  dpair)
-			return MapService.google_map_string_from_points([dpair.p1, dpair.p2]);
-		else if ( rpair)
-			return MapService.google_map_string_from_points([rpair.p1, rpair.p2]);
-		return null
-
+		if (!book) return null ;
+		Util.convert_book_to_pairs(book);
+		let p1 = book.p1 ;
+		let p2 = book.rp1 ;
+		let p3 = book.rp2 ;
+		let p4 = book.p2 ;
+		
+		return MapService.google_map_string_from_points([p1, p2, p3, p4]);
 	}
 
 	static google_map_string_from_points(points): string | null {
@@ -427,8 +429,8 @@ export class MapService {
         if ( ! p.lon ) return null;
         if ( ! Number(p.lat) ) return null;
         if ( ! Number(p.lon) ) return null;
-		p.lat= Number(p.lat);
-		p.lon= Number(p.lon);
+		//p.lat= Number(p.lat);
+		//p.lon= Number(p.lon);
 		return point;
 	}
 

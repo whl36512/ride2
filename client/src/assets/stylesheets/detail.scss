@@ -1,4 +1,4 @@
-.main {
+#main {
         /* use absolute so the main page can scroll */
         position: absolute;
         height: auto;
@@ -13,6 +13,9 @@
         border-radius: 4px 4px 4px 4px;
         padding: 0rem;
         margin: 0.0rem, 0rem;
+		&.map-controller {
+        	background-color: rgba(0,0,0,0);
+		}
 }
 
 .signinout {
@@ -148,9 +151,9 @@ button.close-button {
   	border-radius: 0.3rem;
 }
 .hide-unhide {
-        /* use absolute to position child relative to its parent. 
-	parent must have absolue of fixed position */
-        position: absolute;
+        //use absolute to position child relative to its parent. 
+		//parent must have absolue of fixed position */
+        position: fixed;
         width: auto;
         top: 0.2rem ;
         left: 0.2rem;
@@ -187,7 +190,7 @@ button[disabled] {
     opacity: 0;
   }
 
-  10% {
+  5% {
     opacity: 1;
   }
 
@@ -254,7 +257,3 @@ user-select: none;
     transform: scale(1.5); 
 }
 
-#map-controller{
-	margin:0rem;
-	padding :0rem;
-}

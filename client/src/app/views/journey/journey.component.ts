@@ -42,123 +42,89 @@ import { BaseComponent      } from '../base/base.component' ;
 
 //export class JourneyComponent extends Ridebase implements OnInit{
 export class JourneyComponent extends BaseComponent {
-	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
-	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 
-	// By initialize trip to an empty structure, repeated calling of constructor can be avoided
 
-	@Input()
-    	journeys_from_db: any ;
-	@Input()
-	search_criteria: any;
-
+    journeys_from_db: any ;
 
 	rider_criteria :any= null
 
-
-
-
-	journey_forms: any =[];
-
 	constructor(
-		  //private dbService		: DBService
-		//, private form_builder		: FormBuilder
 		 public changeDetectorRef	: ChangeDetectorRef
-		//, public communicationService	: CommunicationService
 	////	, private zone: NgZone
 	){ 
-		//super(communicationService);
 		super();
-  		console.debug("201809262245 JourneyComponent.constructor() enter")  ;
-		this.is_signed_in= UserService.is_signed_in();
+  		console.debug("201809262245", this.class_name, ".constructor() enter")  ;
 
-		this.journeys_from_db = JSON.parse(C.stringify(this.Status.search_result)); // make a deep copy
-  		console.debug("201809262245 JourneyComponent.constructor() this.Status.search_result=\n"
-				, C.stringify(this.Status.search_result))  ;
+		this.journeys_from_db = this.Util.deep_copy(this.Status.search_result);
+
   		console.debug("201809262245 JourneyComponent.constructor() this.journeys_from_db=\n"
 				, C.stringify(this.journeys_from_db))  ;
-		this.search_criteria = this.Status.search_criteria
-		this.rider_criteria = this.Status.rider_criteria
-							? this.Status.rider_criteria
-							:this.Util.create_rider_criteria() ;
+		this.rider_criteria = this.Status.rider_criteria;
 
-  		console.debug("201809262245 JourneyComponent.constructor() exit")  ;
+  		console.debug("201809262245", this.class_name, ".constructor() exit")  ;
   	} 
 
 	ngOnInit() {
-		console.debug("201809262246 JourneyComponent.ngOnInit() enter");
-		//this.subscription1 = this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
-		//this.subscription2 = this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
-        this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+  		console.debug("201809262246", this.class_name, ".ngOnInit() enter")  ;
+		//this.subscription1 
+			//= this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
+		//this.subscription2 
+			//= this.form.statusChanges.subscribe(data => console.log('Form status changes', data));
+
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+
 		if (this.journeys_from_db.length==0) this.warning_msg='Nothing found'
 		else this.info_msg='Found ' + this.journeys_from_db.length; 
+
 		for ( let index in this.journeys_from_db) {
-			this.journeys_from_db[index].show_fail_msg=false;
-			this.journeys_from_db[index].show_book_msg=false;
-			this.journeys_from_db[index].show_balance_msg
-				=!this.journeys_from_db[index].sufficient_balance;
-			//if search_criteria == null, search_all() was called and trips are not bookable
-			this.journeys_from_db[index].show_book_button
-				=this.journeys_from_db[index].sufficient_balance&&this.search_criteria;
+			let j = this.journeys_from_db[index];
 
-			let driver_pair=C.convert_trip_to_pair(this.journeys_from_db[index]);
+			if ( ! this.is_signed_in) j.status_msg = 'Please sign in';
+			else if ( ! j.sufficient_balance ) j.status_msg = 'Insufficient<br/>balance';
+			else j.status_msg=null ;
 
 
-			this.journeys_from_db[index].google_map_url
+			j.show_book_button
+				= 	this.is_signed_in 
+					&& j.sufficient_balance
+					&& Number(this.rider_criteria.distance);
+
+			this.Util.convert_book_to_pairs(j);
+
+
+			j.google_map_url
 				= MapService.google_map_string_from_points([
-									, driver_pair.p1
-									, this.rider_criteria.p1
-									, this.rider_criteria.p2
-									, driver_pair.p2
+									 j.p1
+									//, this.rider_criteria.p1
+									//, this.rider_criteria.p2
+									, j.p2
 					]);
-			//add_form(journey);
 
-			//let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
-			//pair.p1.icon_type= DotIcon ;
-			//pair.p2.icon_type= DotIcon ;
-			//pair.p1.marker_text= 'D'+ (Number(index)+1);
-			//pair.p2.marker_text= 'D'+ (Number(index)+1);
-			//this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
-			//this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, pair);
 		}
-		//this.place_all_markers();
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS, this.journeys_from_db);
 		this.mark_rider_pair();
-		console.debug("201809262246 JourneyComponent.ngOnInit() exit");
+  		console.debug("201809262246", this.class_name, ".ngOnInit() exit")  ;
   	}
 
 	mark_rider_pair(){
 		if(this.rider_criteria){
-            let pair = this.Util.deep_copy ( this.rider_criteria);
+	    	let pair = this.Util.deep_copy ( this.rider_criteria);
 			pair.p1.icon_type=PinIcon;
 			pair.p2.icon_type=PinIcon;
-            this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+	    	this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
 		}
 	}
 
 	book(journey: any): void {
-		let book_to_db = { 
-				 journey_id	: journey.journey_id
-				,pickup_loc	: this.search_criteria.start_loc
-				,pickup_lat	: this.search_criteria.start_lat
-				,pickup_lon	: this.search_criteria.start_lon
-				,pickup_display_name: this.search_criteria.start_display_name
-				,dropoff_loc	: this.search_criteria.end_loc
-				,dropoff_lat	: this.search_criteria.end_lat
-				,dropoff_lon	: this.search_criteria.end_lon
-				,dropoff_display_name: this.search_criteria.end_display_name
-				,distance	: this.search_criteria.distance
-				,seats		: this.search_criteria.seats
-				} ;
-	    	console.debug("2018102208 JourneyComponent.book() book_to_db=" 
-			,C.stringify(book_to_db ));
+		let book_to_db = this.Util.deep_copy(this.rider_criteria);
+		this.Util.convert_pair_to_book(book_to_db);	
+
+		book_to_db.journey_id = journey.journey_id ;
 		let book_from_db_observable     = this.dbService.call_db(C.URL_BOOK, book_to_db);
 		book_from_db_observable.subscribe(
-	    		book_from_db => {
+	    	book_from_db => {
 				console.debug("201808201201 JourneyComponent.book() book_from_db =" + C.stringify(book_from_db));
-				journey.show_book_msg= book_from_db.status_cd=='P';
-				journey.show_fail_msg= book_from_db.status_cd!='P';
-				//journey.show_balance_msg=!journey.sufficient_balance;
-
+				if (book_from_db.status_cd=='P') journey.info_msg='Booked' ;
+				if (book_from_db.status_cd=='!P') journey.error_msg='Booking failed' ;
 				journey.show_book_button= book_from_db.status_cd!='P';
 				journey.seats_booked= journey.seats_booked
 							+ book_from_db.seats;
@@ -166,30 +132,26 @@ export class JourneyComponent extends BaseComponent {
 				
 			},
 			_ => {
-				journey.show_book_msg=false;
-				journey.show_fail_msg=true;
+				journey.info_msg=null;
+				journey.error_msg='Booking failed';
 				this.changeDetectorRef.detectChanges();
 			}
 		)
 		
 	}
 
-	subscription_action ( msg: any): void{
-        	console.debug("201810212243 JourneyComponent.subscriptio_action(). ignore msg");
-	}
-
-        show_map(index: number){
-                this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
-                this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+	show_map(index: number){
+		this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS, this.journeys_from_db);
+
+		let j = this.journeys_from_db[index];
 		//this.place_all_markers();
-                let pair = C.convert_trip_to_pair(this.journeys_from_db[index]);
-                this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
-		pair.line_color = C.MAP_LINE_COLOR_HIGHLIGHT;
-		pair.line_weight = C.MAP_LINE_WEIGHT_HIGHLIGHT;
-                this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, pair);
-
+		C.convert_trip_to_pair(j);
+		this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, j);
+		j.line_color = C.MAP_LINE_COLOR_HIGHLIGHT;
+		j.line_weight = C.MAP_LINE_WEIGHT_HIGHLIGHT;
+		this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, j);
 		this.mark_rider_pair();
-        }
-
+	}
 }

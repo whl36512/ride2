@@ -2,19 +2,19 @@
 
 <div class={{show_body}} >
 
-<form [formGroup]="trip_form" (ngSubmit)="onSubmit()">
+<form [formGroup]="form" >
 	<dl>
 		<dt>
-			<label for="start_date">From: </label>
+			<label for="date1">From: </label>
 		</dt>
 		<dd>
-			<input  type="date"  formControlName="start_date" (change)='onChange()' />
+			<input type="date"	formControlName="date1" (change)='onChange()' />
 		</dd>
 		<dt>
-			<label for="end_date">To:</label>
+			<label for="date2">To:</label>
 		</dt>
 		<dd>
-			<input  type="date" formControlName="end_date" min={{trip_form.value.start_date}}
+			<input	type="date" formControlName="date2" min={{form.value.date1}}
 				(change)='onChange()'
 			/>
 			<span class="validity"></span>
@@ -53,9 +53,9 @@
 <div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
 <div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
 <p>
-<app-bookings *ngIf='bookings_from_db.length!=0'
-                        [bookings_from_db]="bookings_from_db"
-			[filter]='filter'>
+<app-bookings *ngIf='bookings_from_db.length>0'
+	[bookings_from_db]="bookings_from_db"
+	[filter]='filter'>
 
 </app-bookings>
 </div>

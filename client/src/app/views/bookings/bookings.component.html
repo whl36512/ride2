@@ -2,7 +2,8 @@
 <div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
 <div class=warning *ngIf='false'>change_detect_count={{change_detect_counter()}}</div>
 <div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
-<div *ngFor="let booking of booking_forms ;let i=index;
+		is working
+<div *ngFor="let booking of forms ;let i=index;
 		let even=even;let odd=odd; let first = first; let last = last; trackBy:trackByFunc"
 		[ngClass]="{ odd: odd, even: even }">
 	<form [formGroup]="booking" (ngSubmit)='onSubmit()'
@@ -91,6 +92,7 @@
 			<span class='to clickable-text' (click)='geo_mark(i)'>Passenger Dropoff:</span> 
 			{{bookings_from_db[i].dropoff_display_name}}
 		</div>
+		<span class='f08 to clickable-text' [innerHTML]="bookings_from_db[i].google_map_url"></span>
 		<div>Description: {{bookings_from_db[i].description}}</div>
 	</div>
     </form>

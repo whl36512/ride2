@@ -34,6 +34,7 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 			this.error_msg
 				='Search criteria is not available.<br/> Please use Search Setting to set it up';
 		else {
+			this.info_msg = 'Adjust map area to find available trips' ;
 		// javascript style calling does not recognize this in this.map
 		// So create local variables
 			let this_var = this;
@@ -53,6 +54,10 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 		
 	ngOnInit() {
 		console.debug('201810291007 MapControllerComponent.ngOnInit() enter');
+
+		//change class of the div#main to change style
+		let element = document.getElementById("main");
+    	if(element) element.classList.add("map-controller");
 		
 		//Util.show_map();
 	
@@ -105,9 +110,16 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 				console.info("201808201201 MapControllerComponent.search() journeys_from_db ="
 						, C.stringify(journeys_from_db));
 				// save both search result and rider criteria at the same time
+				// rider criteria will be used to determin the Book button in journey page
 				this_var.Status.search_result= journeys_from_db;
 				this_var.Status.rider_criteria= rider_criteria;
-				if(journeys_from_db.length == 0 ) this_var.warning_msg = 'Nothing found in the map region';
+				let rows_found = journeys_from_db.length ;
+				if(rows_found == 0 ) this_var.warning_msg = 'Nothing found in the map region';
+				else if(rows_found >= C.MAX_SEARCH_RESULT ) 
+					this_var.warning_msg = 'Found more than ' + C.MAX_SEARCH_RESULT 
+						+ ' offers. Showing ' + C.MAX_SEARCH_RESULT
+						+ '. <br/>Please adjust map area to found more relevant offers';
+				else this_var.info_msg = `Found ${rows_found} offers.`
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS , journeys_from_db);
 				let pair = Util.deep_copy(rider_criteria);
@@ -135,6 +147,8 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 	onngdestroy()
 	{
 		Util.map_search_stop();
+		let element = document.getElementById("main");
+    	if(element) element.classList.remove("map-controller");
 		
 	}
 }

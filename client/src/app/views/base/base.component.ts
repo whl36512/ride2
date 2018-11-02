@@ -72,6 +72,7 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 		// It happens when not starting from home page
 		// the browser will automatically start from home page
 		// and then everything is fine. Don't know why
+		this.is_signed_in= UserService.is_signed_in();
 		let injector = AppInjector.getInjector();	
 		this.mapService 			= injector.get(MapService);	
 		this.storageService 		= injector.get(StorageService);	
@@ -170,6 +171,10 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 			p.lat = null;
 			p.lon = null;
 			p.display_name= null;
+			this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+			this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+			this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
+
 			this.changeDetectorRef.detectChanges();
 			this.routing(pair, pair_before_geocode);
 			return; // must type at least 3 letters before geocoding starts
@@ -191,8 +196,12 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 						p.lon = null;
 						p.display_name= null;
 					}
+					this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
+					this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
+					this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, pair);
 					this.changeDetectorRef.detectChanges();
 					this.routing(pair, pair_before_geocode);
+					//this.mapService.try_mark_pair ( pair);
 				//      this.show_map()
 				}
 			);

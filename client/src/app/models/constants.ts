@@ -98,6 +98,7 @@ export class Constants{
  	static MSG_KEY_MARKER_CLEAR	= 'msgKeyMarkerClear' 		; // clear all markers on the map
  	static MSG_KEY_MARKER_PAIR	= 'msgKeyMarkerPair' 		; // place marker pair on the map
  	static MSG_KEY_MARKER_BOOKS	= 'msgKeyMarkerBooks' 		; 
+ 	static MSG_KEY_MARKER_BOOK	= 'msgKeyMarkerBook' 		; 
  	static MSG_KEY_MARKER_FIT	= 'msgKeyMarkerFit' 		; // show map fitting the markers
  	static MSG_KEY_SHOW_ACTIVITY_BODY	= 'msgKeyShowActivityBody' ; // show map fitting the markers
  	static MSG_KEY_MAP_BODY_SHOW	= 'msgKeyShowMapBodyShow' 	; 
@@ -117,6 +118,7 @@ export class Constants{
 
  	static MAP_Z_INDEX_SHOW= 300; 		;  
  	static MAP_Z_INDEX_HIDE= 100; 		;  
+ 	static MAX_SEARCH_RESULT= 100; 		;  
 
 	constructor (){} 
 	static TODAY() { // TODAY is browser local time
@@ -164,48 +166,50 @@ export class Constants{
 	
 	static convert_trip_to_pair(trip: any): any|null {
 		if(!trip) return null;
-		let p1 ={
+		let pair: any ={} ;
+		pair.p1 ={
 				  loc	   : trip.start_loc
 				, lat	   : trip.start_lat
 				, lon	   : trip.start_lon
 				, display_name  : trip.start_display_name
-				, marker_text   : trip.start_marker_text
-				, icon_type     : trip.start_icon_type
-				, color	 : trip.start_color
+				//, marker_text   : trip.start_marker_text
+				//, icon_type     : trip.start_icon_type
+				//, color	 : trip.start_color
 			};
-		let p2 ={
+		pair.p2 ={
 				  loc	   : trip.end_loc
 				, lat	   : trip.end_lat
 				, lon	   : trip.end_lon
 				, display_name  : trip.end_display_name
-				, marker_text   : trip.end_marker_text
-				, icon_type     : trip.end_icon_type
-				, color	 : trip.end_color
+				//, marker_text   : trip.end_marker_text
+				//, icon_type     : trip.end_icon_type
+				//, color	 : trip.end_color
 			};
-		return {p1: p1, p2:p2};
+		return pair;
 	}
 
 	static convert_book_to_pair(book: any): any|null {
 		if(!book) return null;
-		let p1 ={
+		let pair: any = {};
+		pair.p1 ={
 				  loc	   : book.pickup_loc
 				, lat	   : book.pickup_lat
 				, lon	   : book.pickup_lon
 				, display_name  : book.pickup_display_name
-				, marker_text   : book.pickup_marker_text
-				, icon_type     : book.pickup_icon_type
-				, color	 : book.pickup_color
+				//, marker_text   : book.pickup_marker_text
+				//, icon_type     : book.pickup_icon_type
+				//, color	 : book.pickup_color
 			};
-		let p2 ={
+		pair.p2 ={
 				  loc	   : book.dropoff_loc
 				, lat	   : book.dropoff_lat
 				, lon	   : book.dropoff_lon
 				, display_name  : book.dropoff_display_name
-				, marker_text   : book.dropoff_marker_text
-				, icon_type     : book.dropoff_icon_type
-				, color	 : book.dropoff_color
+				//, marker_text   : book.dropoff_marker_text
+				//, icon_type     : book.dropoff_icon_type
+				//, color	 : book.dropoff_color
 			};
-		return {p1: p1, p2:p2};
+		return pair;
 	}
 
 

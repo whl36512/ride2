@@ -35,7 +35,7 @@ import { GeoService } 		from './models/remote.service';
 import { DBService } 		from './models/remote.service';
 import { HttpService } 		from './models/remote.service';
 import {CommunicationService} 	from './models/communication.service';
-import { SearchComponent } 	from './views/search/search.component' ;
+//import { SearchComponent } 	from './views/search/search.component' ;
 import { JourneyComponent } 	from './views/journey/journey.component';
 import { TouComponent } from './views/tou/tou.component';
 import { TosComponent } from './views/tos/tos.component';
@@ -94,11 +94,6 @@ const appRoutes: Routes = [
 		, data: { title: 'Search Result' }
 	},
 	{
-		  path: 'Search'
-		, component: SearchComponent
-		, data: { title: 'Search' }
-	},
-	{
 		  path: 'Trip'
 		, component: TripComponent
 		, data: { title: 'Trip' }
@@ -150,7 +145,7 @@ const appRoutes: Routes = [
     TripComponent,
     LinkedinComponent,
     Map2Component,
-    SearchComponent,
+    //SearchComponent,
     JourneyComponent,
     TouComponent,
     TosComponent,
