@@ -3,10 +3,14 @@
 import { Component} 			from '@angular/core';
 import { OnInit } 				from '@angular/core';
 import { OnDestroy } 			from '@angular/core';
-import { Subscription }   		from 'rxjs';
+import { Subscription }			from 'rxjs';
 import { ChangeDetectorRef }	from '@angular/core';
 import { FormBuilder	}		from '@angular/forms';
 import { FormGroup } 			from '@angular/forms';
+import { timer } from 'rxjs' ;
+//import { TimerObservable } from 'rxjs/observable/TimerObservable';
+
+
 
 //import { EventEmitter, Input, Output} from '@angular/core';
 
@@ -17,41 +21,41 @@ import { DBService} 			from '../../models/remote.service' ;
 import { CommunicationService} 	from '../../models/communication.service' ;
 import { AppComponent } 		from '../../app.component';
 import { C }					from '../../models/constants';
-import { StorageService } 		from '../../models/gui.service';
+//import { StorageService } 		from '../../models/gui.service';
 import { UserService } 			from '../../models/gui.service';
 import { DotIcon } 				from '../../models/map.service';
 import { PinIcon } 				from '../../models/map.service';
 import { MapService } 			from '../../models/map.service';
-import { Util	  } 			from '../../models/gui.service';
-import { Status	  } 			from '../../models/gui.service';
+import { Util		} 			from '../../models/gui.service';
+import { Status		} 			from '../../models/gui.service';
 
 
 
 @Component({
-  //selector: 'app-base',
-  //templateUrl: './base.component.html',
-  template: '',
-  //styleUrls: ['./base.component.css']
+	//selector: 'app-base',
+	//templateUrl: './base.component.html',
+	template: '',
+	//styleUrls: ['./base.component.css']
 })
 export abstract class BaseComponent implements OnInit, OnDestroy {
 
 	mapService				: MapService			;
-	storageService			: StorageService		;	
+	//storageService			: StorageService		;	
 	communicationService	: CommunicationService	;	
 	dbService 				: DBService				;	
 	geoService				: GeoService			;	
-	changeDetectorRef       : ChangeDetectorRef 	;
-	form_builder	    	: FormBuilder 			;
+	//changeDetectorRef		: ChangeDetectorRef 	;
+	form_builder			: FormBuilder 			;
 
 
-	error_msg   		: string|null   = null;
-	warning_msg 		: string|null   = null;
-	info_msg			: string|null   = null;
+	error_msg			: string|null	= null;
+	warning_msg 		: string|null	= null;
+	info_msg			: string|null	= null;
 	change_detect_count	: number 		= 0;
-	show_body		   	: string|null	= C.BODY_SHOW ;
+	show_body				: string|null	= C.BODY_SHOW ;
 	is_signed_in		: boolean 		= false;
 	page_name 			: string| null 	= null;
-	form 				: FormGroup|null=null;   // main for of a page
+	form 				: FormGroup|null=null;	// main for of a page
 
 	class_name = this.constructor.name;
 
@@ -59,6 +63,8 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 	subscription1: Subscription |null = null;
 	subscription2: Subscription |null = null;
 	subscription3: Subscription |null = null;
+	timer_for_injector_sub	;
+	static timer = timer(C.TIMER_INTERVAL, C.TIMER_INTERVAL);
 
 	C = C;
 	Constants = C;
@@ -66,38 +72,64 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 	Status = Status;
 
 
+	//protected logError(errorMessage: string) { . . . }	
+	//private logNavigation() { . . . }
 
-  constructor() { 
-		// this could return undefined even run it 1000 time. 
-		// It happens when not starting from home page
-		// the browser will automatically start from home page
-		// and then everything is fine. Don't know why
+	constructor(public changeDetectorRef: ChangeDetectorRef) { }
+
+
+	ngOnInit() { 
+		console.debug ('201810290933 ', this.class_name,'.constructor() enter.');
 		this.is_signed_in= UserService.is_signed_in();
-		let injector = AppInjector.getInjector();	
-		this.mapService 			= injector.get(MapService);	
-		this.storageService 		= injector.get(StorageService);	
-		this.communicationService 	= injector.get(CommunicationService);	
-		this.dbService 				= injector.get(DBService);	
-		this.geoService 			= injector.get(GeoService);	
-		//this.changeDetectorRef 		= injector.get(ChangeDetectorRef);	
-		this.form_builder 			= injector.get(FormBuilder);	
-			//this.logNavigation();
+		this.wait_for_injector(this.setup_singlton_services);
 
-		this.subscription0 =this.communicationService.msg.subscribe(
-			msg  => {
-				//console.debug("201810211343 Ridebase.subscription0. msg=\n"
-					//, C.stringify(msg));
-				this.subscription_action(msg);
+		this.ngoninit();
+		console.debug ('201810290933 ', this.class_name,'.constructor() exit.');
+	}
+
+	setup_singlton_services(injector, this_var)
+	{
+		if(!injector) return ;
+		if(!this_var.mapService)			this_var.mapService 		= injector.get(MapService);	
+		if(!this_var.communicationService)	this_var.communicationService= injector.get(CommunicationService);
+		if(!this_var.dbService)				this_var.dbService 			= injector.get(DBService);	
+		if(!this_var.geoService)			this_var.geoService 		= injector.get(GeoService);	
+		if(!this_var.form_builder)			this_var.form_builder 		= injector.get(FormBuilder);	
+		//this.logNavigation();
+	
+		if(!this_var.subscription0) this_var.subscription0 =this_var.communicationService.msg.subscribe(
+			msg	=> {
+				this_var.subscription_action(msg);
 			}
 		);
+	}
 
-	
+	wait_for_injector(on_got_injector: Function)
+	{
+		let injector = AppInjector.getInjector();	
+		if(injector) {
+			console.debug ('201811021124 ', this.class_name,'.wait_for_injector() injector available. ');
+			if( this.timer_for_injector_sub) this.timer_for_injector_sub.unsubscribe();
+			on_got_injector(injector, this);
+		}
+		else {
+			console.debug ('201811021124 ', this.class_name,'.wait_for_injector() injector not available. ');
+			if(!this.timer_for_injector_sub) {
+				console.debug ('201811021124 ', this.class_name,'.wait_for_injector() set up timer subscription');
+				this.timer_for_injector_sub = BaseComponent.timer.subscribe(
+            		// val will be 0, 1,2,3,...
+            		val => {
+						console.debug ('201811021124 ', this.class_name
+							,' .wait_for_injector() timer.val = ', val);
+						this.wait_for_injector( on_got_injector);	
+            		},
+        		);
+			}
+		}
 	}
 
 
-		//protected logError(errorMessage: string) { . . . }	
-		//private logNavigation() { . . . }
-  	ngOnInit() { }
+	abstract ngoninit(): void;
 
 	ngOnDestroy(): void {
 		console.debug ('201810290932 ', this.class_name,'.ngOnDestroy() enter.');
@@ -121,40 +153,40 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 		console.debug('DEBUG 201810312014', this.class_name, '.subscription_action() ignore msg'); 
 	}
 
-    reset_msg() : void{
+	reset_msg() : void{
 	this.error_msg	=null ;
 	this.warning_msg=null ;
 	this.info_msg	=null ;
-    }
+	}
 
-    change_detect_counter(e): number
-    {
-	console.debug("201810131845 Constants.change_detect_counter() event=", e)  ;
+	change_detect_counter(e): number
+	{
+	console.debug("201810131845 Constants.change_detect_counter() event=", e)	;
 	return this.change_detect_count ++;
-    }
+	}
 
-    close_page(): boolean{
+	close_page(): boolean{
 	this.communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE, {page:this.page_name});
 	return false;
-    }
+	}
 
-    onSubmit(){}
+	onSubmit(){}
 
-    trackByFunc (index, item) {
+	trackByFunc (index, item) {
 	if (!item) return null;
 	return index;
-    }
+	}
 
-    list_global_objects() {
+	list_global_objects() {
 	Util.list_global_objects();
-    }
+	}
 
 	geocode(element_id: string, pair, form):any {
 		console.debug('201800111346', this.class_name, '.geocode() element_id =' , element_id);
 
 		let pair_before_geocode = Util.deep_copy(pair) ;
 		var p :any ;
-		let loc_old  ='';
+		let loc_old	='';
 
 		if (element_id == "p1_loc" ) {
 			p= pair.p1 ;
@@ -184,11 +216,11 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 			let loc_response = this.geoService.geocode(p.loc) ;
 			loc_response.subscribe(
 				body =>	 {
-					console.debug('201809111347 SearchSettingComponent.geocode()  body=' );
+					console.debug('201809111347 SearchSettingComponent.geocode()	body=' );
 					console.debug( C.stringify(body) );
 					if (body[0]) {
-						p.lat		   =body[0].lat ;
-						p.lon		   =body[0].lon ;
+						p.lat			=body[0].lat ;
+						p.lon			=body[0].lon ;
 						p.display_name=body[0].display_name ;
 					}
 					else {
@@ -202,7 +234,7 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 					this.changeDetectorRef.detectChanges();
 					this.routing(pair, pair_before_geocode);
 					//this.mapService.try_mark_pair ( pair);
-				//      this.show_map()
+				//		this.show_map()
 				}
 			);
 		}
@@ -227,10 +259,10 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 
 		//both start and end are geocoded. So we can calc routes
 		let route_response = this.geoService.routing(
-				  pair.p1.lat
-				, pair.p1.lon
-				, pair.p2.lat
-				, pair.p2.lon
+					pair.p1.lat
+				, 	pair.p1.lon
+				, 	pair.p2.lat
+				, 	pair.p2.lon
 			);
 		route_response.subscribe(
 			body => {

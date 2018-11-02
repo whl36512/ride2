@@ -3,27 +3,32 @@ import { OnInit } 		from '@angular/core';
 import { UserService } 		from '../../models/gui.service';
 import { C } 			from '../../models/constants';
 import { Ridebase } 		from '../../models/ridebase';
-import { CommunicationService } from '../../models/communication.service';
- 
+//import { CommunicationService } from '../../models/communication.service';
+import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy } from '@angular/core';
+
+import { BaseComponent  } from '../base/base.component' ;
 
 @Component({
 	selector: 'app-nav',
 	templateUrl: './nav.component.html',
 	styleUrls: ['./nav.component.scss'] ,
+	changeDetection: ChangeDetectionStrategy.OnPush ,
+
 })
-export class NavComponent extends Ridebase implements OnInit {
+export class NavComponent extends BaseComponent {
 
 	show_nav=false ;
-	public constructor( public communicationService: CommunicationService) {
-		super(communicationService);
+	public constructor( public changeDetectorRef : ChangeDetectorRef) {
+		super(changeDetectorRef);
 	}
 
-	ngOnInit() {}
+	ngoninit() {}
 
 	select(elem:string) {
 		this.show_nav=false;
 		console.debug('201808031521 NavComponent.select elem='+ elem) ;
-		this.communicationService.send_msg(C.MSG_KEY_PAGE_OPEN, {page:elem});
+		//this.communicationService.send_msg(C.MSG_KEY_PAGE_OPEN, {page:elem});
 	}
 
 	nav_menu_off():boolean  {
@@ -38,9 +43,6 @@ export class NavComponent extends Ridebase implements OnInit {
 		this.is_signed_in= UserService.is_signed_in();
 		console.log('301808221747 NavComponent.constructor this.is_signed_in='+ this.is_signed_in) ;
 	}
-        subscription_action(msg): void {
-                console.debug("201808222332 NavComponent.subscription_action. ignore msg");
-        }
 
 	map_search_stop() {
 		this.Util.map_search_stop();

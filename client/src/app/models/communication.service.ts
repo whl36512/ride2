@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Subject }    from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
 import { C } from './constants';
+import { Util	}		from './gui.service';
+
 
  
 @Injectable()
@@ -26,9 +28,11 @@ export class CommunicationService {
 	msg = this.msg_subject.asObservable();  
 
 	send_msg(msg_key:string, message: any) {
-		let outgoing = message;
-		if (typeof(message) == 'string') outgoing = JSON.parse(message);
-		let msg= { msgKey: msg_key, body: outgoing};
+		let message_copy: any ={};
+		if (typeof(message) == 'string') message_copy = JSON.parse(message);
+		else message_copy = Util.deep_copy(message) ; 
+		
+		let msg= { msgKey: msg_key, body: message_copy};
 		console.debug("201808230806 CommunicationService.send_msg() key and msg=\n" 
 			, C.stringify(msg));
 	    	this.msg_subject.next(msg) ;

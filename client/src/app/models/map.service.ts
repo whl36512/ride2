@@ -223,6 +223,11 @@ export class MapService {
 	     }
 	}
 
+	fit_book(book){
+		Util.convert_book_to_pairs(book);
+		this.fit_pair(book);
+	}
+
 
  	getRandomColor():string {
   		var letters = '23456789AB';

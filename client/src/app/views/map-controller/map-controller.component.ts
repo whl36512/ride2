@@ -1,6 +1,9 @@
 import { Component, OnInit } 	from '@angular/core';
 import { OnDestroy } 		from '@angular/core';
 import { Subscription }   	from 'rxjs';
+import { ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 import * as L from "leaflet";
 
@@ -8,38 +11,49 @@ import {MapService} from "../../models/map.service"
 import {DotIcon} 	from "../../models/map.service"
 import {PinIcon} 	from "../../models/map.service"
 import {C} 			from "../../models/constants"
-import {Ridebase} 	from "../../models/ridebase"
+//import {Ridebase} 	from "../../models/ridebase"
 import {Util} 		from "../../models/gui.service"
-import {DBService} 	from '../../models/remote.service' ;
+//import {DBService} 	from '../../models/remote.service' ;
 import {Status} 	from "../../models/gui.service"
 import { StorageService     } from '../../models/gui.service';
-import {CommunicationService} from "../../models/communication.service"
+//import {CommunicationService} from "../../models/communication.service"
+import { BaseComponent      } from '../base/base.component' ;
+
 
 @Component({
 	selector: 'app-map-controller',
 	templateUrl: './map-controller.component.html',
 	styleUrls: ['./map-controller.component.css'],
 	//providers: [CommunicationService],
+	changeDetection: ChangeDetectionStrategy.OnPush , 
 		
 })
-export class MapControllerComponent extends Ridebase implements OnInit  {
+export class MapControllerComponent extends BaseComponent {
 
-	constructor(public communicationService	: CommunicationService
-			    , private dbService             : DBService
-			)
-	{ 
-		super(communicationService);
+	constructor( public changeDetectorRef   : ChangeDetectorRef ) { 
+		super(changeDetectorRef);
+	}
+		
+	ngoninit() {
+		console.debug('201810291007 MapControllerComponent.ngOnInit() enter');
+
+		//change class of the div#main to change style
+		let element = document.getElementById("main");
+    	if(element) element.classList.add("map-controller"); // for changing style
+
         let rider_criteria = StorageService.getForm(C.KEY_FORM_SEARCH) ;
+
 		if (! rider_criteria || rider_criteria.distance== C.ERROR_NO_ROUTE ) 
 			this.error_msg
 				='Search criteria is not available.<br/> Please use Search Setting to set it up';
 		else {
-			this.info_msg = 'Adjust map area to find available trips' ;
-		// javascript style calling does not recognize this in this.map
-		// So create local variables
+			this.warning_msg = 'Please adjust map area to search for available trips' ;
+
+			// javascript style calling does not recognize this in this.map
+			// So create local variables
 			let this_var = this;
 			let func_var = this.search ;
-			MapService.static_map.on('moveend' , function(e){ func_var(e, this_var )} ) ;
+			this.mapService.map.on('moveend' , function(e){ func_var(e, this_var )} ) ;
 			Util.map_search_start();
 
 
@@ -50,14 +64,6 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 
 			//this.search(null, this);
 		}
-	}
-		
-	ngOnInit() {
-		console.debug('201810291007 MapControllerComponent.ngOnInit() enter');
-
-		//change class of the div#main to change style
-		let element = document.getElementById("main");
-    	if(element) element.classList.add("map-controller");
 		
 		//Util.show_map();
 	
@@ -78,10 +84,10 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 		this_var.reset_msg();
 		this_var.warning_msg = 'Searching ...';
 		this_var.journeys_from_db =[]; // remove previous search result from screen
+		
+        this_var.changeDetectorRef.detectChanges() ;
 
-						
 
-			
 		let region_search_criteria  
 			={	  
 				p1:		{ 
@@ -114,20 +120,24 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 				this_var.Status.search_result= journeys_from_db;
 				this_var.Status.rider_criteria= rider_criteria;
 				let rows_found = journeys_from_db.length ;
+
 				if(rows_found == 0 ) this_var.warning_msg = 'Nothing found in the map region';
 				else if(rows_found >= C.MAX_SEARCH_RESULT ) 
 					this_var.warning_msg = 'Found more than ' + C.MAX_SEARCH_RESULT 
 						+ ' offers. Showing ' + C.MAX_SEARCH_RESULT
 						+ '. <br/>Please adjust map area to found more relevant offers';
 				else this_var.info_msg = `Found ${rows_found} offers.`
+
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS , journeys_from_db);
 				let pair = Util.deep_copy(rider_criteria);
 				this_var.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR , pair);
+				this_var.changeDetectorRef.detectChanges() ;
 			},
 			error => {
 				this_var.reset_msg();
 				this_var.error_msg=error;
+				this_var.changeDetectorRef.detectChanges() ;
 			}
 		)
 	}
@@ -138,10 +148,6 @@ export class MapControllerComponent extends Ridebase implements OnInit  {
 		//let width  = window.innerWidth;
 		//document.getElementById("map").style.height = height + "px";
 		//document.getElementById("map").style.width = height + "px";
-	}
-
-	subscription_action ( msg: any): void{
-		console.debug("201810271226 MapControllerComponent.subscriptio_action(). ignore msg");
 	}
 
 	onngdestroy()

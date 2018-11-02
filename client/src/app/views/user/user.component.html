@@ -1,7 +1,7 @@
 <button  type="button" class="close-button" (click)="close_page()" >X</button>
 
 <div class="center f12">User Profile</div>
-<form [formGroup]="user_form" (ngSubmit)="onSubmit()">
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
 	<dl>
 		<dt>
 			Last Name : {{user_from_db.last_name}}
@@ -22,13 +22,13 @@
           	</dd>
         </dl>
         <br/>
-	<button type="submit" [disabled]="user_form.invalid" >Save</button>
+	<button type="submit" [disabled]="form.invalid" >Save</button>
 </form>
 <div *ngIf='error_msg!=null' 	class='fade error'>{{error_msg}}</div>
 <div *ngIf='warning_msg!=null' 	class='fade warning' >{{warning_msg}}</div>
 <div *ngIf='info_msg!=null' 	class='fade info'>{{info_msg}}</div>
 <p>
-Form Value: {{ user_form.value }}
+Form Value: {{ form.value }}
 <p>
-Form Status: {{ user_form.status }}
+Form Status: {{ form.status }}
 <p>

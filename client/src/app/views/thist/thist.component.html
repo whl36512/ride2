@@ -1,23 +1,21 @@
 <div class="center f12">Transaction History</div>
 
-<div class={{show_body}} >
-
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-	<label for="start_date">From: </label>
-	<input  type="date"  formControlName="start_date" (change)='onChange()' />
+	<label for="date1">From: </label>
+	<input  type="date"  formControlName="date1" (change)='onChange()' />
 	<br/>
-	<label for="end_date">To:</label>
-	<input  type="date" formControlName="end_date" min={{form.value.start_date}}
+	<label for="date2">To:</label>
+	<input  type="date" formControlName="date2" min={{form.value.date1}}
 	(change)='onChange()'
 	/>
 	<span class="validity"></span>
 	<br/>
 	Show history when transactions are<br/>
 	<label>
-		<input type=checkbox formControlName='show_booking' 	(change)='on_filter()' />Booked
+		<input type=checkbox formControlName='show_booking'	(change)='on_filter()' />Booked
 	</label><br/>
 	<label>
-	<input type=checkbox formControlName='show_return' 	(change)='on_filter()' />Return
+	<input type=checkbox formControlName='show_return' 		(change)='on_filter()' />Return
 	</label><br/>
 	<label>
 	<input type=checkbox formControlName='show_penalty' 	(change)='on_filter()' />Penalty
@@ -39,10 +37,6 @@
 <div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
 <div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
 <p>
-<app-thistlist *ngIf='trnx_from_db.length!=0'
-                        [trnx_from_db]="trnx_from_db"
-			>
-
+<app-thistlist *ngIf='trans_to_show.length!=0' [trnx_from_db]="trans_to_show" > 
 </app-thistlist>
-</div>
 

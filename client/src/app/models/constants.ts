@@ -70,7 +70,8 @@ export class Constants{
 	static KEY_FORM_THIST		= 'form_thist'	;
 
 	// timer is in miliseconds. So need * 1000 when set up timer
-	static MSG_TIMER_WAIT		= 5	;   
+	static TIMER_INTERVAL		= 200		; //milisecond
+	static MSG_TIMER_WAIT		= 5	;       ; seconds
 	// close msg window afer n seconds of no activity
 	static MSG_NO_ACTIVITY_COUNT_DOWN	= 30	;   
 

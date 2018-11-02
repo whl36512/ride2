@@ -2,6 +2,8 @@ import { Component, OnInit }	from '@angular/core';
 import { OnDestroy }			from '@angular/core';
 import { Subscription }			from 'rxjs';
 import { ChangeDetectionStrategy }          from '@angular/core';
+import { ChangeDetectorRef }    from '@angular/core';
+
 
 
 import * as L from "leaflet";
@@ -26,18 +28,18 @@ import { BaseComponent }		from '../base/base.component';
 })
 export class Map2Component extends BaseComponent {
 
-	constructor()
+	constructor( public changeDetectorRef: ChangeDetectorRef
+		, public mapService: MapService)
 	{ 
-		super();
+		super(changeDetectorRef);
 		this.page_name=C.PAGE_MAP;
 
 		// body_show indicates the map page either has a high z-index or low z-index
-		// it does not control the z-index. It is a status indeicator.
+		// it does not control the z-index. It is a status indicator.
 		this.show_body=C.BODY_NOSHOW; 
 	}
 
-	ngOnInit() {
-		console.debug('201810242021 Map2Component.ngOnInit() enter');
+	ngoninit() {
 		if( this.mapService.current_loc.lat) {
 			this.mapService.createMap('map'
 				, this.mapService.current_loc.lat, this.mapService.current_loc.lon, 12);
@@ -48,7 +50,7 @@ export class Map2Component extends BaseComponent {
 		// resetting zoom not working.	It requires browser extension.
 		// and it causes problem in android chrome when try to change z-index of the map.
 		//let reset_zoom_var = Util.reset_zoom;
-			//window.onresize = function(){ reset_zoom_var()};
+		//window.onresize = function(){ reset_zoom_var()};
 		//window.addEventListener("resize", function(){reset_zoom_var()} );
 	}
 

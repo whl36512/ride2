@@ -59,8 +59,9 @@ export class BookingsComponent extends BaseComponent {
 	//	,	private zone: NgZone
 	){ 
 
-		super();
-			console.debug("201809262245 BookingsComponent.constructor() enter")	;
+		super(changeDetectorRef);
+
+		console.debug("201809262245 BookingsComponent.constructor() enter")	;
 /*
 		this.subscription1 =this.communicationService.msg.subscribe(
 			msg	=> {
@@ -81,8 +82,7 @@ export class BookingsComponent extends BaseComponent {
 			console.debug("201809262245 BookingsComponent.constructor() exit")	;
 		} 
 
-	ngOnInit() {
-		console.debug("201809262246 BookingsComponent.ngOnInit() enter");
+	ngoninit():void {
 		console.debug("201809262246 BookingsComponent.ngOnInit() this.bookings_from_db = "
 			+ C.stringify(this.bookings_from_db) );
 		//this.subscription1 
@@ -122,8 +122,7 @@ export class BookingsComponent extends BaseComponent {
 					 && b.book_id != null ;
 		}
 
-		console.debug("201809262246 BookingsComponent.ngOnInit() exit");
-		}
+	}
 	
 	subscription_action ( msg: any): void{
 	// overides Ridebase.subscription_action
@@ -277,7 +276,9 @@ export class BookingsComponent extends BaseComponent {
 		this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
 
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});	
-		this.mapService.mark_book( this.bookings_from_db[index], index, false)
+		let b = Util.deep_copy(this.bookings_from_db[index]);
+		this.mapService.mark_book( b, index, false)
+		this.mapService.fit_book( b)
 		this.communicationService.send_msg(C.MSG_KEY_SHOW_ACTIVITY_BODY,{show_body: C.BODY_NOSHOW});
 	}
 }

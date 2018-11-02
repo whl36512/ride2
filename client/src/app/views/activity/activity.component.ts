@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { OnDestroy } from '@angular/core';
 import { NgZone	} from '@angular/core';
 import { ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
+
 import { FormControl } from '@angular/forms';
 import { FormGroup } from '@angular/forms';
 import { FormArray } from '@angular/forms';
@@ -22,27 +24,28 @@ import { StorageService } from '../../models/gui.service';
 import { BaseComponent } from '../base/base.component';
 
 @Component({
-	selector: 'app-activity',
-	templateUrl: './activity.component.html',
-	styleUrls: ['./activity.component.css']
-	//changeDetection: ChangeDetectionStrategy.OnPush ,	// prevent change detection unless @Input reference is changed
+	selector: 'app-activity'
+	,	templateUrl: './activity.component.html'
+	,	styleUrls: ['./activity.component.css']
+	,	changeDetection: ChangeDetectionStrategy.OnPush 	// prevent change detection unless @Input reference is changed
 })
 
 export class ActivityComponent extends BaseComponent {
 	bookings_from_db: any= [];
 	filter:any ;
 
-	constructor(
+	constructor( public changeDetectorRef: ChangeDetectorRef
 	//	, private zone: NgZone
 	){
-		super();
+		super(changeDetectorRef);
+
 		console.debug("201809262245 ActivityComponent.constructor() enter")	;
 		this.page_name=C.PAGE_ACTIVITY;
 		console.debug("201809262245 ActivityComponent.constructor() exit")	;
 	}
 
 
-	ngOnInit() {
+	ngoninit() {
 		let form_value_from_storage = StorageService.getForm(C.KEY_FORM_ACTIVITY);
 		if ( !form_value_from_storage ) {
 
@@ -86,8 +89,10 @@ export class ActivityComponent extends BaseComponent {
 	{
 		this.reset_msg();
 		this.warning_msg='loading ...' ;
+		this.changeDetectorRef.detectChanges();
 
 		StorageService.storeForm(C.KEY_FORM_ACTIVITY, this.form.value); 
+
 		this.bookings_from_db = [] ;	 //remove list of journeys
 		let bookings_from_db_observable	
 			= this.dbService.call_db(C.URL_ACTIVITY, this.form.value);
@@ -100,10 +105,12 @@ export class ActivityComponent extends BaseComponent {
 				if (this.bookings_from_db.length==0) this.warning_msg='Nothing found' ; 
 				else this.info_msg =`Found ${this.bookings_from_db.length} activities.`	;
 				this.set_filter();
+				this.changeDetectorRef.detectChanges();
 			},
 			error	=> { 
 				this.reset_msg();
 				this.error_msg= error;
+				this.changeDetectorRef.detectChanges();
 			}
 		)
 		
@@ -128,12 +135,12 @@ export class ActivityComponent extends BaseComponent {
 		console.debug("201810131007 BookingsComponent.show_this() this.filter"
 			, this.filter)	;
 		let status	=false;
-		if	(booking.status_cd =='P' && this.filter.show_pending		) status=true;
-		else if (booking.status_cd =='B' && this.filter.show_confirmed		) status=true;
-		else if (booking.status_cd =='J' && this.filter.show_rejected		) status=true;
+		if		(booking.status_cd =='P' && this.filter.show_pending			) status=true;
+		else if (booking.status_cd =='B' && this.filter.show_confirmed			) status=true;
+		else if (booking.status_cd =='J' && this.filter.show_rejected			) status=true;
 		else if (booking.status_cd =='D' && this.filter.show_cancelled_by_driver) status=true;
 		else if (booking.status_cd =='R' && this.filter.show_cancelled_by_rider ) status=true;
-		else if (booking.status_cd =='F' && this.filter.show_finished		) status=true;
+		else if (booking.status_cd =='F' && this.filter.show_finished			) status=true;
 		else if (booking.status_cd =='S' && this.filter.show_seats_available	) status=true;
 		else if (booking.status_cd ==null && this.filter.show_seats_available	) status=true;
 

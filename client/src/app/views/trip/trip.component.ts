@@ -58,14 +58,13 @@ export class TripComponent extends BaseComponent {
 		//, public  communicationService	: CommunicationService
   		//, private zone			: NgZone
 	){ 
-		super()
+		super(changeDetectorRef)
   		console.log("201811011724", this.class_name, '.constructor() enter')  ;
 		this.page_name= C.PAGE_TRIP;
   		console.log("201811011725", this.class_name, '.constructor() exit')  ;
   	} 
 
-	ngOnInit() {
-		console.debug("201810291814", this.class_name, '.ngOnInit() enter');
+	ngoninit():void {
 		let trip = StorageService.getForm(C.KEY_FORM_TRIP);
 		if ( !trip ) {
 			trip = this.Util.create_empty_trip();
@@ -120,7 +119,6 @@ export class TripComponent extends BaseComponent {
 		this.subscription2 
 			= this.form.statusChanges.subscribe(data=> console.log('Form status changes', data),);
 		this.show_map();
-		console.debug("201810291814", this.class_name, '.ngOnInit() exit');
   	}
 
 	onSubmit() {

@@ -49,13 +49,12 @@ export class SearchSettingComponent extends BaseComponent {
 		 public 	changeDetectorRef 		: ChangeDetectorRef
 		//, private zone: NgZone
 	){ 
-		super();
+		super(changeDetectorRef);
   		console.debug("SearchSettingComponent.constructor() enter")  ;
   		console.debug("201810291813 SearchSettingComponent.constructor() exit")  ;
   	} 
 
-	ngOnInit() {
-		console.debug("201810291814", this.class_name, '.ngOnInit() enter');
+	ngoninit():void {
 		let today = C.TODAY();
 		let trip = StorageService.getForm(C.KEY_FORM_SEARCH);
 		if ( !trip ) { 
@@ -84,13 +83,14 @@ export class SearchSettingComponent extends BaseComponent {
 			//.subscribe( data => console.log('Form value changes', data));
 		//this.subscription2 = this.form.statusChanges
 			//.subscribe(data => console.log('Form status changes', data));
-		console.debug("201810291814", this.class_name, '.ngOnInit() exit');
   	}
 
 	save() {
 	    	console.debug("201809231416 SearchSettingComponent.onSubmit() this.form.value=" 
 				, C.stringify(this.form.value) );
 		this.reset_msg();
+		this.changeDetectorRef.detectChanges();
+
 		// combining data
 		this.trip = { ...this.trip, ...this.form.value};
 		this.trip.p1.loc = this.form.value.p1_loc;
@@ -99,6 +99,7 @@ export class SearchSettingComponent extends BaseComponent {
 		delete this.trip.p2_loc;
 		StorageService.storeForm(C.KEY_FORM_SEARCH, this.trip); 
 		this.info_msg = 'Saved successfully';
+		this.changeDetectorRef.detectChanges();
 	}
 
 	show_map(){

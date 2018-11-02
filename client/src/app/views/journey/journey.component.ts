@@ -51,7 +51,7 @@ export class JourneyComponent extends BaseComponent {
 		 public changeDetectorRef	: ChangeDetectorRef
 	////	, private zone: NgZone
 	){ 
-		super();
+		super(changeDetectorRef);
   		console.debug("201809262245", this.class_name, ".constructor() enter")  ;
 
 		this.journeys_from_db = this.Util.deep_copy(this.Status.search_result);
@@ -63,8 +63,7 @@ export class JourneyComponent extends BaseComponent {
   		console.debug("201809262245", this.class_name, ".constructor() exit")  ;
   	} 
 
-	ngOnInit() {
-  		console.debug("201809262246", this.class_name, ".ngOnInit() enter")  ;
+	ngoninit() {
 		//this.subscription1 
 			//= this.form.valueChanges.subscribe(data => console.log('Form value changes', data));
 		//this.subscription2 
@@ -102,7 +101,6 @@ export class JourneyComponent extends BaseComponent {
 		}
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS, this.journeys_from_db);
 		this.mark_rider_pair();
-  		console.debug("201809262246", this.class_name, ".ngOnInit() exit")  ;
   	}
 
 	mark_rider_pair(){
