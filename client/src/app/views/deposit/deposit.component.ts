@@ -39,7 +39,7 @@ export class DepositComponent extends BaseComponent {
 	user_from_db: any = {};
 	show_detail = false;
 
-	constructor( private changeDetectorRef	: ChangeDetectorRef) { 
+	constructor( public changeDetectorRef	: ChangeDetectorRef) { 
 		super(changeDetectorRef);
 		console.debug("201809262245 DepositComponent.constructor() enter")	;
 		this.page_name=C.PAGE_DEPOSIT;
