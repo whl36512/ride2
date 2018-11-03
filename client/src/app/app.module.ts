@@ -9,6 +9,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ChangeDetectorRef }    from '@angular/core';
+import { NgZone }    from '@angular/core';
 
 
 //import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -179,6 +180,7 @@ const appRoutes: Routes = [
   ],
   providers: [
 	//ChangeDetectorRef	,  // causing compiler error. Research turned up no solution
+	//NgZone	,  
     StorageService,
     MapService,
     GeoService,

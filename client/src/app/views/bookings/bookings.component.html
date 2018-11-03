@@ -2,7 +2,6 @@
 <div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
 <div class=warning *ngIf='false'>change_detect_count={{change_detect_counter()}}</div>
 <div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
-		is working
 <div *ngFor="let booking of forms ;let i=index;
 		let even=even;let odd=odd; let first = first; let last = last; trackBy:trackByFunc"
 		[ngClass]="{ odd: odd, even: even }">
@@ -48,7 +47,7 @@
 		<span *ngIf='!bookings_from_db[i].show_messaging_panel' > &#xfe40;</span>
 	</button>
 	<button (click)="update(booking,i)" *ngIf='bookings_from_db[i].show_update_button' 
-		title='Change available seats and unit price'>Update
+		title='Change available seats and unit price'>Update available seats and price
 	</button>
 	<span *ngIf='bookings_from_db[i].update_msg!=null' class="info fade">
 		{{bookings_from_db[i].update_msg}}

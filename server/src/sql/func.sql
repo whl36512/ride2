@@ -1085,7 +1085,7 @@ $body$
 			--, case when ids.usr_id = t.driver_id then b.driver_cost else null end driver_cost
 			--, case when ids.usr_id = b.rider_id then b.rider_cost else null end rider_cost
 			, b.status_cd 
-			, case when s.description is null then 'Seats Available'
+			, case when s.description is null then 'Published'
 				else s.description
 			  end book_status_description
 			--, case when ids.usr_id = ids.driver_id then true else false end is_driver

@@ -1,13 +1,14 @@
 //https://blogs.msdn.microsoft.com/premier_developer/2018/06/17/angular-how-to-simplify-components-with-typescript-inheritance/
 
-import { Component} 			from '@angular/core';
-import { OnInit } 				from '@angular/core';
-import { OnDestroy } 			from '@angular/core';
-import { Subscription }			from 'rxjs';
-import { ChangeDetectorRef }	from '@angular/core';
-import { FormBuilder	}		from '@angular/forms';
-import { FormGroup } 			from '@angular/forms';
-import { timer } from 'rxjs' ;
+import { Component			} 	from '@angular/core';
+import { NgZone				} 	from '@angular/core';
+import { OnInit 			} 	from '@angular/core';
+import { OnDestroy 			} 	from '@angular/core';
+import { Subscription 		}	from 'rxjs';
+import { ChangeDetectorRef 	}	from '@angular/core';
+import { FormBuilder		}	from '@angular/forms';
+import { FormGroup 			} 	from '@angular/forms';
+import { timer 				}	from 'rxjs' ;
 //import { TimerObservable } from 'rxjs/observable/TimerObservable';
 
 
@@ -15,19 +16,19 @@ import { timer } from 'rxjs' ;
 //import { EventEmitter, Input, Output} from '@angular/core';
 
 
-import { AppInjector} 			from '../../models/app-injector.service' ;
-import { GeoService} 			from '../../models/remote.service' ;
-import { DBService} 			from '../../models/remote.service' ;
-import { CommunicationService} 	from '../../models/communication.service' ;
-import { AppComponent } 		from '../../app.component';
-import { C }					from '../../models/constants';
-//import { StorageService } 		from '../../models/gui.service';
-import { UserService } 			from '../../models/gui.service';
-import { DotIcon } 				from '../../models/map.service';
-import { PinIcon } 				from '../../models/map.service';
-import { MapService } 			from '../../models/map.service';
-import { Util		} 			from '../../models/gui.service';
-import { Status		} 			from '../../models/gui.service';
+import { AppInjector			} 	from '../../models/app-injector.service' ;
+import { GeoService				} 	from '../../models/remote.service' ;
+import { DBService				} 	from '../../models/remote.service' ;
+import { CommunicationService	}	from '../../models/communication.service' ;
+import { AppComponent			} 	from '../../app.component';
+import { C						}	from '../../models/constants';
+//import { StorageService		} 	from '../../models/gui.service';
+import { UserService			} 	from '../../models/gui.service';
+import { DotIcon				} 	from '../../models/map.service';
+import { PinIcon				} 	from '../../models/map.service';
+import { MapService				} 	from '../../models/map.service';
+import { Util					} 	from '../../models/gui.service';
+import { Status					} 	from '../../models/gui.service';
 
 
 
@@ -46,7 +47,7 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 	geoService				: GeoService			;	
 	//changeDetectorRef		: ChangeDetectorRef 	;
 	form_builder			: FormBuilder 			;
-
+	//zone					:	NgZone
 
 	error_msg			: string|null	= null;
 	warning_msg 		: string|null	= null;
@@ -75,8 +76,9 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 	//protected logError(errorMessage: string) { . . . }	
 	//private logNavigation() { . . . }
 
-	constructor(public changeDetectorRef: ChangeDetectorRef) { }
-
+	constructor(public changeDetectorRef: ChangeDetectorRef
+				//public zone: NgZone
+				) { }
 
 	ngOnInit() { 
 		console.debug ('201810290933 ', this.class_name,'.constructor() enter.');
@@ -95,6 +97,7 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 		if(!this_var.dbService)				this_var.dbService 			= injector.get(DBService);	
 		if(!this_var.geoService)			this_var.geoService 		= injector.get(GeoService);	
 		if(!this_var.form_builder)			this_var.form_builder 		= injector.get(FormBuilder);	
+		//if(!this_var.zone)					this_var.zone		 		= injector.get(NgZone);	
 		//this.logNavigation();
 	
 		if(!this_var.subscription0) this_var.subscription0 =this_var.communicationService.msg.subscribe(

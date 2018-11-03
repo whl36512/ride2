@@ -125,23 +125,24 @@ export class BookingsComponent extends BaseComponent {
 	}
 	
 	subscription_action ( msg: any): void{
-	// overides Ridebase.subscription_action
-		if (msg != undefined && msg != null && msg.msgKey == C.MSG_KEY_MSG_PANEL) {
-			this.bookings_from_db[msg.index].show_messaging_panel
-				=msg.show_messaging_panel;
-			this.reset_msgs(msg.index);
+	// overides BaseComponent.subscription_action
+		//if (msg && msg.msgKey == C.MSG_KEY_MSG_PANEL) {
+
+		if (msg.msgKey == C.MSG_KEY_MSG_PANEL) { //close msg panel
+			let index = msg.body.index;
+			let b = this.bookings_from_db[index] ;
+			b.show_messaging_panel
+				=msg.body.show_messaging_panel;
+			this.reset_msgs(index);
 			this.changeDetectorRef.detectChanges();
 		}
 		else {
-			console.debug("201810211344 Map2Component.subscriptio_action(). ignore msg");
+			console.debug("201810211344" , this.class_name , ".subscriptio_action(). ignore msg");
 		}
 	}
 
-	onSubmit(){}
-
 	add_form (booking: any) : void {
-		console.debug("201810072302 BookingsComponent.add_form() booking = "
-			+ C.stringify(booking) );
+		//console.debug("201810072302 BookingsComponent.add_form() booking = " + C.stringify(booking) );
 		let form = this.form_builder.group({
 				journey_id	: [booking.journey_id, []],
 				book_id	 : [booking.book_id, []],

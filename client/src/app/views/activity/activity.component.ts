@@ -103,7 +103,7 @@ export class ActivityComponent extends BaseComponent {
 				this.reset_msg();
 				this.bookings_from_db = bookings_from_db ;	
 				if (this.bookings_from_db.length==0) this.warning_msg='Nothing found' ; 
-				else this.info_msg =`Found ${this.bookings_from_db.length} activities.`	;
+				else this.info_msg =`Found ${this.bookings_from_db.length} activities before filtering.`	;
 				this.set_filter();
 				this.changeDetectorRef.detectChanges();
 			},
