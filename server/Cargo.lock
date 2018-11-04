@@ -321,7 +321,7 @@ dependencies = [
 [[package]]
 name = "imap"
 version = "0.8.1"
-source = "git+https://github.com/whl36512/rust-imap.git#1de131319e13f3983161b3a74a88d44136494f44"
+source = "git+https://github.com/mattnenterprise/rust-imap.git#b45beb88ed436bdb1f271cae450adf0bc233a266"
 dependencies = [
  "bufstream 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "imap-proto 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1049,7 +1049,7 @@ dependencies = [
  "chrono 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "data-encoding 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper-native-tls 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "imap 0.8.1 (git+https://github.com/whl36512/rust-imap.git)",
+ "imap 0.8.1 (git+https://github.com/mattnenterprise/rust-imap.git)",
  "iron 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "iron-cors 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "iron-postgres-middleware 0.2.0 (git+https://github.com/whl36512/iron-postgres-middleware.git)",
@@ -1361,7 +1361,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum hyper 0.10.13 (registry+https://github.com/rust-lang/crates.io-index)" = "368cb56b2740ebf4230520e2b90ebb0461e69034d85d1945febd9b3971426db2"
 "checksum hyper-native-tls 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)" = "72332e4a35d3059583623b50e98e491b78f8b96c5521fcb3f428167955aa56e8"
 "checksum idna 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)" = "38f09e0f0b1fb55fdee1f17470ad800da77af5186a1a76c026b679358b7e844e"
-"checksum imap 0.8.1 (git+https://github.com/whl36512/rust-imap.git)" = "<none>"
+"checksum imap 0.8.1 (git+https://github.com/mattnenterprise/rust-imap.git)" = "<none>"
 "checksum imap-proto 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e8d8c1693af701559f1b2a9b27ca39cf37e8410fa34ebfece5e956887cc9f351"
 "checksum iovec 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "dbe6e417e7d0975db6512b90796e8ce223145ac4e33c377e4a42882a0e88bb08"
 "checksum iron 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "1d8e17268922834707e1c29e8badbf9c712c9c43378e1b6a3388946baff10be2"

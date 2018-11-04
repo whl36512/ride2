@@ -34,7 +34,7 @@ fn main()  {
 	match main_() {
 		Ok(_)	=> {}
         Err(e) => {
-            eprintln!("ERROR 201811031803 email_down::main() {}", e);
+            error!("ERROR 201811031803 email_down::main() {}", e);
         }
 	}
 }
@@ -53,7 +53,7 @@ fn main_() -> Result<i32, Box<Error>> {
 
     let capabilities	= try!(	imap_session.capabilities()			);
     for capability in capabilities.iter() {
-            println!("{}", capability);
+            info!("{}", capability);
 	}
 
     let mailbox			= try!(	imap_session.select("INBOX")		);
@@ -64,7 +64,7 @@ fn main_() -> Result<i32, Box<Error>> {
 	for uid in uids {
     	match imap_session.ed_fetch(uid) {
         	Ok(_) => { }
-        	Err(e) => eprintln!("ERROR 201811031815 {}", e),
+        	Err(e) => error!("ERROR 201811031815 {}", e),
     	};
 	}
     try!(	imap_session.logout()		);
