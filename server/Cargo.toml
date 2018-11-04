@@ -23,9 +23,11 @@ params ="*"
 #hyper ="0.10.13"
 #json = "*"
 iron-postgres-middleware = {git = "https://github.com/whl36512/iron-postgres-middleware.git"}
+imap= {git = "https://github.com/whl36512/rust-imap.git"}
 #openssl = { version = "0.10", features = ["vendored"] }
 #hyper-openssl = "*"
 hyper-native-tls = "*"
+native-tls = "0.2"
 #rust-crypto = "^0.2"
 rand = "*"
 data-encoding = "*"

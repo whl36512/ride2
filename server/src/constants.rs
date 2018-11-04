@@ -32,11 +32,22 @@ pub static SQL_SAVE_MSG		: &str =  "select row_to_json(a) from funcs.save_msg($1
 pub static SQL_WITHDRAW		: &str =  "select row_to_json(a) from funcs.withdraw($1, $2) a " ;
 pub static SQL_THIST		: &str =  "select * 		 from funcs.get_money_trnx($1, $2) a " ;
 
-pub static CORS_ALLOWED_HOSTS : [&str; 9] 
+pub static EMAIL_SEARCH		: &str =  "UID SEARCH SUBJECT \"sent you\" FROM \"chase\" TO \"deposit@beegrove.com\" SMALLER 300000 SENTSINCE 01-Jan-2018" ;
+
+
+pub static CORS_ALLOWED_HOSTS : [&str; 11] 
 	= [
-		"http://rideshare.beegrove.com:4200", "rideshare.beegrove.com:4200", "rideshare.beegrove.com"
-		, "http://10.1.0.110:4200", "10.1.0.110:4200", "10.1.0.110"
-		, "http://10.0.0.110:4200", "10.0.0.110:4200", "10.0.0.110"
+			"http://rideshare.beegrove.com:4200"
+		,	"http://rideshare.beegrove.com:4210"
+		,	"https://rideshare.beegrove.com:4210"
+		, 	"rideshare.beegrove.com:4200"
+		,	"rideshare.beegrove.com"
+		, 	"http://10.1.0.110:4200"
+		,	"10.1.0.110:4200"
+		,	"10.1.0.110"
+		,	"http://10.0.0.110:4200"
+		,	"10.0.0.110:4200"
+		,	"10.0.0.110"
 	] ;
 
 
