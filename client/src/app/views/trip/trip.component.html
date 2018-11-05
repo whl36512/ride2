@@ -56,7 +56,7 @@
 			</dd>
 			<dt>
 			Distance (miles): 
-			<span *ngIf="trip.distance==C.ERROR_NO_ROUTE " class=error>{{trip.distance}}</span>
+			<span *ngIf="trip.distance==C.ERROR_NO_ROUTE " class=error>No route</span>
 			<span *ngIf="trip.distance!=C.ERROR_NO_ROUTE "           >{{trip.distance}}</span>
 			</dt>
         	</dl>
