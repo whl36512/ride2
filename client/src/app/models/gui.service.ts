@@ -156,6 +156,8 @@ export class Util {
 	static is_in_map_search() :boolean {
 		if (!Status.is_in_map_search) return false;
 		if( Util.get_z_index('map') == C.MAP_Z_INDEX_SHOW ){
+			// map search only happens when map is in the backround. So if the map's z-index is high
+			// it is NOT in map search
 			Status.is_in_map_search = false;
 		}
 		return Status.is_in_map_search ;
@@ -164,7 +166,7 @@ export class Util {
 	static create_rider_criteria () : any{
 
 			return	{
-			  version				: 1
+			  version				: C.VERSION_FORM_SEARCH
 			, departure_time		: ''
 			, distance				: C.ERROR_NO_ROUTE
 			, seats		 			: 1

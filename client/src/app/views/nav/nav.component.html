@@ -29,7 +29,7 @@
 		</a>
 		<a routerLink='/map_search_start' 		
 			routerLinkActive='active' 
-			*ngIf="!Status.is_in_map_search" 
+			*ngIf="true||!Status.is_in_map_search" 
 			(click)="nav_menu_off(); map_search_start()">
 			<li>
 				Search on Map

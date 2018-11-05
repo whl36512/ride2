@@ -15,6 +15,8 @@ import { Validators 		} from '@angular/forms';
 import { ValidatorFn 		} from '@angular/forms';
 import { ValidationErrors 	} from '@angular/forms';
 import { AbstractControl	} from '@angular/forms';
+import { Router             }   from '@angular/router';
+
 
 //import { Subscription 	} from 'rxjs';
 
@@ -47,6 +49,7 @@ export class SearchSettingComponent extends BaseComponent {
 
 	constructor(
 		 public 	changeDetectorRef 		: ChangeDetectorRef
+//		, public router						: Router
 		//, private zone: NgZone
 	){ 
 		super(changeDetectorRef);
@@ -57,7 +60,7 @@ export class SearchSettingComponent extends BaseComponent {
 	ngoninit():void {
 		let today = C.TODAY();
 		let trip = StorageService.getForm(C.KEY_FORM_SEARCH);
-		if ( !trip ) { 
+		if ( !trip || trip.version != C.VERSION_FORM_SEARCH ||  trip.distance <=0) { 
 			trip = this.Util.create_rider_criteria();
 		}
 		console.debug("201810291814 SearchSettingComponent.ngOnInit() trip=",
@@ -85,8 +88,8 @@ export class SearchSettingComponent extends BaseComponent {
 			//.subscribe(data => console.log('Form status changes', data));
   	}
 
-	save() {
-	    	console.debug("201809231416 SearchSettingComponent.onSubmit() this.form.value=" 
+	action(start_search:boolean) {
+		console.debug("201809231416 SearchSettingComponent.onSubmit() this.form.value=" 
 				, C.stringify(this.form.value) );
 		this.reset_msg();
 		this.changeDetectorRef.detectChanges();
@@ -100,6 +103,10 @@ export class SearchSettingComponent extends BaseComponent {
 		StorageService.storeForm(C.KEY_FORM_SEARCH, this.trip); 
 		this.info_msg = 'Saved successfully';
 		this.changeDetectorRef.detectChanges();
+		if(start_search) {
+			let url = '/map_search_start';
+			this.router.navigate([url]);
+		}
 	}
 
 	show_map(){

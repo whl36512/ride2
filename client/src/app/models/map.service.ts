@@ -322,6 +322,8 @@ export class MapService {
 
 	draw_line(pair: any):boolean {
 		if ( !pair) 		return false;
+		console.debug('201811041119 MapService.draw_lin() pair=\n'); 
+		console.debug(C.stringify(pair)); 
 		if ( !pair.p1) 		return false;
 		if ( !pair.p2)   	return false;
 		if ( !pair.p1.lat ) 	return false;

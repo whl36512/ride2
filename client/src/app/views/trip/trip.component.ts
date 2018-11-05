@@ -14,6 +14,8 @@ import { AbstractControl} from '@angular/forms';
 import { ChangeDetectionStrategy } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { NgZone } from '@angular/core';
+import { Router             }   from '@angular/router';
+
 
 
 
@@ -54,12 +56,12 @@ export class TripComponent extends BaseComponent {
 		  //private geoService		: GeoService
 		//, private dbService		: DBService
 		//, private form_builder		: FormBuilder
-		public changeDetectorRef	: ChangeDetectorRef
+			public changeDetectorRef	: ChangeDetectorRef
+		//,	public router	: Router
 		//, public  communicationService	: CommunicationService
   		//, private zone			: NgZone
 	){ 
 		super(changeDetectorRef)
-  		console.log("201811011724", this.class_name, '.constructor() enter')  ;
 		this.page_name= C.PAGE_TRIP;
   		console.log("201811011725", this.class_name, '.constructor() exit')  ;
   	} 
@@ -78,10 +80,6 @@ export class TripComponent extends BaseComponent {
 	
 		this.trip=trip;
 		StorageService.storeForm(C.KEY_FORM_TRIP, trip);
-		//this.subscription1 = this.form.valueChanges
-		//.subscribe( data => console.log('Form value changes', data));
-		//this.subscription2 = this.form.statusChanges
-		//.subscribe(data => console.log('Form status changes', data));
 
 		this.form= this.form_builder.group(
 			{
@@ -114,10 +112,10 @@ export class TripComponent extends BaseComponent {
 			}
 		);
 	
-		this.subscription1 
-			= this.form.valueChanges.subscribe(data=> console.log('Form value changes', data),);
-		this.subscription2 
-			= this.form.statusChanges.subscribe(data=> console.log('Form status changes', data),);
+		this.form_value_sub = this.form.valueChanges
+			.subscribe( data => console.log('Form value changes', data));
+		this.form_status_sub = this.form.statusChanges
+			.subscribe(data => console.log('Form status changes', data));
 		this.show_map();
   	}
 

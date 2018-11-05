@@ -1,7 +1,7 @@
 <div class="center f12">Search Setting</div>
 <div class={{show_body}} >
 
-	<form [formGroup]="form" (ngSubmit)="save()">
+	<form [formGroup]="form" (ngSubmit)="onSubmit()">
 		<dl> 
 	  		<dt>
 				<label for="p1_loc">Pickup Location
@@ -39,7 +39,7 @@
 			</dd>
 			<dt>
 			Distance (miles): 
-			<span *ngIf="trip.distance==C.ERROR_NO_ROUTE " class=error>{{trip.distance}}</span>
+			<span *ngIf="trip.distance==C.ERROR_NO_ROUTE " class=error>No route</span>
 			<span *ngIf="trip.distance!=C.ERROR_NO_ROUTE "	   >{{trip.distance}}</span>
 			</dt>
 		</dl>
@@ -70,9 +70,9 @@
 	  		</dd>
 		</dl>
 		<div class=center>
-		<button type="submit" 
-			[disabled]="form.invalid || trip.distance==null || trip.distance=='no route' " >
-			Save Settings to this Device
+		<button type="button" (click)='action(true)'
+			[disabled]="form.invalid || !trip.distance || trip.distance==C.ERROR_NO_ROUTE " >
+			Save Settings to this Device and Start Map Search
 		</button> 
 		</div>
       	</form>

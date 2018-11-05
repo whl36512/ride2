@@ -6,6 +6,7 @@ import { Injector } from '@angular/core';
 //modules the application uses
 import { FormsModule }          from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
+//import { Router             }   from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ChangeDetectorRef }    from '@angular/core';
@@ -50,92 +51,11 @@ import { ThistComponent } from './views/thist/thist.component';
 import { ThistlistComponent } from './views/thistlist/thistlist.component';
 import { MapControllerComponent } from './views/map-controller/map-controller.component';
 import { SearchSettingComponent } from './views/search-setting/search-setting.component';
+import { AppRoutingModule } from './app-routing.module';
 //import { BaseComponent } from './views/base/base.component' ;
 
 
-const appRoutes: Routes = [
-/*
-  { path: 'linked/callback', component:LinkedinService },
-  { path: 'linked/accesstoken', component: CrisisListComponent },
-  { path: 'hero/:id',      component: HeroDetailComponent },
-  {
-    path: 'heroes',
-    component: HeroListComponent,
-    data: { title: 'Heroes List' }
-  },
-  { path: '',
-    redirectTo: '/',
-    pathMatch: 'full'
-  },
-  { path: '**', component: PageNotFoundComponent }
-  */
-	{
-		  path: 'Nav'
-		, component: NavComponent
-		, data: { title: 'Navigation' }
-	},
-	{
-		  path: 'search_setting'
-		, component: SearchSettingComponent
-		, data: { title: 'Search Setting' }
-	},
-	{
-		  path: 'map_search_start'
-		, component: MapControllerComponent
-		, data: { title: 'Map Search' }
-	},
-	{
-		  path: 'map_search_stop'
-		, redirectTo: '/Nav'
-		, pathMatch: 'full'
-	},
-	{
-		  path: 'show_search_result'
-		, component: JourneyComponent
-		, data: { title: 'Search Result' }
-	},
-	{
-		  path: 'Trip'
-		, component: TripComponent
-		, data: { title: 'Trip' }
-	},
-	{
-		  path: 'Activity'
-		, component: ActivityComponent
-		, data: { title: 'Activity' }
-	},
-	{
-		  path: 'Profile'
-		, component: UserComponent
-		, data: { title: 'Profile'}
-	},
-	{
-		  path: 'Thist'
-		, component: ThistComponent
-		, data: { title: 'Trans History' }
-	},
-	{
-		  path: 'Deposit'
-		, component: DepositComponent
-		, data: { title: 'Deposit' }
-	},
-	{
-		  path: 'Withdraw'
-		, component: WithdrawComponent
-		, data: { title: 'Withdraw' }
-	},
-	{ 
-		path: ''
-		, redirectTo: '/map_search_start'
-		, pathMatch: 'full'
-	},
-	{ 
-		path: '**'
-		, redirectTo: '/map_search_start'
-		//, pathMatch: 'full'
-	},
-
-]
+//const appRoutes: Routes = [ ]
 
 @NgModule({
   declarations: [
@@ -163,15 +83,16 @@ const appRoutes: Routes = [
     //BaseComponent,
   ],
   imports: [
-	RouterModule.forRoot(
-		appRoutes,
-    		{ enableTracing: true } // <-- debugging purposes only
-    	),
+	//RouterModule.forRoot(
+		//appRoutes,
+    		//{ enableTracing: true } // <-- debugging purposes only
+    	//),
 	BrowserModule,
 	// import HttpClientModule after BrowserModule.
 	HttpClientModule,
 	FormsModule,
 	ReactiveFormsModule,
+	AppRoutingModule,
 	//BrowserAnimationsModule,
 	//NoopAnimationsModule,
 	//MatButtonModule , 
@@ -181,16 +102,16 @@ const appRoutes: Routes = [
   providers: [
 	//ChangeDetectorRef	,  // causing compiler error. Research turned up no solution
 	//NgZone	,  
-    StorageService,
+    //StorageService,
     MapService,
     GeoService,
     DBService,
     HttpService,
     CommunicationService,
-
+    //Router,
   ],
 
   bootstrap: [AppComponent]
 })
 
-export class AppModule { }  // this is the original generated code
+export class AppModule { }  

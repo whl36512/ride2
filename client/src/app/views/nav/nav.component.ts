@@ -6,6 +6,8 @@ import { Ridebase } 		from '../../models/ridebase';
 //import { CommunicationService } from '../../models/communication.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { ChangeDetectionStrategy } from '@angular/core';
+import { Router             }   from '@angular/router';
+
 
 import { BaseComponent  } from '../base/base.component' ;
 
@@ -19,7 +21,9 @@ import { BaseComponent  } from '../base/base.component' ;
 export class NavComponent extends BaseComponent {
 
 	show_nav=false ;
-	public constructor( public changeDetectorRef : ChangeDetectorRef) {
+	public constructor( public changeDetectorRef : ChangeDetectorRef
+						//,public router: Router
+	) {
 		super(changeDetectorRef);
 	}
 

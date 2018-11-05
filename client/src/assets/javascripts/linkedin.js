@@ -71,7 +71,7 @@ var ride = {
 
     get_session: function(profile)
     {
-	    var encodedRelativeUrl = "/get_session" ;
+	    var encodedRelativeUrl = "/ws/get_session" ;
 
 	    var json_string = JSON.stringify(profile);
 

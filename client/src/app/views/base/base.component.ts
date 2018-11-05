@@ -9,6 +9,7 @@ import { ChangeDetectorRef 	}	from '@angular/core';
 import { FormBuilder		}	from '@angular/forms';
 import { FormGroup 			} 	from '@angular/forms';
 import { timer 				}	from 'rxjs' ;
+import { Router				}	from '@angular/router';
 //import { TimerObservable } from 'rxjs/observable/TimerObservable';
 
 
@@ -47,6 +48,7 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 	geoService				: GeoService			;	
 	//changeDetectorRef		: ChangeDetectorRef 	;
 	form_builder			: FormBuilder 			;
+	router					: Router	 			;
 	//zone					:	NgZone
 
 	error_msg			: string|null	= null;
@@ -60,10 +62,12 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 
 	class_name = this.constructor.name;
 
-	subscription0: Subscription |null = null;
-	subscription1: Subscription |null = null;
-	subscription2: Subscription |null = null;
-	subscription3: Subscription |null = null;
+	subscription0			: Subscription |null = null;
+	subscription1			: Subscription |null = null;
+	subscription2			: Subscription |null = null;
+	subscription3			: Subscription |null = null;
+	form_status_sub			: Subscription |null = null;
+	form_value_sub			: Subscription |null = null;
 	timer_for_injector_sub	;
 	static timer = timer(C.TIMER_INTERVAL, C.TIMER_INTERVAL);
 
@@ -78,15 +82,18 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 
 	constructor(public changeDetectorRef: ChangeDetectorRef
 				//public zone: NgZone
-				) { }
+				) { 
+		console.debug('201811041002', this.class_name, '.constructor() enter.');
+	}
+
 
 	ngOnInit() { 
-		console.debug ('201810290933 ', this.class_name,'.constructor() enter.');
+		console.debug ('201810290933 ', this.class_name,'.ngOnInit() enter.');
 		this.is_signed_in= UserService.is_signed_in();
 		this.wait_for_injector(this.setup_singlton_services);
 
 		this.ngoninit();
-		console.debug ('201810290933 ', this.class_name,'.constructor() exit.');
+		console.debug ('201810290933 ', this.class_name,'.ngOnInit() exit.');
 	}
 
 	setup_singlton_services(injector, this_var)
@@ -97,6 +104,7 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 		if(!this_var.dbService)				this_var.dbService 			= injector.get(DBService);	
 		if(!this_var.geoService)			this_var.geoService 		= injector.get(GeoService);	
 		if(!this_var.form_builder)			this_var.form_builder 		= injector.get(FormBuilder);	
+		if(!this_var.router)				this_var.router 			= injector.get(Router);	
 		//if(!this_var.zone)					this_var.zone		 		= injector.get(NgZone);	
 		//this.logNavigation();
 	
@@ -141,8 +149,11 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 		if( this.subscription1!= null) this.subscription1.unsubscribe();
 		if( this.subscription2!= null) this.subscription2.unsubscribe();
 		if( this.subscription3!= null) this.subscription3.unsubscribe();
+		if( this.form_value_sub!= null) this.form_value_sub.unsubscribe();
+		if( this.form_status_sub!= null) this.form_status_sub.unsubscribe();
 		this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_NOSHOW, {});
 		this.onngdestroy();
+		console.debug ('201810290932 ', this.class_name,'.ngOnDestroy() exit.');
 	}
 
 	onngdestroy(){}
