@@ -93,8 +93,8 @@ export class JourneyComponent extends BaseComponent {
 			j.google_map_url
 				= MapService.google_map_string_from_points([
 									 j.p1
-									//, this.rider_criteria.p1
-									//, this.rider_criteria.p2
+									, this.rider_criteria.p1
+									, this.rider_criteria.p2
 									, j.p2
 					]);
 
@@ -121,7 +121,7 @@ export class JourneyComponent extends BaseComponent {
 		book_from_db_observable.subscribe(
 	    	book_from_db => {
 				console.debug("201808201201 JourneyComponent.book() book_from_db =" + C.stringify(book_from_db));
-				if (book_from_db.status_cd=='P') journey.info_msg='Booked' ;
+				if (book_from_db.status_cd=='P') journey.info_msg='Booked, pending confirmation' ;
 				if (book_from_db.status_cd=='!P') journey.error_msg='Booking failed' ;
 				journey.show_book_button= book_from_db.status_cd!='P';
 				journey.seats_booked= journey.seats_booked

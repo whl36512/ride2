@@ -81,6 +81,77 @@ END
 $body$
 language plpgsql;
 
+create or replace function funcs.bearing(in_trip text )
+  returns double precision
+as
+$body$
+DECLARE
+	lat1	 double precision;
+	lat2	 double precision;
+	lon1	 double precision;
+	lon2	 double precision;
+	dLon	 double precision;
+	x		 double precision;
+	y		 double precision;
+	brng	 double precision; -- bearing
+	bearing	 integer ; -- bearing
+	s0 RECORD ;
+BEGIN
+    SELECT * into s0 from funcs.json_populate_record(NULL::criteria, in_trip ) ;
+	lat1	:=	(s0.p1).lat/360*2*pi();
+	lat2	:=	(s0.p2).lat/360*2*pi();
+	lon1	:=	(s0.p1).lon/360*2*pi();
+	lon2	:=	(s0.p2).lon/360*2*pi();
+	dLon	:=	lon2-lon1;
+
+	y		:=	sin(dLon)* cos(lat2);
+	x		:=	cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
+	brng	:=	atan2(y,x);
+	brng	:=	brng * 360 /(2*pi());
+	bearing	:=	round(brng + 360)::integer % 360;
+	bearing	:=	360 - bearing ; -- counter clockwise
+
+    return bearing;
+END
+$body$
+language plpgsql;
+
+create or replace function funcs.rbearing(in_trip text )
+  returns double precision
+as
+$body$
+DECLARE
+	lat1	 double precision;
+	lat2	 double precision;
+	lon1	 double precision;
+	lon2	 double precision;
+	dLon	 double precision;
+	x		 double precision;
+	y		 double precision;
+	brng	 double precision; -- bearing
+	bearing	 integer ; -- bearing
+	s0 RECORD ;
+BEGIN
+    SELECT * into s0 from funcs.json_populate_record(NULL::criteria, in_trip ) ;
+	lat1	:=	(s0.rp1).lat/360*2*pi();
+	lat2	:=	(s0.rp2).lat/360*2*pi();
+	lon1	:=	(s0.rp1).lon/360*2*pi();
+	lon2	:=	(s0.rp2).lon/360*2*pi();
+	dLon	:=	lon2-lon1;
+
+	y		:=	sin(dLon)* cos(lat2);
+	x		:=	cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
+	brng	:=	atan2(y,x);
+	brng	:=	brng * 360 /(2*pi());
+	bearing	:=	round(brng + 360)::integer % 360;
+	bearing	:=	360 - bearing ; -- counter clockwise
+
+    return bearing;
+END
+$body$
+language plpgsql;
+
+
 create or replace function funcs.updateusr( in_user text, in_dummy text)
   returns usr
 as
@@ -130,6 +201,48 @@ END
 $body$
 language plpgsql;
 
+
+create or replace function funcs.ins_trip( in_trip text, in_user text)
+  returns trip
+as
+$body$
+DECLARE
+  t0 trip ;
+  u0 RECORD ;
+  i1 RECORD ;
+  t1 RECORD ;
+  dummy RECORD ;
+BEGIN
+	SELECT * into t0	FROM funcs.json_populate_record(NULL::trip, in_trip) ;
+	SELECT * into u0	FROM funcs.json_populate_record(NULL::usr , in_user) ;
+
+	t0.driver_id	:=	u0.usr_id;
+	t0.dir 			:=	funcs.bearing(in_trip);
+	t0.trip_id		:=	uuid_generate_v4();
+	t0.status_code	:=	'A' ;
+	t0.c_ts			:=	clock_timestamp();
+	t0.m_ts			:=	clock_timestamp();
+
+	insert into trip values( t0.*)
+	returning * into t1
+  	;
+
+	if t1.recur_ind = true then
+		select funcs.create_journey(t1.trip_id) into dummy;
+	else
+		insert into journey (trip_id, journey_date, departure_time, seats, price)
+		select 	trip1.trip_id
+			, t1.start_date
+			, t1.departure_time
+			, t1.seats
+			, t1.price
+		;
+	end if ;
+
+  	return t1;
+END
+$body$
+language plpgsql;
 
 create or replace function funcs.upd_trip( in_trip text, in_user text)
   returns trip
@@ -717,15 +830,18 @@ $body$
 			, least	  ((t.p1).lon, (t.p2).lon) p1_lon
 			, greatest((t.p1).lon, (t.p2).lon) p2_lon  
 			, coalesce(t.seats    , 1)         seats
-			, coalesce(t.price    , 0.24)/1.2      max_drive_price
-			, coalesce(t.date1    , now()::date )	date1
-			, coalesce(t.date2      
-				, coalesce(t.date2    , now()::date ) + 10 )	date2
-			-- if distance  is null, use 1/4 of longest side of map
+			, coalesce(t.price    , 0.24)/1.2      max_driver_price
+			, funcs.rbearing(in_criteria)- 29		min_rdir
+			, funcs.rbearing(in_criteria)+ 29 		max_rdir
+			, funcs.rbearing(in_criteria)- 29 + 360	min_rdir_360
+			, funcs.rbearing(in_criteria)+ 29 + 360	max_rdir_360
+			, funcs.rbearing(in_criteria)- 29 - 360	min_rdir_360_1
+			, funcs.rbearing(in_criteria)+ 29 - 360	max_rdir_360_1
+			, date1
+			, date2      
 			, t.distance 
-			, coalesce(t.distance      , 
-				greatest(abs((t.p2).lat - (t.p1).lat)
-					, abs((t.p2).lon- (t.p1).lon))*60/4 ) min_distance
+			, t.distance /3								min_distance
+			, t.distance *3								max_distance
 		FROM funcs.json_populate_record(NULL::funcs.criteria , in_criteria) t 
 	)
 	, a as (
@@ -761,7 +877,11 @@ $body$
 				and t.start_lon between c0.p1_lon and c0.p2_lon
 				and t.end_lat between c0.p1_lat and c0.p2_lat
 				and t.end_lon between c0.p1_lon and c0.p2_lon
-				and t.distance  between c0.min_distance/4 and c0.min_distance *4
+				and t.distance  between c0.min_distance and c0.max_distance
+				and ( 	t.dir   between c0.min_rdir and c0.max_rdir
+					or	t.dir   between c0.min_rdir_360 and c0.max_rdir_360
+					or	t.dir   between c0.min_rdir_360_1 and c0.max_rdir_360_1
+					)
 		)
 		join usr 	ut on (ut.usr_id=t.driver_id) -- to get driver sm_link
 		left outer join usr u on (u.usr_id = user0.usr_id) -- to get bookings
@@ -771,7 +891,7 @@ $body$
 					)
 		where j.status_code='A'
 		and j.seats >= c0.seats
-		and j.price <= c0.max_drive_price
+		and j.price <= c0.max_driver_price
 		and j.journey_date between c0.date1 and c0.date2
 		order by j.journey_date , j.departure_time
 		limit 100

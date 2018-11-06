@@ -28,14 +28,16 @@ pub fn request_sql(req: & mut Request, sql : &str, expected_rows: u32) -> IronRe
     let db_conn= req.db_conn() ;
 
     if  expected_rows == 1 {
-	let row : Option<Json> 
-         = db::runsql_one_row (
-		&db_conn
+    	debug!("201811052005 handlerS::request_sql expected_rows= {} sql={}", expected_rows, &sql) ;
+		let row : Option<Json> 
+         	= db::runsql_one_row (
+			&db_conn
                 , sql
             	, &[&request_component.params.to_string(),  &request_component.user_from_token_string ]) ; 
     	return Ok(Response::with((status::Ok, serde_json::to_string(&row.unwrap()).unwrap()))) ;
     }
     else {
+    	debug!("201811052005 handlerS::request_sql expected_rows= {} sql={}", expected_rows, &sql) ;
     	let rows :Vec<Json>  
         	= db::runsql_conn (&db_conn
             	, sql 
@@ -127,6 +129,13 @@ pub fn upd_trip(req: &mut Request) -> IronResult<Response> {
     return Ok(Response::with((status::Ok, trip_from_db_json.unwrap().to_string()))) ;
 }
 
+pub fn ins_trip(req: &mut Request) -> IronResult<Response> {
+    let request_component = req.inspect();
+    let trip_from_param = validate_trip(&request_component.params);
+    if trip_from_param == None { return Ok(Response::with((status::NotAcceptable, constants::ERROR_TRIP_VALIDATION)))}
+	debug!("201811051945 handlers::ins_trip() trip validation passed");
+	request_sql(req, constants::SQL_INS_TRIP, 1)
+}
 pub fn search(req: &mut Request) -> IronResult<Response> {
 	request_sql(req, constants::SQL_SEARCH, 2)
 }

@@ -14,6 +14,7 @@ pub static PG_PASSWD 	: &str ="ride" ;
 pub static PG_DATABASE 	: &str ="ride" ;
 
 
+pub static SQL_INS_TRIP 	: &str =  "select row_to_json(a) from funcs.ins_trip($1, $2) a " ;
 pub static SQL_UPD_USER 	: &str =  "select row_to_json(a) from funcs.updateusr($1, $2) a " ;
 pub static SQL_SEARCH 		: &str =  "select a from funcs.search($1, $2) a " ;
 pub static SQL_SEARCH_ALL 	: &str =  "select a from funcs.search_all($1, $2) a " ;

@@ -75,6 +75,7 @@ create type criteria as
 	, 	rp1				location		-- rider pickup location
 	, 	rp2				location		-- rider dropoff location
 	, 	distance		decimal(8,2)
+	, 	dir				double precision 
 	, 	departure_time 	time
 	, 	usr_id 			uuid
 	, 	driver_id 		uuid
@@ -129,11 +130,12 @@ CREATE TABLE trip
 	, end_lat		decimal(18,14) not null default 0
 	, end_lon		decimal(18,14) not null default 0
 	, distance		decimal(8,2)	not null default 0
-	, price		 ridemoney	not null default 0.1 -- price per mile
+	, dir			double precision				not null
+	, price		 	ridemoney	not null default 0.1 -- price per mile
 	, recur_ind		boolean not null default false
 	, status_code		char(1) not null default	'A' -- Pending, Active,	Cancelled,	Expired
 	, description		text
-	, seats		 integer not null default 3
+	, seats		 	integer not null default 3
 	, day0_ind		boolean not null default false		-- sunday
 	, day1_ind		boolean not null default false
 	, day2_ind		boolean not null default false

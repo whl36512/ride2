@@ -59,9 +59,7 @@ export class MapControllerComponent extends BaseComponent {
 
 		if (! rider_criteria || rider_criteria.distance== C.ERROR_NO_ROUTE 
 			||rider_criteria.version != C.VERSION_FORM_SEARCH) {
-			this.error_msg
-				='Search criteria is not available.<br/> Please use Search Setting to set it up';
-			return;
+			this.router.navigate(['/search_setting']);
 		}
 
 		this.warning_msg = 'Please adjust map area to search for available trips' ;
@@ -122,6 +120,8 @@ export class MapControllerComponent extends BaseComponent {
 
 
         let rider_criteria = StorageService.getForm(C.KEY_FORM_SEARCH) ;
+		rider_criteria.rp1=rider_criteria.p1;
+		rider_criteria.rp2=rider_criteria.p2;
 		// region p1,p2 overwrite rider_criteria.p1,p2
 		let search_criteria_combined = {...rider_criteria, ... JSON.parse(region_search_criteria)};
 		

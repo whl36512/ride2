@@ -171,10 +171,12 @@ export class MapService {
 	mark_book (book, index: number, is_highlight:boolean) {
 		if (!book) return;
 		let i= index;
-		let google_map_string = MapService.google_map_string(book);
+		//let google_map_string = MapService.google_map_string(book);
+		let google_map_url = book.google_map_url;
+		if (!google_map_url) google_map_url= MapService.google_map_string(book);
 
 		Util.convert_book_to_pairs(book);
-		let popup = `<div>${book.journey_date} ${book.departure_time} ${google_map_string}</div>`
+		let popup = `<div>${book.journey_date} ${book.departure_time} ${google_map_url}</div>`
 
 		let pair: any = {};
 		pair.p1	= 	book.p1	;
