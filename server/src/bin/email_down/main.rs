@@ -80,6 +80,44 @@ fn read_credential() ->  (String, String) {
 	(user_name, pw)
 }
 
+fn security_check(uid) -> Result <boolean, Box<Error>>{
+	let path		=	format!("{}/{}", OUTPUT_DIR, uid);
+	let mut input	=	try!(	File::open(&path)					);
+	let lines 		=	BufReader::new(input).lines()	;
+	let lines_pass[boolean;8]	= [false, false , false , false , false , false , false , false];
+	while(true) {
+		let line1 = lines.next();
+		if  line1.find(constants::EMAIL_S1).unwrap_or(-1) == 0 {
+			lines_pass[0]	= true;
+			let line2 = lines.next();
+			if line2.find(constants::EMAIL_S2).unwrap_or(-1) == 0 { lines_pass[1] = true; }
+			let line3 = lines.next();
+			if line3.find(constants::EMAIL_S3).unwrap_or(-1) == 0 { lines_pass[2]= true; }
+			let line4 = lines.next();
+			if line4.find(constants::EMAIL_S4).unwrap_or(-1) == 0 { lines_pass[3]= true; }
+		}
+		if  line1.find(constants::EMAIL_S5).unwrap_or(-1) == 0 {
+			lines_pass[4]	= true;
+			let line2 = lines.next();
+			if line2.find(constants::EMAIL_S2).unwrap_or(-1) != 0 {	lines_pass[5]= true; }
+			let line3 = lines.next(); 
+			if line3.find(constants::EMAIL_S3).unwrap_or(-1) != 0 {	lines_pass[6]= true; }
+			let line4 = lines.next();
+			if line4.find(constants::EMAIL_S4).unwrap_or(-1) != 0 {	lines_pass[7]= true; }
+		}
+		let all_ture = lines_pass.fold(true, |sum, x| sum  && x) ;
+		if all_true {
+			info!("201811070001 Security check for {} passed", &path);
+			return Ok(true);
+		}
+		for key in lines_pass {
+			if ( ! lines_pass[key] ) 
+				error!("201811070006 Security check on {} failed for line {}", path, key+1);
+		}
+		return Ok(false);
+    }
+}
+
 pub trait EmailDown {
 	fn ed_search(&mut self)					->	Result<String, Box<Error>>	;
 	fn ed_fetch(&mut self, uid: &str)		->	Result<i32	,  Box<Error>> 	;
@@ -118,5 +156,6 @@ impl <T:Read + Write> EmailDown for Session<T> {
 		let msg			= try!(	str::from_utf8(&msg_utf8)	) ;
 		Ok(msg.to_string())
 	}
+
 }
 
