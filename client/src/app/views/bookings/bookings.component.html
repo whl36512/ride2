@@ -71,27 +71,33 @@
 	<span *ngIf='bookings_from_db[i].fail_msg!=null' class='error fade'>
 		{{bookings_from_db[i].fail_msg}}
 	</span>
-	<br/>
-
 	<app-message *ngIf='bookings_from_db[i].show_messaging_panel'
                         [book_id]="bookings_from_db[i].book_id"
                         [index]="i"
                         >
 	</app-message>
-	<div class=f08>
+	<div >
+ 		<div *ngIf='!bookings_from_db[i].is_driver' >
+ 			<span class='driver clickable-text' >
+				<a [href]='bookings_from_db[i].sm_link' target=_blank>Driver:</a>
+			</span>{{bookings_from_db[i].headline}} 
+		</div>
 		<span class='from clickable-text' (click)='geo_mark(i)'>Driver from:</span> 
 		{{bookings_from_db[i].start_display_name}} <br/>
 		<span class='to clickable-text' (click)='geo_mark(i)' >Driver to:</span> 
-		{{bookings_from_db[i].end_display_name}} 
-		<div *ngIf='bookings_from_db[i].book_id!=null'>
+		{{bookings_from_db[i].end_display_name}} <br/>
+		<span *ngIf='bookings_from_db[i].book_id!=null'>
+			<span  *ngIf='!bookings_from_db[i].is_rider'>
+ 				<span class='driver clickable-text' >
+					<a [href]='bookings_from_db[i].sm_link' target=_blank>Passenger:</a>
+				</span>{{bookings_from_db[i].headline}} <br/>
+			</span>
 			<span class='from clickable-text' (click)='geo_mark(i)'>Passenger Pickup:</span> 
-			{{bookings_from_db[i].pickup_display_name}}
-		</div>
-		<div *ngIf='bookings_from_db[i].book_id!=null'>
+			{{bookings_from_db[i].pickup_display_name}}<br/>
 			<span class='to clickable-text' (click)='geo_mark(i)'>Passenger Dropoff:</span> 
-			{{bookings_from_db[i].dropoff_display_name}}
-		</div>
-		<span class='f08 to clickable-text' [innerHTML]="bookings_from_db[i].google_map_url"></span>
+			{{bookings_from_db[i].dropoff_display_name}} <br/>
+		</span>
+		<span class='button clickable-text' [innerHTML]="bookings_from_db[i].google_map_url"></span>
 		<div>Description: {{bookings_from_db[i].description}}</div>
 	</div>
     </form>

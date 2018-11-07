@@ -15,9 +15,9 @@ import { TripComponent } 	from './views/trip/trip.component';
 import { Map2Component } 	from './views/map2/map2.component';
 
 import { JourneyComponent } 	from './views/journey/journey.component';
-import { TouComponent } from './views/tou/tou.component';
-import { TosComponent } from './views/tos/tos.component';
-import { PrivacyComponent } from './views/privacy/privacy.component';
+//import { TouComponent } from './views/tou/tou.component';
+//import { TosComponent } from './views/tos/tos.component';
+//import { PrivacyComponent } from './views/privacy/privacy.component';
 import { ActivityComponent } from './views/activity/activity.component';
 //import { BookingsComponent } from './views/bookings/bookings.component';
 import { DepositComponent } from './views/deposit/deposit.component';
@@ -25,6 +25,7 @@ import { WithdrawComponent } from './views/withdraw/withdraw.component';
 import { ThistComponent } from './views/thist/thist.component';
 import { MapControllerComponent } from './views/map-controller/map-controller.component';
 import { SearchSettingComponent } from './views/search-setting/search-setting.component';
+import { MiscComponent } from './views/misc/misc.component';
 
 const appRoutes: Routes = [
 /*
@@ -96,6 +97,11 @@ const appRoutes: Routes = [
 		  path: 'Withdraw'
 		, component: WithdrawComponent
 		, data: { title: 'Withdraw' }
+	},
+	{
+		  path: 'misc'
+		, component: MiscComponent
+		, data: { title: 'Miscellaneous' }
 	},
 	{ 
 		path: ''

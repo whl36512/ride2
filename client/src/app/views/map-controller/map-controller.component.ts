@@ -13,7 +13,6 @@ import {MapService} from "../../models/map.service"
 import {DotIcon} 	from "../../models/map.service"
 import {PinIcon} 	from "../../models/map.service"
 import {C} 			from "../../models/constants"
-//import {Ridebase} 	from "../../models/ridebase"
 import {Util} 		from "../../models/gui.service"
 //import {DBService} 	from '../../models/remote.service' ;
 import {Status} 	from "../../models/gui.service"
@@ -30,8 +29,8 @@ import { BaseComponent      } from '../base/base.component' ;
 	changeDetection: ChangeDetectionStrategy.OnPush , 
 		
 })
-export class MapControllerComponent extends BaseComponent {
 
+export class MapControllerComponent extends BaseComponent {
 	region_search_criteria: any ;
 	map_region: any ;  // for map movement detection
 	map_move_time	: number; 
@@ -68,7 +67,7 @@ export class MapControllerComponent extends BaseComponent {
 		let viewport= MapService.map_viewport_with_margin(rider_criteria, C.MAP_VIEWPORT_MARGIN);
         this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, viewport);
 
- 		this.subscription1 = BaseComponent.timer.subscribe(
+ 		this.timer_sub = BaseComponent.timer.subscribe(
             // val will be 0, 1,2,3,...
             val => {
 				//console.debug('201811041948', this.class_name, 'timer val=', val);
@@ -111,6 +110,7 @@ export class MapControllerComponent extends BaseComponent {
 		console.debug ('201811041111 MapControllerComponent.search() perform map searching.') ;
 
 		this.reset_msg();
+        this.changeDetectorRef.detectChanges() ;
 		this.warning_msg 			= 'Searching ...';
 		this.search_is_running		= true;
 		this.region_search_criteria = region_search_criteria;
@@ -133,6 +133,7 @@ export class MapControllerComponent extends BaseComponent {
 		data_from_db_observable.subscribe(
 			journeys_from_db => {
 				this.reset_msg();
+				this.changeDetectorRef.detectChanges() ;
 				console.info("201808201201 MapControllerComponent.search() journeys_from_db ="
 						, C.stringify(journeys_from_db));
 				// save both search result and rider criteria at the same time
@@ -147,11 +148,11 @@ export class MapControllerComponent extends BaseComponent {
 						+ ' offers. Showing ' + C.MAX_SEARCH_RESULT
 						+ '. <br/>Please adjust map area to found more relevant offers';
 				else this.info_msg = `Found ${rows_found} offers.`
+				this.changeDetectorRef.detectChanges() ;
 
 				this.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS , journeys_from_db);
 				let pair = Util.deep_copy(rider_criteria);
 				this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR , pair);
-				this.changeDetectorRef.detectChanges() ;
 				this.search_is_running= false ;
 				console.debug ('201811041111 MapControllerComponent.search() finish map searching.') ;
 			},

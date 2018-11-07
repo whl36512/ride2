@@ -1,0 +1,32 @@
+/tmp/email_down/37106:ARC-Authentication-Results: i=1; mx.google.com;
+/tmp/email_down/37106:       dkim=pass header.i=@alertsp.chase.com header.s=d4815 header.b=CMct5HRs;
+/tmp/email_down/37106:       spf=pass (google.com: domain of srs0=ppno=mg=alertsp.chase.com=no-reply@bounce.secureserver.net designates 173.201.192.55 as permitted sender) smtp.mailfrom="SRS0=pPNo=MG=alertsp.chase.com=no-reply@bounce.secureserver.net";
+/tmp/email_down/37106:       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=alertsp.chase.com
+/tmp/email_down/37106:Authentication-Results: mx.google.com;
+/tmp/email_down/37106:       dkim=pass header.i=@alertsp.chase.com header.s=d4815 header.b=CMct5HRs;
+/tmp/email_down/37106:       spf=pass (google.com: domain of srs0=ppno=mg=alertsp.chase.com=no-reply@bounce.secureserver.net designates 173.201.192.55 as permitted sender) smtp.mailfrom="SRS0=pPNo=MG=alertsp.chase.com=no-reply@bounce.secureserver.net";
+/tmp/email_down/37106:       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=alertsp.chase.com
+/tmp/email_down/37107:ARC-Authentication-Results: i=1; mx.google.com;
+/tmp/email_down/37107:       dkim=pass header.i=@alertsp.chase.com header.s=d4815 header.b=NJM60AVl;
+/tmp/email_down/37107:       spf=pass (google.com: domain of srs0=ppno=mg=alertsp.chase.com=no-reply@bounce.secureserver.net designates 173.201.192.53 as permitted sender) smtp.mailfrom="SRS0=pPNo=MG=alertsp.chase.com=no-reply@bounce.secureserver.net";
+/tmp/email_down/37107:       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=alertsp.chase.com
+/tmp/email_down/37107:Authentication-Results: mx.google.com;
+/tmp/email_down/37107:       dkim=pass header.i=@alertsp.chase.com header.s=d4815 header.b=NJM60AVl;
+/tmp/email_down/37107:       spf=pass (google.com: domain of srs0=ppno=mg=alertsp.chase.com=no-reply@bounce.secureserver.net designates 173.201.192.53 as permitted sender) smtp.mailfrom="SRS0=pPNo=MG=alertsp.chase.com=no-reply@bounce.secureserver.net";
+/tmp/email_down/37107:       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=alertsp.chase.com
+/tmp/email_down/37111:ARC-Authentication-Results: i=1; mx.google.com;
+/tmp/email_down/37111:       dkim=pass header.i=@alertsp.chase.com header.s=d4815 header.b=CMct5HRs;
+/tmp/email_down/37111:       spf=pass (google.com: domain of srs0=ppno=mg=alertsp.chase.com=no-reply@bounce.secureserver.net designates 173.201.192.55 as permitted sender) smtp.mailfrom="SRS0=pPNo=MG=alertsp.chase.com=no-reply@bounce.secureserver.net";
+/tmp/email_down/37111:       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=alertsp.chase.com
+/tmp/email_down/37111:Authentication-Results: mx.google.com;
+/tmp/email_down/37111:       dkim=pass header.i=@alertsp.chase.com header.s=d4815 header.b=CMct5HRs;
+/tmp/email_down/37111:       spf=pass (google.com: domain of srs0=ppno=mg=alertsp.chase.com=no-reply@bounce.secureserver.net designates 173.201.192.55 as permitted sender) smtp.mailfrom="SRS0=pPNo=MG=alertsp.chase.com=no-reply@bounce.secureserver.net";
+/tmp/email_down/37111:       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=alertsp.chase.com
+/tmp/email_down/37112:ARC-Authentication-Results: i=1; mx.google.com;
+/tmp/email_down/37112:       dkim=pass header.i=@alertsp.chase.com header.s=d4815 header.b=NJM60AVl;
+/tmp/email_down/37112:       spf=pass (google.com: domain of srs0=ppno=mg=alertsp.chase.com=no-reply@bounce.secureserver.net designates 173.201.192.53 as permitted sender) smtp.mailfrom="SRS0=pPNo=MG=alertsp.chase.com=no-reply@bounce.secureserver.net";
+/tmp/email_down/37112:       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=alertsp.chase.com
+/tmp/email_down/37112:Authentication-Results: mx.google.com;
+/tmp/email_down/37112:       dkim=pass header.i=@alertsp.chase.com header.s=d4815 header.b=NJM60AVl;
+/tmp/email_down/37112:       spf=pass (google.com: domain of srs0=ppno=mg=alertsp.chase.com=no-reply@bounce.secureserver.net designates 173.201.192.53 as permitted sender) smtp.mailfrom="SRS0=pPNo=MG=alertsp.chase.com=no-reply@bounce.secureserver.net";
+/tmp/email_down/37112:       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=alertsp.chase.com

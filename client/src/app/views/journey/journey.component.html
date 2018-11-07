@@ -9,11 +9,10 @@
 	<div *ngIf='info_msg!=null' 	class=info [innerHTML]='info_msg'></div>
 
 
-	<div 
-		*ngFor="let journey of journeys_from_db ;let i=index;
-			let even=even;let odd=odd; let first = first; let last = last; trackBy:trackByFunc"
-			[ngClass]="{ odd: odd, even: even }">
-      		<table>
+	<div *ngFor="let journey of journeys_from_db ;let i=index;
+		let even=even;let odd=odd; let first = first; let last = last; trackBy:trackByFunc"
+		[ngClass]="{ odd: odd, even: even }">
+      	<table>
 			<thead>
 				<tr >
 					<th>#</th>
@@ -40,7 +39,6 @@
 					</td>
 					<td *ngIf='journey.error_msg' class=error 	[innerHTML]='journey.error_msg'></td>
 					<td *ngIf='journey.info_msg'  class=info 	[innerHTML]='journey.info_msg'></td>
-					
 				</tr>
 			</tbody>
 		</table>

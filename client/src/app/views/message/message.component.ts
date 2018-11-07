@@ -45,7 +45,7 @@ export class MessageComponent extends BaseComponent {
 		super(changeDetectorRef);
 		console.debug("201809262245 MessageComponent.constructor() enter")	;
 
-		this.subscription1 = BaseComponent.timer.subscribe(
+		this.timer_sub = BaseComponent.timer.subscribe(
 			// val will be 0, 1,2,3,...
 			val => {
 				if(val >0) {

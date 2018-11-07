@@ -2,7 +2,6 @@ import { Component} 		from '@angular/core';
 import { OnInit } 		from '@angular/core';
 import { UserService } 		from '../../models/gui.service';
 import { C } 			from '../../models/constants';
-import { Ridebase } 		from '../../models/ridebase';
 //import { CommunicationService } from '../../models/communication.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { ChangeDetectionStrategy } from '@angular/core';

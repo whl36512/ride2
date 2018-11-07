@@ -1,4 +1,9 @@
 <div class="center f12">Search Setting</div>
+<div class=hide-unhide>
+    <button (click)='show_body=C.BODY_NOSHOW' > {{C.ICON_ARROW_UP}}  </button>
+    <button (click)='show_body=C.BODY_SHOW'   > {{C.ICON_ARROW_DOWN}}</button>
+</div>
+
 <div class={{show_body}} >
 
 	<form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -45,11 +50,11 @@
 		</dl>
 
 		<dl>
-	  		<dt><label for="date1">Search from</label></dt>
+	  		<dt><label for="date1">Date Range from</label></dt>
 	  		<dd> <input type="date" formControlName="date1" min={{C.TODAY()}} required/> 
 				<span class="validity"></span>
 			</dd>
-	  		<dt><label for="date2">Search to</label></dt>
+	  		<dt><label for="date2">to</label></dt>
 	  		<dd> <input type="date" formControlName="date2" min={{this.form.value.date1}} /> 
 				<span class="validity"></span>
 			</dd>

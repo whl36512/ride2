@@ -38,7 +38,6 @@ import { BaseComponent	} from '../base/base.component' ;
   changeDetection: ChangeDetectionStrategy.OnPush ,
 })
 
-//export class SearchSettingComponent extends Ridebase implements OnInit{
 export class SearchSettingComponent extends BaseComponent {
 	// when *ngIf is true, both constructor() and ngOnInit() are called. constructor is called first then ngOnInit
 	// the html needs  trip to populate its input fields. If trip==undefined, angular will keep calling constructor. 

@@ -26,7 +26,6 @@ import { DBService} from '../../models/remote.service' ;
 import { CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 import { C} from '../../models/constants';
-import { Ridebase} from '../../models/ridebase';
 import { StorageService } from '../../models/gui.service';
 import { Util } from '../../models/gui.service';
 import { BaseComponent } from '../base/base.component' ;
@@ -51,6 +50,7 @@ export class TripComponent extends BaseComponent {
 	trip:any;
 	step=1;
 	today = C.TODAY();
+	button_label = 'Publish';
 
 	constructor(
 		  //private geoService		: GeoService
@@ -144,6 +144,7 @@ export class TripComponent extends BaseComponent {
 				this.form_saved_to_db=true;
 				this.info_msg
 					='The trip is published. Other users can start to book the trip.';
+				this.button_label='Publish Another';
 				this.changeDetectorRef.detectChanges() ;
 			},
 			error => {

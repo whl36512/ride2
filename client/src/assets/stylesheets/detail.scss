@@ -257,3 +257,10 @@ user-select: none;
     transform: scale(1.5); 
 }
 
+.button {
+	background-color: #44e;
+	color: white;
+	& a {
+		color: white;
+	}
+}

@@ -831,17 +831,21 @@ $body$
 			, greatest((t.p1).lon, (t.p2).lon) p2_lon  
 			, coalesce(t.seats    , 1)         seats
 			, coalesce(t.price    , 0.24)/1.2      max_driver_price
-			, funcs.rbearing(in_criteria)- 29		min_rdir
-			, funcs.rbearing(in_criteria)+ 29 		max_rdir
-			, funcs.rbearing(in_criteria)- 29 + 360	min_rdir_360
-			, funcs.rbearing(in_criteria)+ 29 + 360	max_rdir_360
-			, funcs.rbearing(in_criteria)- 29 - 360	min_rdir_360_1
-			, funcs.rbearing(in_criteria)+ 29 - 360	max_rdir_360_1
+			, funcs.rbearing(in_criteria)- 43		min_rdir
+			, funcs.rbearing(in_criteria)+ 43 		max_rdir
+			, funcs.rbearing(in_criteria)- 43 + 360	min_rdir_360
+			, funcs.rbearing(in_criteria)+ 43 + 360	max_rdir_360
+			, funcs.rbearing(in_criteria)- 43 - 360	min_rdir_360_1
+			, funcs.rbearing(in_criteria)+ 43 - 360	max_rdir_360_1
+			, sin(funcs.rbearing(in_criteria)/360*2*pi())		sin_rdir
+			, cos(funcs.rbearing(in_criteria)/360*2*pi())		cos_rdir
+			, t.rp1
+			, t.rp2
 			, date1
 			, date2      
 			, t.distance 
 			, t.distance /3								min_distance
-			, t.distance *3								max_distance
+			, t.distance *4								max_distance
 		FROM funcs.json_populate_record(NULL::funcs.criteria , in_criteria) t 
 	)
 	, a as (
@@ -867,6 +871,8 @@ $body$
 			  end sufficient_balance
 			--, ut.sm_link
 			, ut.headline
+			, c0.rp1
+			, c0.rp2
 		from journey j
 		join user0 on (1=1)  -- usr0 may not ba available because of not signed in
 		join c0 on (1=1)
@@ -882,6 +888,8 @@ $body$
 					or	t.dir   between c0.min_rdir_360 and c0.max_rdir_360
 					or	t.dir   between c0.min_rdir_360_1 and c0.max_rdir_360_1
 					)
+				and (t.end_lat-(c0.rp1).lat)*cos_rdir - (end_lon-(c0.rp1).lon)* sin_rdir > c0.distance/60*0.1
+				and (t.start_lat-(c0.rp2).lat)*cos_rdir - (start_lon-(c0.rp2).lon) * sin_rdir < - c0.distance/60*0.1
 		)
 		join usr 	ut on (ut.usr_id=t.driver_id) -- to get driver sm_link
 		left outer join usr u on (u.usr_id = user0.usr_id) -- to get bookings
@@ -1218,8 +1226,8 @@ $body$
 			, b.dropoff_display_name
 			, b.dropoff_lat
 			, b.dropoff_lon
-			, case when ids.usr_id = t.driver_id then ud.headline else ur.headline end headline
-			, case when ids.usr_id = t.driver_id then ud.sm_link  else ur.sm_link  end sm_link
+			, case when ids.usr_id = t.driver_id then ur.headline else ud.headline end headline
+			, case when ids.usr_id = t.driver_id then ur.sm_link  else ud.sm_link  end sm_link
 		from ids 
 		join trip 		t 	on ( t.trip_id=ids.trip_id )
 		join journey 		j 	on (j.journey_id= ids.journey_id) 

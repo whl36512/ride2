@@ -130,9 +130,9 @@ pub fn upd_trip(req: &mut Request) -> IronResult<Response> {
 }
 
 pub fn ins_trip(req: &mut Request) -> IronResult<Response> {
-    let request_component = req.inspect();
-    let trip_from_param = validate_trip(&request_component.params);
-    if trip_from_param == None { return Ok(Response::with((status::NotAcceptable, constants::ERROR_TRIP_VALIDATION)))}
+    //let request_component = req.inspect();
+    //let trip_from_param = validate_trip(&request_component.params);
+    //if trip_from_param == None { return Ok(Response::with((status::NotAcceptable, constants::ERROR_TRIP_VALIDATION)))}
 	debug!("201811051945 handlers::ins_trip() trip validation passed");
 	request_sql(req, constants::SQL_INS_TRIP, 1)
 }

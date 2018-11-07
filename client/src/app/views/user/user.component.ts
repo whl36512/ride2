@@ -15,7 +15,6 @@ import {AbstractControl,	ValidatorFn	} from '@angular/forms';
 import {Usr								} from '../../models/tables' ;
 //import {Constants						} from '../../models/constants' ;
 import {C								} from '../../models/constants' ;
-//import {Ridebase						} from '../../models/ridebase' ;
 import {UserService						} from '../../models/gui.service' ;
 //import {DBService						} from '../../models/remote.service' ;
 //import {CommunicationService			} from '../../models/communication.service' ;

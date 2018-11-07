@@ -4,7 +4,6 @@ import { Subscription }   from 'rxjs';
 
 import {CommunicationService} 	from "./models/communication.service" ;
 import {C} 			from "./models/constants" ;
-//import {Ridebase} 		from "./models/ridebase" ;
 import {Util} 			from "./models/gui.service" ;
 
 
@@ -13,21 +12,21 @@ import {Util} 			from "./models/gui.service" ;
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-//export class AppComponent extends Ridebase {
 export class AppComponent  {
   	title = 'ride2';
-	pages: any ={}	;
+	//pages: any ={}	;
 
   	constructor (
-		public communicationService: CommunicationService
+		//public communicationService: CommunicationService
 	)
 	{
 		//super(communicationService);
-  		this.setFalse();
-    		this.pages.nav		= true ;
+  		//this.setFalse();
+    		//this.pages.nav		= true ;
 		//this.list_global_objects();
 	}
 
+/*
 	setFalse () {
 		this.pages.search 	= false ;
 		this.pages.user 	= false ;
@@ -69,4 +68,5 @@ export class AppComponent  {
 			this.deselect(msg.page);
 		}
 	}
+*/
 }

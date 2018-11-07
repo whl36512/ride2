@@ -1,43 +1,33 @@
-import	{	Component,	OnInit	}	from	'@angular/core';
-import	{	OnDestroy	}	from	'@angular/core';
-import	{	NgZone	}	from	'@angular/core';
+import	{	Component		}	from	'@angular/core';
 import	{	ChangeDetectionStrategy	}	from	'@angular/core';
-import { ChangeDetectorRef } from '@angular/core';
+import	{ 	ChangeDetectorRef 		}	from '@angular/core';
 
-import	{	FormControl	}	from	'@angular/forms';
-import	{	FormGroup	}	from	'@angular/forms';
-import	{	FormArray	}	from	'@angular/forms';
-import	{	FormBuilder	}	from	'@angular/forms';
-import	{	Validators	}	from	'@angular/forms';
-import	{	ValidatorFn	}	from	'@angular/forms';
-import	{	ValidationErrors	}	from	'@angular/forms';
-import	{	AbstractControl}	from	'@angular/forms';
-import	{	Subscription	}	from	'rxjs';
+import	{	AbstractControl	}	from	'@angular/forms';
+import	{	Input			}	from	'@angular/core';
+//import  {   FormControl }   from    '@angular/forms';
+//import  {   FormGroup   }   from    '@angular/forms';
+//import  {   FormArray   }   from    '@angular/forms';
+//import  {   FormBuilder }   from    '@angular/forms';
+import  {   Validators  }		from    '@angular/forms';
+//import  {   ValidatorFn }		from    '@angular/forms';
+//import  {   ValidationErrors}   from    '@angular/forms';
 
-import	{	EventEmitter,	Input,	Output}	from	'@angular/core';
-
-import	{GeoService}	from	'../../models/remote.service'	;
-import	{DBService}	from	'../../models/remote.service'	;
-import	{CommunicationService}	from	'../../models/communication.service'	;
 import	{	AppComponent	}	from	'../../app.component';
-import	{	C	}	from	'../../models/constants';
-//import	{	Ridebase	}	from	'../../models/ridebase';
+import	{	C				}	from	'../../models/constants';
 import	{	StorageService	}	from	'../../models/gui.service';
-import	{	UserService	}	from	'../../models/gui.service';
 import	{	BaseComponent	}	from	'../base/base.component'	;
 
-
 @Component({
-		selector:	'app-thist'
-	,	templateUrl:	'./thist.component.html'
-	,	styleUrls:	['./thist.component.css'] 
-	,	changeDetection:	ChangeDetectionStrategy.OnPush		//	prevent	change	detection	unless	@Input	reference	is	changed
+		selector		:	'app-thist'
+	,	templateUrl		:	'./thist.component.html'
+	,	styleUrls		:	['./thist.component.css'] 
+	,	changeDetection	:	ChangeDetectionStrategy.OnPush
 })
 
 export	class	ThistComponent	extends	BaseComponent	{
-	trnx_from_db:	any=	[];
-	filter:any	;
-	trans_to_show: any =[];
+	trnx_from_db	:	any	=	[]	;
+	filter			:	any			;
+	trans_to_show	:	any =	[]	;
 
 	constructor( public changeDetectorRef   : ChangeDetectorRef ){
 		super(changeDetectorRef);
@@ -127,11 +117,12 @@ export	class	ThistComponent	extends	BaseComponent	{
 		let	status	=false;
 		if		(tran.trnx_cd	=='P'	&&	this.form.value.show_penalty	)	status=true;
 		else if	(tran.trnx_cd	=='B'	&&	this.form.value.show_booking	)	status=true;
-		else if	(tran.trnx_cd	=='J'	&&	this.form.value.show_rejected	)	status=true;
+		//else if	(tran.trnx_cd	=='J'	&&	this.form.value.show_rejected	)	status=true;
 		else if	(tran.trnx_cd	=='D'	&&	this.form.value.show_deposit	)	status=true;
 		else if	(tran.trnx_cd	=='W'	&&	this.form.value.show_withdraw	)	status=true;
 		else if	(tran.trnx_cd	=='F'	&&	this.form.value.show_finished	)	status=true;
-		//if (tran.actual_ts	==null	&&	this.form.value.show_pending		)	status=true;
+		else if	(tran.trnx_cd	=='R'	&&	this.form.value.show_return		)	status=true;
+		//if (tran.actual_ts	==null	&&	this.form.value.show_pending	)	status=true;
 
 		return	status;
 	}

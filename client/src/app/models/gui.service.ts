@@ -296,7 +296,8 @@ export class Util {
 
     static convert_book_to_pairs(book: any): any|null {
         if(!book) return null;
-        book.p1 ={
+		if (!book.p1 || ! book.p1.lat) {
+        	book.p1 ={
                   loc      : book.start_loc
                 , lat      : book.start_lat
                 , lon      : book.start_lon
@@ -305,7 +306,9 @@ export class Util {
                 //, icon_type     : book.pickup_icon_type
                 //, color    : book.pickup_color
             };
-        book.p2 ={
+		}
+		if (!book.p2 || ! book.p2.lat) {
+        	book.p2 ={
                   loc      : book.end_loc
                 , lat      : book.end_lat
                 , lon      : book.end_lon
@@ -314,7 +317,9 @@ export class Util {
                 //, icon_type     : book.dropoff_icon_type
                 //, color    : book.dropoff_color
             };
-        book.rp1 ={
+		}
+		if (!book.rp1 || ! book.rp1.lat) {
+        	book.rp1 ={
                   loc      : book.pickup_loc
                 , lat      : book.pickup_lat
                 , lon      : book.pickup_lon
@@ -323,7 +328,9 @@ export class Util {
                 //, icon_type     : book.pickup_icon_type
                 //, color    : book.pickup_color
             };
-        book.rp2 ={
+		}
+		if (!book.rp2 || ! book.rp2.lat) {
+        	book.rp2 ={
                   loc      : book.dropoff_loc
                 , lat      : book.dropoff_lat
                 , lon      : book.dropoff_lon
@@ -332,11 +339,9 @@ export class Util {
                 //, icon_type     : book.dropoff_icon_type
                 //, color    : book.dropoff_color
             };
+		}
         return book;
     }
-
-
-
 }
 
 /*

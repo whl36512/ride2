@@ -1,15 +1,15 @@
 //https://blogs.msdn.microsoft.com/premier_developer/2018/06/17/angular-how-to-simplify-components-with-typescript-inheritance/
 
-import { Component			} 	from '@angular/core';
-import { NgZone				} 	from '@angular/core';
-import { OnInit 			} 	from '@angular/core';
-import { OnDestroy 			} 	from '@angular/core';
-import { Subscription 		}	from 'rxjs';
-import { ChangeDetectorRef 	}	from '@angular/core';
-import { FormBuilder		}	from '@angular/forms';
-import { FormGroup 			} 	from '@angular/forms';
-import { timer 				}	from 'rxjs' ;
-import { Router				}	from '@angular/router';
+import { Component				} 	from '@angular/core';
+import { NgZone					} 	from '@angular/core';
+import { OnInit 				} 	from '@angular/core';
+import { OnDestroy 				} 	from '@angular/core';
+import { Subscription 			}	from 'rxjs';
+import { ChangeDetectorRef 		}	from '@angular/core';
+import { FormBuilder			}	from '@angular/forms';
+import { FormGroup 				} 	from '@angular/forms';
+import { timer 					}	from 'rxjs' ;
+import { Router					}	from '@angular/router';
 //import { TimerObservable } from 'rxjs/observable/TimerObservable';
 
 
@@ -51,14 +51,14 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 	router					: Router	 			;
 	//zone					:	NgZone
 
-	error_msg			: string|null	= null;
-	warning_msg 		: string|null	= null;
-	info_msg			: string|null	= null;
-	change_detect_count	: number 		= 0;
+	error_msg				: string|null	= null;
+	warning_msg 			: string|null	= null;
+	info_msg				: string|null	= null;
+	change_detect_count		: number 		= 0;
 	show_body				: string|null	= C.BODY_SHOW ;
-	is_signed_in		: boolean 		= false;
-	page_name 			: string| null 	= null;
-	form 				: FormGroup|null=null;	// main for of a page
+	is_signed_in			: boolean 		= false;
+	page_name 				: string| null 	= null;
+	form 					: FormGroup|null=null;	// main for of a page
 
 	class_name = this.constructor.name;
 
@@ -68,7 +68,8 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 	subscription3			: Subscription |null = null;
 	form_status_sub			: Subscription |null = null;
 	form_value_sub			: Subscription |null = null;
-	timer_for_injector_sub	;
+	timer_for_injector_sub	: Subscription |null = null;
+	timer_sub				: Subscription |null = null;
 	static timer = timer(C.TIMER_INTERVAL, C.TIMER_INTERVAL);
 
 	C = C;
@@ -145,12 +146,13 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		console.debug ('201810290932 ', this.class_name,'.ngOnDestroy() enter.');
 		// prevent memory leak when component destroyed
-		if( this.subscription0!= null) this.subscription0.unsubscribe();
-		if( this.subscription1!= null) this.subscription1.unsubscribe();
-		if( this.subscription2!= null) this.subscription2.unsubscribe();
-		if( this.subscription3!= null) this.subscription3.unsubscribe();
-		if( this.form_value_sub!= null) this.form_value_sub.unsubscribe();
+		if( this.subscription0	!= null) this.subscription0.unsubscribe();
+		if( this.subscription1	!= null) this.subscription1.unsubscribe();
+		if( this.subscription2	!= null) this.subscription2.unsubscribe();
+		if( this.subscription3	!= null) this.subscription3.unsubscribe();
+		if( this.form_value_sub	!= null) this.form_value_sub.unsubscribe();
 		if( this.form_status_sub!= null) this.form_status_sub.unsubscribe();
+		if( this.timer_sub		!= null) this.timer_sub.unsubscribe();
 		this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_NOSHOW, {});
 		this.onngdestroy();
 		console.debug ('201810290932 ', this.class_name,'.ngOnDestroy() exit.');
@@ -179,20 +181,22 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 	return this.change_detect_count ++;
 	}
 
+/*
 	close_page(): boolean{
 	this.communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE, {page:this.page_name});
 	return false;
 	}
+*/
 
 	onSubmit(){}
 
 	trackByFunc (index, item) {
-	if (!item) return null;
-	return index;
+		if (!item) return null;
+		return index;
 	}
 
 	list_global_objects() {
-	Util.list_global_objects();
+		Util.list_global_objects();
 	}
 
 	geocode(element_id: string, pair, form):any {

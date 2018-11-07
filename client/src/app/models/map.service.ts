@@ -197,30 +197,34 @@ export class MapService {
 		}
 		this.draw_line(pair);
 
-		pair.p1	= 	book.rp1	;
-		pair.p2 =	book.rp2	;
-		pair.p1.icon_type= PinIcon ;
-		pair.p2.icon_type= PinIcon ;
-		pair.p1.marker_text= 'P'+ (i+1);
-		pair.p2.marker_text= 'P'+ (i+1);
-		pair.p1.popup= popup  ;
-		pair.p2.popup= popup  ;
-		this.mark_pair(pair);
-		if ( is_highlight) {
-			pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
-			pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
+		if(!book.skip_book_part)
+		{
+			pair.p1	= 	book.rp1	;
+			pair.p2 =	book.rp2	;
+			pair.p1.icon_type= PinIcon ;
+			pair.p2.icon_type= PinIcon ;
+			pair.p1.marker_text= 'P'+ (i+1);
+			pair.p2.marker_text= 'P'+ (i+1);
+			pair.p1.popup= popup  ;
+			pair.p2.popup= popup  ;
+			this.mark_pair(pair);
+			if ( is_highlight) {
+				pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
+				pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
+			}
+			else {
+				pair.line_color=null;
+				pair.line_weight=null;
+			}
+			this.draw_line(pair);
 		}
-		else {
-			pair.line_color=null;
-			pair.line_weight=null;
-		}
-		this.draw_line(pair);
 	}
 
 	mark_books (books, highlight_index: number)
 	{
 	    for ( let index in books) {
 				let i = Number(index) ;
+				books[i].skip_book_part=true;  // do not mark book rp1 and rp2
 				this.mark_book(books[i], i, i == highlight_index) ;
 	     }
 	}
@@ -394,7 +398,7 @@ export class MapService {
 		}
 			
 		if (url === '')  return url;
-		url = `<a href='${C.URL_GOOGLE_MAP}${url}' target=_blank >Google Map</a>` ;
+		url = `<a href='${C.URL_GOOGLE_MAP}${url}' target=_blank >See it on Google Map</a>` ;
 		console.debug('201810290011 MapService.google_map_string() url=', url);
 		return url;
 	}

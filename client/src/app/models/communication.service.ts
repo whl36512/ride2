@@ -1,10 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Subject }    from 'rxjs';
-import { BehaviorSubject } from 'rxjs';
-import { C } from './constants';
-import { Util	}		from './gui.service';
-
-
+import { Injectable } 		from '@angular/core';
+import { Subject }    		from 'rxjs';
+import { BehaviorSubject } 	from 'rxjs';
+import { C } 				from './constants';
+import { Util	}			from './gui.service';
  
 @Injectable()
 //@Injectable({

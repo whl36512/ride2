@@ -23,7 +23,6 @@ import {DBService} from '../../models/remote.service' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 import { C } 			from '../../models/constants';
-import { Ridebase } 			from '../../models/ridebase';
 import { StorageService } from '../../models/gui.service';
 import { UserService } from '../../models/gui.service';
 import { DotIcon } from '../../models/map.service';
@@ -40,7 +39,6 @@ import { BaseComponent      } from '../base/base.component' ;
   changeDetection: ChangeDetectionStrategy.OnPush ,  // prevent change detection unless @Input reference is changed
 })
 
-//export class JourneyComponent extends Ridebase implements OnInit{
 export class JourneyComponent extends BaseComponent {
 
     journeys_from_db: any ;
@@ -121,7 +119,7 @@ export class JourneyComponent extends BaseComponent {
 		book_from_db_observable.subscribe(
 	    	book_from_db => {
 				console.debug("201808201201 JourneyComponent.book() book_from_db =" + C.stringify(book_from_db));
-				if (book_from_db.status_cd=='P') journey.info_msg='Booked, pending confirmation' ;
+				if (book_from_db.status_cd=='P') journey.info_msg='Booked, pending<br/>confirmation' ;
 				if (book_from_db.status_cd=='!P') journey.error_msg='Booking failed' ;
 				journey.show_book_button= book_from_db.status_cd!='P';
 				journey.seats_booked= journey.seats_booked

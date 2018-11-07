@@ -13,7 +13,6 @@ import {CommunicationService}	from "../../models/communication.service"
 import {DotIcon}				from "../../models/map.service"
 import {PinIcon}				from "../../models/map.service"
 import {C}						from "../../models/constants"
-import {Ridebase}				from "../../models/ridebase"
 import {Util}					from "../../models/gui.service"
 import {DBService}				from '../../models/remote.service' ;
 import { BaseComponent }		from '../base/base.component';
@@ -85,15 +84,6 @@ export class Map2Component extends BaseComponent {
 		else {
 			console.debug("201808222332 Map2Component.subscription_action. ignore msg");
 		}
-	}
-	//override Ridebase.close_page()
-	close_page():boolean {
-		// close page using a common interface
-		this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_NOSHOW, {});
-		
-		//document.getElementById('map').style.zIndex = '100';
-		//document.getElementById('map-close-button').style.zIndex = '100';	
-		return false;
 	}
 
  	resize()

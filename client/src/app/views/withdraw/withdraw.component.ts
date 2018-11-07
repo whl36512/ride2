@@ -15,7 +15,6 @@ import {EventEmitter, Input, Output} from '@angular/core';
 import {UserService} from '../../models/gui.service' ;
 import {DBService} from '../../models/remote.service' ;
 import {C} from '../../models/constants' ;
-//import {Ridebase} from '../../models/ridebase' ;
 import {CommunicationService} from '../../models/communication.service' ;
 import { AppComponent } from '../../app.component';
 import { BaseComponent			} from '../base/base.component' ;

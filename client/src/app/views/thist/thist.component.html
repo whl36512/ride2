@@ -10,27 +10,24 @@
 	/>
 	<span class="validity"></span>
 	<br/>
-	Show history when transactions are<br/>
+	Show history for <br/>
 	<label>
 		<input type=checkbox formControlName='show_booking'	(change)='on_filter()' />Booked
 	</label><br/>
 	<label>
-	<input type=checkbox formControlName='show_return' 		(change)='on_filter()' />Return
+		<input type=checkbox formControlName='show_return' 		(change)='on_filter()' />Return
 	</label><br/>
 	<label>
-	<input type=checkbox formControlName='show_penalty' 	(change)='on_filter()' />Penalty
+		<input type=checkbox formControlName='show_penalty' 	(change)='on_filter()' />Penalty
 	</label><br/>
 	<label>
-	<input type=checkbox formControlName='show_deposit' 	(change)='on_filter()' />Deposit
+		<input type=checkbox formControlName='show_finished' 	(change)='on_filter()' />Finished
 	</label><br/>
 	<label>
-	<input type=checkbox formControlName='show_withdraw' 	(change)='on_filter()' />Withdraw
+		<input type=checkbox formControlName='show_deposit' 	(change)='on_filter()' />Deposit
 	</label><br/>
 	<label>
-	<input type=checkbox formControlName='show_finished' 	(change)='on_filter()' />Finished
-	</label><br/>
-	<label>
-	<input type=checkbox formControlName='show_pending' 	(change)='on_filter()' />Pending
+		<input type=checkbox formControlName='show_withdraw' 	(change)='on_filter()' />Withdraw
 	</label><br/>
 </form>
 <div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
