@@ -1,10 +1,6 @@
 use std::error::Error;
-#[macro_use] extern crate log;
-extern crate simplelog;
-
 extern crate regex;
-
-extern crate server;
+//extern crate email;
 
 use std::str;
 use std::io::{self, BufRead};
@@ -14,19 +10,20 @@ use std::fs::File;
 use std::io::{Read};
 use regex::Regex;
 //use server::constants;
-use server::util;
+use util;
 
-
-/*
-fn main()  {
-	match main_() {
-		Ok(_)	=> {}
-        Err(e) => {
-            error!("ERROR 201811031803 email_down::main() {}", e);
-        }
-	}
-}
-*/
+usr constants::REGEX_EMAIL_S1		;
+usr constants::REGEX_EMAIL_S2		;
+usr constants::REGEX_EMAIL_S3		;
+usr constants::REGEX_EMAIL_S4		;
+usr constants::REGEX_EMAIL_S5		;
+usr constants::REGEX_EMAIL_S6		;
+usr constants::REGEX_EMAIL_S7		;
+usr constants::REGEX_EMAIL_S8		;
+usr constants::REGEX_EMAIL_FROM		;
+usr constants::REGEX_EMAIL_TO		;
+usr constants::REGEX_EMAIL_SUBJECT	;
+usr constants::REGEX_EMAIL_MEMO		;
 
 
 pub fn main_() -> Result<i32, Box<Error>> {
@@ -97,7 +94,7 @@ fn process_email(email_uid: &str ) -> Result <<(String, f32), Box<Error>>{
 				error!("201811070006 Security check on {} failed for line {}", path, key+1);
 		}
 		return Ok(false);
-    }
+	}
 }
 
 fn save_to_db() {
