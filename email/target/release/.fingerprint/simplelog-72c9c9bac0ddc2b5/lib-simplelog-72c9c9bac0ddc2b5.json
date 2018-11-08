@@ -1,1 +1,0 @@
-{"rustc":10761786290546129367,"features":"[\"default\", \"term\"]","target":9041133584689525641,"profile":4526152405984878336,"path":4037448455775908107,"deps":[["chrono v0.4.6","chrono",10564992399468890388],["log v0.4.6","log",3406988439695173431],["term v0.5.1","term",6782057380749328672]],"local":[{"Precalculated":"0.5.3"}],"rustflags":[],"edition":"Edition2015"}

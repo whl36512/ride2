@@ -1,1 +1,0 @@
-/root/ride2/email/target/release/email_down: /root/ride2/email/src/bin/email_down.rs /root/ride2/email/src/constants.rs /root/ride2/email/src/email_down.rs /root/ride2/email/src/lib.rs /root/ride2/email/src/util.rs
