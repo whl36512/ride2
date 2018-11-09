@@ -25,6 +25,9 @@ create type funcs.criteria as
     ,   oauth_id        text
     ,   price           ridemoney
     ,   seats           integer
+    ,   deposit_id      uuid
+    ,   actual_amount   decimal
+    ,   reference_no	text
 );
 
 
@@ -97,7 +100,7 @@ DECLARE
 	bearing	 integer ; -- bearing
 	s0 RECORD ;
 BEGIN
-    SELECT * into s0 from funcs.json_populate_record(NULL::criteria, in_trip ) ;
+    SELECT * into s0 from funcs.json_populate_record(NULL::funcs.criteria, in_trip ) ;
 	lat1	:=	(s0.p1).lat/360*2*pi();
 	lat2	:=	(s0.p2).lat/360*2*pi();
 	lon1	:=	(s0.p1).lon/360*2*pi();
@@ -132,7 +135,7 @@ DECLARE
 	bearing	 integer ; -- bearing
 	s0 RECORD ;
 BEGIN
-    SELECT * into s0 from funcs.json_populate_record(NULL::criteria, in_trip ) ;
+    SELECT * into s0 from funcs.json_populate_record(NULL::funcs.criteria, in_trip ) ;
 	lat1	:=	(s0.rp1).lat/360*2*pi();
 	lat2	:=	(s0.rp2).lat/360*2*pi();
 	lon1	:=	(s0.rp1).lon/360*2*pi();
@@ -1096,6 +1099,33 @@ BEGIN
 END
 $body$
 language plpgsql;
+
+create or replace function funcs.deposit( trnx text)
+  returns money_trnx
+as
+$body$
+DECLARE
+  	s0 RECORD ;
+  	i1 RECORD ;
+BEGIN
+	SELECT * into s0 FROM funcs.json_populate_record(NULL::funcs.criteria, trnx) ;
+
+	insert into money_trnx ( usr_id, trnx_cd, actual_amount, actual_ts, reference_no) 
+	select u.usr_id, 'D', s0.actual_amount, clock_timestamp(), s0.reference_no
+	from usr u
+	where deposit_id = s0.deposit_id
+	returning * into i1 
+	;
+
+	update usr u
+	set balance = u.balance+ i1.actual_amount
+	where u.usr_id = i1.usr_id;
+
+  	return i1;
+END
+$body$
+language plpgsql;
+
 
 create or replace function funcs.upd_money_trnx( trnx text)
   returns money_trnx

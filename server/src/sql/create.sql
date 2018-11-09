@@ -29,35 +29,6 @@ CREATE DOMAIN tswithepoch timestamp with time zone default '1970-01-01 00:00:00Z
 CREATE DOMAIN score integer	CHECK ( value in (1,2,3,4,5));
 CREATE DOMAIN ridemoney decimal(10,4) ;
 
---create type criteria as
---(
-		--start_date 		date
-	--, end_date 		date
-	--, start_lat 		decimal(18,14)
-	--, start_lon 		decimal(18,14)
-	--, end_lat 		decimal(18,14)
-	--, end_lon 		decimal(18,14)
-	--, pickup_lat 		decimal(18,14)
-	--, pickup_lon 		decimal(18,14)
-	--, dropoff_lat 		decimal(18,14)
-	--, dropoff_lon 		decimal(18,14)
-	--, distance		decimal(8,2)
-	--, departure_time 	time
-	--, usr_id 		uuid
-	--, driver_id 		uuid
-	--, rider_id 		uuid
-	--, trip_id 		uuid
-	--, journey_id 		uuid
-	--, book_id 		uuid
-	--, oauth_id 		text
-	--, price		 	ridemoney	
-	--, seats			integer
-	--, date1			date
-	--, date2			date
-	--, p1 			location
---);
-	
-
 CREATE TYPE location AS
 	(
 		loc			text 	-- user input address
@@ -65,29 +36,6 @@ CREATE TYPE location AS
 	, lon			decimal(18,14)
 	, display_name	text		-- reverse geocoded
 );
-
-create type criteria as
-(
-		date1 			date
-	, 	date2 			date
-	, 	p1				location
-	, 	p2 				location
-	, 	rp1				location		-- rider pickup location
-	, 	rp2				location		-- rider dropoff location
-	, 	distance		decimal(8,2)
-	, 	dir				double precision 
-	, 	departure_time 	time
-	, 	usr_id 			uuid
-	, 	driver_id 		uuid
-	, 	rider_id 		uuid
-	, 	trip_id 		uuid
-	,	journey_id 		uuid
-	,	book_id 		uuid
-	,	oauth_id 		text
-	,	price			ridemoney	
-	,	seats			integer
-);
-	
 
 create table usr
 (
