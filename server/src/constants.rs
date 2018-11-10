@@ -1,3 +1,4 @@
+pub static LOG_FILE : &str ="/tmp/server.log" ;
 pub static EMPTY_STRING : &str ="" ;
 pub static EMPTY_JSON_STRING : &str ="{}" ;
 
@@ -33,7 +34,7 @@ pub static SQL_SAVE_MSG		: &str =  "select row_to_json(a) from funcs.save_msg($1
 pub static SQL_WITHDRAW		: &str =  "select row_to_json(a) from funcs.withdraw($1, $2) a " ;
 pub static SQL_THIST		: &str =  "select * 		 from funcs.get_money_trnx($1, $2) a " ;
 
-pub static CORS_ALLOWED_HOSTS : [&str; 11] 
+pub static CORS_ALLOWED_HOSTS : [&str; 12] 
 	= [
 			"http://rideshare.beegrove.com:4200"
 		,	"http://rideshare.beegrove.com:4210"
