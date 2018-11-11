@@ -32,9 +32,10 @@ extern crate rand;
 extern crate data_encoding;
 extern crate jsonwebtoken as jwt;
 extern crate chrono;
+extern crate db as db_postgres;
 
 
-pub mod db;
+//pub mod db;
 pub mod util;
 pub mod tables;
 pub mod reqres;

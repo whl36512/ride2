@@ -1,12 +1,12 @@
 <div *ngIf="false"> https://material.angular.io/components/menu/overview </div>
 <div class=hide-unhide>
-	<button (click)='show_body=C.BODY_NOSHOW' > {{C.ICON_ARROW_UP}}  </button>
-	<button (click)='show_body=C.BODY_SHOW'   > {{C.ICON_ARROW_DOWN}}</button>
+	<button (click)='show_body=C.BODY_NOSHOW' *ngIf='show_body==C.BODY_SHOW' > {{C.ICON_ARROW_UP}}  </button>
+	<button (click)='show_body=C.BODY_SHOW'   *ngIf='show_body==C.BODY_NOSHOW' > {{C.ICON_ARROW_DOWN}}</button>
 </div>
 
 <div class="center f12" >Offer a Trip (I am a driver) </div>
 <div class={{show_body}} >
-	<form [formGroup]="form" (ngSubmit)="onSubmit()">
+	<form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf='show_form==C.BODY_SHOW'>
 		<dl> 
 	  		<dt>
 				<label for="p1_loc">From
@@ -136,7 +136,6 @@
 		</dl>
       </form>
 </div>
-<div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
-<div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>
-<div *ngIf='info_msg!=null' class=info>{{info_msg}}</div>
-<p> Form Status: {{ form.status }}
+<div *ngIf='error_msg'      class=error 	[innerHTML]='error_msg' ></div>
+<div *ngIf='warning_msg'    class='warning' [innerHTML]='warning_msg' ></div>
+<div *ngIf='info_msg'       class='info' 	[innerHTML]='info_msg' ></div>

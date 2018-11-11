@@ -35,7 +35,6 @@ you can request a full or partial withdraw of the balance.
 	<div class=center *ngIf='!saved'>
 		<button type="submit" [disabled]="form.invalid" >Send Request</button>
 	</div>
-	Form valid {{form.valid}}
 </form>
 <div *ngIf='error_msg!=null' class=error>{{error_msg}}</div>
 <div *ngIf='warning_msg!=null' class=warning>{{warning_msg}}</div>

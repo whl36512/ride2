@@ -187,15 +187,15 @@ export class MapService {
 		pair.p2.marker_text= 'D'+ (i+1);
 		pair.p1.popup= popup  ;
 		pair.p2.popup= popup  ;
-		this.mark_pair(pair);
 		if ( is_highlight) {
-			pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
+			//pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
 			pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
 		} else {
 			pair.line_color=null;
 			pair.line_weight=null;
 		}
-		this.draw_line(pair);
+		this.mark_pair(pair);
+		//this.draw_line(pair);
 
 		if(!book.skip_book_part)
 		{
@@ -207,16 +207,16 @@ export class MapService {
 			pair.p2.marker_text= 'P'+ (i+1);
 			pair.p1.popup= popup  ;
 			pair.p2.popup= popup  ;
-			this.mark_pair(pair);
 			if ( is_highlight) {
-				pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
+				//pair.line_color=C.MAP_LINE_COLOR_HIGHLIGHT;
 				pair.line_weight=C.MAP_LINE_WEIGHT_HIGHLIGHT;
 			}
 			else {
-				pair.line_color=null;
+				//pair.line_color=null;
 				pair.line_weight=null;
 			}
-			this.draw_line(pair);
+			this.mark_pair(pair);
+			//this.draw_line(pair);
 		}
 	}
 
@@ -302,12 +302,16 @@ export class MapService {
 		let ok=this.mark_point( p1);
 		if (! ok) return ok
 		ok = this.mark_point(p2);
+		if(!ok) return ok;
+		ok = this.draw_line(pair);
 		return ok;
 	}
 
 	try_mark_pair (pair: any) : boolean {
 		let ok = this.mark_pair (pair);
-		if (ok) return ok;
+		if (ok) {
+			return ok;
+		}
 		ok = this.mark_point(pair.p1) ;
 		if (ok) return ok;
 		ok = this.mark_point(pair.p2) ;

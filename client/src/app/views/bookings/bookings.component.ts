@@ -44,9 +44,6 @@ export class BookingsComponent extends BaseComponent {
 	@Input()
 	bookings_from_db: any;
 
-	@Input()
-	filter: any;
-
 	//@HostListener('keydown', ['$event']) 
 	onAnyEvent(e) {
 			 console.debug('201810131753 BookingsComponent.onAnyEvent() event=', e);

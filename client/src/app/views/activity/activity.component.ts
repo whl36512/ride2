@@ -126,6 +126,12 @@ export class ActivityComponent extends BaseComponent {
 				=this.show_booking(this.bookings_from_db[index], Number(index));
 			
 		}
+		// change this.bookings_from_db reference, so the bookings component can refresh
+		let tmp= this.bookings_from_db;
+		this.bookings_from_db =[];
+		this.changeDetectorRef.detectChanges();
+		this.bookings_from_db = tmp;
+		this.changeDetectorRef.detectChanges();
 	}
 
 	show_booking(booking: any, index: number): boolean {

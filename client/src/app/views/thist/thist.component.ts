@@ -103,6 +103,7 @@ export	class	ThistComponent	extends	BaseComponent	{
 	{
 		StorageService.storeForm(C.KEY_FORM_THIST,	this.form.value);	
 		this.trans_to_show = [];
+		this.changeDetectorRef.detectChanges();
 
 		for	(	let	index	in	this.trnx_from_db)	{
 			let t = this.trnx_from_db[index];

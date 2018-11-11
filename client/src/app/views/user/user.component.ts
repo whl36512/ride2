@@ -47,7 +47,7 @@ export class UserComponent extends BaseComponent {
 			//last_name: [''],
 		});
 		let user_from_cookie 	= UserService.get_profile_from_session();
-		let user_from_db_observable 	= this.dbService.get_user_from_db(user_from_cookie); 
+		let user_from_db_observable 	= this.dbService.call_db(C.URL_GET_USER, {}); 
 		user_from_db_observable.subscribe(
 			user_from_db => {
 				console.info("201808201201 UserComponent.constructor() user_from_db =" 
@@ -75,7 +75,7 @@ export class UserComponent extends BaseComponent {
 		this.reset_msg();
 		this.changeDetectorRef.detectChanges();
 		console.warn("201808201534 UserComponent.onSubmit() this.form.value=" + this.form.value );
-		let user_from_db_observable	 = this.dbService.get_user_from_db(this.form.value);
+		let user_from_db_observable	 = this.dbService.call_db(C.URL_UPD_USER, this.form.value);
 		user_from_db_observable.subscribe(
 			user_from_db => {
 				console.info("201808201201 UserComponent.constructor() user_from_db =" 

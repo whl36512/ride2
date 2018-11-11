@@ -106,6 +106,7 @@ export class JourneyComponent extends BaseComponent {
 	    	let pair = this.Util.deep_copy ( this.rider_criteria);
 			pair.p1.icon_type=PinIcon;
 			pair.p2.icon_type=PinIcon;
+			pair.line_color =C.MAP_LINE_COLOR_RIDER;
 	    	this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR, pair);
 		}
 	}
@@ -137,7 +138,8 @@ export class JourneyComponent extends BaseComponent {
 	}
 
 	show_map(index: number){
-		this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
+		this.show_body =	C.BODY_NOSHOW;
+		//this.communicationService.send_msg(C.MSG_KEY_MAP_BODY_SHOW, {});
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_CLEAR, {});
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS, this.journeys_from_db);
 
@@ -145,7 +147,7 @@ export class JourneyComponent extends BaseComponent {
 		//this.place_all_markers();
 		C.convert_trip_to_pair(j);
 		this.communicationService.send_msg(C.MSG_KEY_MARKER_FIT, j);
-		j.line_color = C.MAP_LINE_COLOR_HIGHLIGHT;
+		//j.line_color = C.MAP_LINE_COLOR_HIGHLIGHT;
 		j.line_weight = C.MAP_LINE_WEIGHT_HIGHLIGHT;
 		this.communicationService.send_msg(C.MSG_KEY_MAP_LINE, j);
 		this.mark_rider_pair();

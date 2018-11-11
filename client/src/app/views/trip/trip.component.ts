@@ -51,6 +51,8 @@ export class TripComponent extends BaseComponent {
 	step=1;
 	today = C.TODAY();
 	button_label = 'Publish';
+	user_from_db: any = {};
+	show_form	=C.BODY_NOSHOW;
 
 	constructor(
 		  //private geoService		: GeoService
@@ -67,6 +69,38 @@ export class TripComponent extends BaseComponent {
   	} 
 
 	ngoninit():void {
+		this.setup_form();
+		let data_from_db_observable	 = this.dbService.call_db(C.URL_GET_USER, {});
+		data_from_db_observable.subscribe(
+			user_from_db => {
+				console.debug("201808201201 TripComponent.ngoninit() user_from_db =" 
+					, C.stringify(user_from_db));
+				this.user_from_db =user_from_db;
+				if (this.user_from_db.balance==undefined || this.user_from_db.balance < 0 ) {
+					this.error_msg
+						='You cannnot publish any trip when your account balance is negative.<br/>'
+							+ 'Please bring your account balance to 0 or positive by deposit money<br/>'
+							+ 'into your account.';
+					this.changeDetectorRef.detectChanges() ;
+				}
+				else {
+					console.debug("201808201201 TripComponent.ngoninit() show form " );
+					this.reset_msg() ;
+					this.show_form=C.BODY_SHOW;
+					this.changeDetectorRef.detectChanges() ;
+				}
+			},
+			error => {
+				this.error_msg=error;
+				this.changeDetectorRef.detectChanges() ;
+			}
+		)
+		this.changeDetectorRef.detectChanges() ;
+	}
+
+	setup_form()
+	{
+
 		let trip = StorageService.getForm(C.KEY_FORM_TRIP);
 		if ( !trip ) {
 			trip = this.Util.create_empty_trip();
@@ -139,13 +173,19 @@ export class TripComponent extends BaseComponent {
 		let trip_from_db_observable	 = this.dbService.call_db(C.UPD_TRIP_URL, trip_to_db);
 		trip_from_db_observable.subscribe(
 				trip_from_db => {
-				console.info("201808201201 TripComponent.constructor() trip_from_db =" 
-					, C.stringify(trip_from_db));
-				this.form_saved_to_db=true;
-				this.info_msg
-					='The trip is published. Other users can start to book the trip.';
-				this.button_label='Publish Another';
-				this.changeDetectorRef.detectChanges() ;
+					console.info("201808201201 TripComponent.constructor() trip_from_db =" 
+						, C.stringify(trip_from_db));
+					if (trip_from_db.trip_id) {
+						this.form_saved_to_db=true;
+						this.info_msg
+							='The trip is published. Other users can start to book the trip.';
+						this.button_label='Publish Another';
+						this.changeDetectorRef.detectChanges() ;
+					}
+					else {
+						this.error_msg ='Invalid data. Request to publish rejected.';
+						this.changeDetectorRef.detectChanges() ;
+					}
 			},
 			error => {
 				this.error_msg=error;
@@ -169,7 +209,7 @@ export class TripComponent extends BaseComponent {
 		console.debug(fg.value ) ; 
 		//	console.debug("INFO 2018009080943 validate_trip this.trip=" + this.trip ) ;  
 		/*
-		if( isNaN( this.trip.distance )	) {
+		if( isNaN( this.trip.distance )	|| this.trip.distance <=0 ) {
 			console.log("ERROR 201807142049 validate_trip() distance unset, not routable") ; 
 			return {"distance":"not routable"} ;
 		}

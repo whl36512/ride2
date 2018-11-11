@@ -152,6 +152,7 @@ export class MapControllerComponent extends BaseComponent {
 
 				this.communicationService.send_msg(C.MSG_KEY_MARKER_BOOKS , journeys_from_db);
 				let pair = Util.deep_copy(rider_criteria);
+				pair.line_color= C.MAP_LINE_COLOR_RIDER;
 				this.communicationService.send_msg(C.MSG_KEY_MARKER_PAIR , pair);
 				this.search_is_running= false ;
 				console.debug ('201811041111 MapControllerComponent.search() finish map searching.') ;

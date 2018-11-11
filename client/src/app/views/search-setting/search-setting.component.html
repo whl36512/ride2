@@ -1,7 +1,7 @@
 <div class="center f12">Search Setting</div>
 <div class=hide-unhide>
-    <button (click)='show_body=C.BODY_NOSHOW' > {{C.ICON_ARROW_UP}}  </button>
-    <button (click)='show_body=C.BODY_SHOW'   > {{C.ICON_ARROW_DOWN}}</button>
+    <button (click)='show_body=C.BODY_NOSHOW' *ngIf='show_body==C.BODY_SHOW'> {{C.ICON_ARROW_UP}}  </button>
+    <button (click)='show_body=C.BODY_SHOW'   *ngIf='show_body==C.BODY_NOSHOW'> {{C.ICON_ARROW_DOWN}}</button>
 </div>
 
 <div class={{show_body}} >

@@ -12,6 +12,7 @@ export class Constants{
 
 	static URL_SAVE_USER 		= '/ws/save_user'	;
 	static URL_GET_USER 		= '/ws/get_user'	;
+	static URL_UPD_USER 		= '/ws/upd_user'	;
 	static URL_UPD_TRIP 		= '/ws/upd_trip'	;
 	static URL_SEARCH 			= '/ws/search'	;
 	static URL_SEARCH_ALL 		= '/ws/search_all'	;
@@ -117,6 +118,7 @@ export class Constants{
  	static MAP_OVERLAP_OFFSET	= 0.00004*5 		;
  	static MAP_LINE_COLOR_REGULAR	= 'blue' 		;
  	static MAP_LINE_COLOR_HIGHLIGHT	= 'red'			;
+ 	static MAP_LINE_COLOR_RIDER	= 'green'			;
  	static MAP_LINE_WEIGHT_REGULAR	= 1 			;	
  	static MAP_LINE_WEIGHT_HIGHLIGHT= 3 			;	
  	static MAP_VIEWPORT_MARGIN		= 50 			;	

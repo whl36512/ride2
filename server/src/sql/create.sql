@@ -98,24 +98,27 @@ CREATE TABLE trip
 	, constraint fk_trip2user foreign key ( driver_id) REFERENCES	usr ( usr_id)
 );
 create index ix_trip_driver_id on trip(driver_id);
+create index ix_trip_dir_duistance on trip(dir, distance);
 alter table trip add constraint ck_trip_status_code check (status_code in ('A','E') );
 
 CREATE TABLE journey
 (
-	journey_id		sys_id not null
-	, trip_id		sys_id not null
+	journey_id			sys_id	not null
+	, trip_id			sys_id 	null
 	, journey_date		date	not null
-	, departure_time		time	not null default current_time
+	, departure_time	time	not null default current_time
+	, j_epoch			integer not null --departure date and time since epoch
 	, status_code		char(1) not null default	'A' -- Pending, Active, Cancelled,	Expired
-	, price		 ridemoney	not null default 0.1 -- price per mile
-	, seats		 integer not null default 3 
-	, c_ts			sys_ts not null
-	, m_ts			sys_ts not null
-	, c_usr 		text
+	, price		 		ridemoney	not null default 0.1 -- price per mile
+	, seats		 		integer not null default 3 
+	, c_ts				sys_ts	not null
+	, m_ts				sys_ts	not null
+	, c_usr 			text
 	, constraint pk_journey PRIMARY KEY (journey_id)
 	, constraint fk_jn2trip foreign key ( trip_id) REFERENCES	trip ( trip_id)
 );
 create index ix_jn_trip_id on journey(trip_id);
+create index ix_jn_j_epoch on journey(j_epoch) where status_code = 'A' and seats > 0;
 
 
 --create table book_status(
