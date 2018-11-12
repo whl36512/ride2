@@ -74,6 +74,15 @@
 			<input type="range" formControlName="price" min="0" max="{{C.MAX_PRICE_RIDER}}" step=0.01 />
 	  		</dd>
 		</dl>
+		<dl>
+			You can reduce number of search results by tightening searches.
+			<dt><label for="seats">Tightness Level: {{this.form.value.search_tightness}}  </label></dt>
+	  		<dd>
+			<input type="range" formControlName="search_tightness" min="0" max="{{C.MAX_SEARCH_TIGHTNESS}}" step=1 /> 
+	  		</dd>
+
+		</dl>
+		
 		<div class=center>
 		<button type="button" (click)='action(true)'
 			[disabled]="form.invalid || !trip.distance || trip.distance==C.ERROR_NO_ROUTE " >

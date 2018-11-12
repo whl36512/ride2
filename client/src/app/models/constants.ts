@@ -57,6 +57,7 @@ export class Constants{
 	static MAX_PRICE 			= 0.2 				;
 	static MAX_PRICE_RIDER 		= 0.24 				;
 	static MAX_SEATS 			= 6					;
+	static MAX_SEARCH_TIGHTNESS = 5				;
 
 
 

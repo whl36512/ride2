@@ -80,7 +80,11 @@
  		<div *ngIf='!bookings_from_db[i].is_driver' >
  			<span class='driver clickable-text' >
 				<a [href]='bookings_from_db[i].sm_link' target=_blank>Driver:</a>
-			</span>{{bookings_from_db[i].headline}} 
+			</span>
+			{{bookings_from_db[i].headline}} 
+ 			<span class='button clickable-text' >
+				<a [href]='bookings_from_db[i].sm_link' target=_blank>LinkedIn Profile</a>
+			</span>
 		</div>
 		<span class='from clickable-text' (click)='geo_mark(i)'>Driver from:</span> 
 		{{bookings_from_db[i].start_display_name}} <br/>
@@ -90,7 +94,11 @@
 			<span  *ngIf='!bookings_from_db[i].is_rider'>
  				<span class='driver clickable-text' >
 					<a [href]='bookings_from_db[i].sm_link' target=_blank>Passenger:</a>
-				</span>{{bookings_from_db[i].headline}} <br/>
+				</span>
+				{{bookings_from_db[i].headline}} 
+ 				<span class='button clickable-text' >
+					<a [href]='bookings_from_db[i].sm_link' target=_blank>LinkedIn Profile</a>
+				</span> <br/>
 			</span>
 			<span class='from clickable-text' (click)='geo_mark(i)'>Passenger Pickup:</span> 
 			{{bookings_from_db[i].pickup_display_name}}<br/>

@@ -171,6 +171,7 @@ export class Util {
 			, distance				: C.ERROR_NO_ROUTE
 			, seats		 			: 1
 			, price		 			: C.MAX_PRICE_RIDER
+			, search_tightness		: 0
 			, p1:	{ loc			: ''
 					, lat			: null
 					, lon			: null

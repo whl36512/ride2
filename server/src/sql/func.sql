@@ -28,6 +28,7 @@ create type funcs.criteria as
 		,	 deposit_id			uuid
 		,	 actual_amount	 decimal
 		,	 reference_no	text
+		,	 search_tightness	integer
 );
 
 
@@ -846,17 +847,17 @@ $body$
 			, greatest((t.p1).lon, (t.p2).lon) p2_lon	
 			, coalesce(t.seats		, 1)				 seats
 			, coalesce(t.price		, 0.24)/1.2			max_driver_price
-			, funcs.rbearing(in_criteria)- 43		min_rdir
-			, funcs.rbearing(in_criteria)+ 43 		max_rdir
-			, funcs.rbearing(in_criteria)- 43 + 360	min_rdir_360
-			, funcs.rbearing(in_criteria)+ 43 + 360	max_rdir_360
-			, funcs.rbearing(in_criteria)- 43 - 360	min_rdir_360_1
-			, funcs.rbearing(in_criteria)+ 43 - 360	max_rdir_360_1
+			, funcs.rbearing(in_criteria)- 43+4*search_tightness		min_rdir
+			, funcs.rbearing(in_criteria)+ 43-4*search_tightness 		max_rdir
+			, funcs.rbearing(in_criteria)- 43+4*search_tightness + 360	min_rdir_360
+			, funcs.rbearing(in_criteria)+ 43-4*search_tightness + 360	max_rdir_360
+			, funcs.rbearing(in_criteria)- 43+4*search_tightness - 360	min_rdir_360_1
+			, funcs.rbearing(in_criteria)+ 43-4*search_tightness - 360	max_rdir_360_1
 			-- bigger the angle, narrower the sector
-			, sin((funcs.rbearing(in_criteria)-45)/360*2*pi())		sin_rdir_1 
-			, cos((funcs.rbearing(in_criteria)-45)/360*2*pi())		cos_rdir_1
-			, sin((funcs.rbearing(in_criteria)+45)/360*2*pi())		sin_rdir_2
-			, cos((funcs.rbearing(in_criteria)+45)/360*2*pi())		cos_rdir_2
+			, sin((funcs.rbearing(in_criteria)-39-4*search_tightness)/360*2*pi())		sin_rdir_1 
+			, cos((funcs.rbearing(in_criteria)-39-4*search_tightness)/360*2*pi())		cos_rdir_1
+			, sin((funcs.rbearing(in_criteria)+39+4*search_tightness)/360*2*pi())		sin_rdir_2
+			, cos((funcs.rbearing(in_criteria)+39+4*search_tightness)/360*2*pi())		cos_rdir_2
 			, t.rp1
 			, t.rp2
 			, t.date1
@@ -868,8 +869,9 @@ $body$
 				+ least (3600*24-1 	, extract (epoch from	coalesce(t.departure_time, time '23:59' ))
 								+ t.distance/60*3600+3600) * interval '1 second' time2
 			, t.distance 
-			, t.distance /3								min_distance
-			, t.distance *4								max_distance
+			, t.distance /(3-0.2*search_tightness)		min_distance
+			, t.distance *(4-0.2*search_tightness)								max_distance
+			, 1.0/60*(0.1+0.05*search_tightness)		axes_move
 		FROM funcs.json_populate_record(NULL::funcs.criteria , in_criteria) t 
 	)
 	, a as (
@@ -916,13 +918,13 @@ $body$
 				)
 			-- this axes rotation is very rudimental. Needs refinement.
 			and (t.end_lat	-(c0.rp1).lat)*cos_rdir_1 	- (end_lon	-(c0.rp1).lon)	* sin_rdir_1 
-				> c0.distance/60*0.1
+				> c0.distance*c0.axes_move
 			and (t.end_lat	-(c0.rp1).lat)*cos_rdir_2	- (end_lon	-(c0.rp1).lon)	* sin_rdir_2 
-				> c0.distance/60*0.1
+				> c0.distance*c0.axes_move
 			and (t.start_lat-(c0.rp2).lat)*cos_rdir_1 	- (start_lon-(c0.rp2).lon)	* sin_rdir_1 
-				< - c0.distance/60*0.1
+				< - c0.distance*c0.axes_move
 			and (t.start_lat-(c0.rp2).lat)*cos_rdir_2	- (start_lon-(c0.rp2).lon)	* sin_rdir_2 
-				< - c0.distance/60*0.1
+				< - c0.distance*c0.axes_move
 		)
 		join usr 	ut on (ut.usr_id=t.driver_id) -- to get driver sm_link
 		left outer join usr u on (u.usr_id = user0.usr_id) -- to get bookings

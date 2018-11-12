@@ -79,6 +79,7 @@ export class SearchSettingComponent extends BaseComponent {
 			departure_time	: [trip.departure_time, []], 
 			seats			: [trip.seats, [Validators.required]], 
 			price			: [trip.price, [Validators.required]], 
+			search_tightness: [trip.search_tightness, [Validators.required]], 
 		});
 		this.show_map();
 		//this.subscription1 = this.form.valueChanges
