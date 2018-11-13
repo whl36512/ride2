@@ -95,7 +95,17 @@
 				Legal Stuff
 			</li>			
 		</a>
-		<li	(click)='list_global_objects()' 			>List Global		</li>
-		</ul>
-	
+
+        <a *ngIf='!is_signed_in' onclick='ride.signin()' (click)="nav_menu_off()"> 
+			<li>
+				<img id='linkedin_signin' src="assets/images/Sign-In-Small---Default.png" 
+					alt="Sign in with LinkedIn" >
+			</li>			
+		</a>
+        <a *ngIf='is_signed_in' onclick='ride.signout()' (click)="nav_menu_off()">
+			<li>
+				Signout
+			</li>			
+		</a>
+	</ul>
 </div>

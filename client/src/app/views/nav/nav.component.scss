@@ -1,14 +1,14 @@
 selected {
-  background-color: #CFD8DC !important;
-  color: white;
+	background-color: #CFD8DC !important;
+	color: white;
 }
 
 .nav {
-  margin: 0rem ;
-  padding: 0;
-  list-style-type: none;
-	font-size: 1.5rem;
-  clear: both;
+	margin: 0rem ;
+	padding: 0;
+	list-style-type: none;
+	font-size: 1.2rem;
+	clear: both;
 
 	& a li {
   		cursor: pointer;
@@ -16,7 +16,7 @@ selected {
   		left: 0;
   		background-color: #EEE;
   		margin: 0.2em;
-  		padding: 0.5rem 0.5rem;
+  		padding: 0.2rem 0.2rem;
   		border-radius: 0.4rem ;
 		&:hover {
   			color: #607D8B;
@@ -77,3 +77,7 @@ div.topnav {
 .topnav:focus-within > .nav { display:block; }
 
 
+#linkedin_signin {
+			width: 8rem;
+			height:	1.2rem ;
+}
