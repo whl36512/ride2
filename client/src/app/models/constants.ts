@@ -4,7 +4,8 @@ export class Constants{
 
 	static PROFILE				= "profile" 		;
 	static JWT					= "jwt"				;
-	static SERVER_PORT			= "4201"			;
+	static SERVER_PORT			= "4210"			;
+	//static SERVER_PORT			= "4201"			;
 
 	static GET_USER_URL 		= '/ws/get_user'	;
 	static SAVE_USER_URL 		= '/ws/save_user'	;
