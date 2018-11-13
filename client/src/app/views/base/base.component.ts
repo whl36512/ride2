@@ -106,7 +106,7 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 		if(!this_var.geoService)			this_var.geoService 		= injector.get(GeoService);	
 		if(!this_var.form_builder)			this_var.form_builder 		= injector.get(FormBuilder);	
 		if(!this_var.router)				this_var.router 			= injector.get(Router);	
-		//if(!this_var.zone)					this_var.zone		 		= injector.get(NgZone);	
+		//if(!this_var.zone)				this_var.zone		 		= injector.get(NgZone);	
 		//this.logNavigation();
 	
 		if(!this_var.subscription0) this_var.subscription0 =this_var.communicationService.msg.subscribe(
@@ -170,21 +170,21 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 	}
 
 	reset_msg() : void{
-	this.error_msg	=null ;
-	this.warning_msg=null ;
-	this.info_msg	=null ;
+		this.error_msg	=null ;
+		this.warning_msg=null ;
+		this.info_msg	=null ;
 	}
 
 	change_detect_counter(e): number
 	{
-	console.debug("201810131845 Constants.change_detect_counter() event=", e)	;
-	return this.change_detect_count ++;
+		console.debug("201810131845 Constants.change_detect_counter() event=", e)	;
+		return this.change_detect_count ++;
 	}
 
 /*
 	close_page(): boolean{
-	this.communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE, {page:this.page_name});
-	return false;
+		this.communicationService.send_msg(C.MSG_KEY_PAGE_CLOSE, {page:this.page_name});
+		return false;
 	}
 */
 
@@ -269,10 +269,10 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 				&&	pair.p1.lon == pair_before_geocode.p1.lon
 				&&	pair.p2.lat == pair_before_geocode.p2.lat
 				&&	pair.p2.lon == pair_before_geocode.p2.lon) {
-				// no change of latlon. Skip routing
-				//pair.distance= oair_before_geocode.distance;
-				this.changeDetectorRef.detectChanges();
-				return;
+			// no change of latlon. Skip routing
+			//pair.distance= oair_before_geocode.distance;
+			this.changeDetectorRef.detectChanges();
+			return;
 		}
 
 		//both start and end are geocoded. So we can calc routes
@@ -301,7 +301,6 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 			}
 		);
 	}
-
 }
 
 
