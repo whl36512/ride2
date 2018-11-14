@@ -52,7 +52,7 @@
 			class='from clickable-text' >Passenger from:</span>{{rider_criteria.p1.display_name}}</div>
 		<div class=f08 ><span (click)='show_map(i)' 
 			class='to clickable-text' >Passenger to:</span>{{rider_criteria.p2.display_name}}</div>
-		<span class='f08 to clickable-text' [innerHTML]="journey.google_map_url"></span>
+		<span class='f08 button clickable-text' [innerHTML]="journey.google_map_url"></span>
 		<div class=f08 >Description: {{journey.description}}</div>
 		<p>
 	</div>

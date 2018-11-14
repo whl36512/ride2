@@ -10,6 +10,16 @@
 		<dt>
 			Balance : ${{user_from_db.balance}}
 		</dt>
+		<dt>
+			<span class='button clickable-text' >
+				<a [href]='user_from_db.sm_link' target=_blank>LinkedIn Profile</a>
+            </span>
+		</dt>
+		<dt>
+ 			<label><input type=checkbox formControlName='profile_ind'/>
+				Show LinkedIn Profile to other users
+			</label>
+		</dt>
 		<dt>Email </dt>
 		<dd>      
           		<input  type="email"  formControlName="email" value="{{user_from_db.email}}"  

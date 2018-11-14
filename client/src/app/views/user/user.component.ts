@@ -44,9 +44,10 @@ export class UserComponent extends BaseComponent {
 	ngoninit(): void{
 		this.form = this.form_builder.group({
 			email: ["",	[Validators.required, Validators.pattern]],	 // sync validators must be in an array
+			profile_ind: ["",	[Validators.required, Validators.pattern]],	 // sync validators must be in an array
 			//last_name: [''],
 		});
-		let user_from_cookie 	= UserService.get_profile_from_session();
+		//let user_from_cookie 	= UserService.get_profile_from_session();
 		let user_from_db_observable 	= this.dbService.call_db(C.URL_GET_USER, {}); 
 		user_from_db_observable.subscribe(
 			user_from_db => {
@@ -56,6 +57,7 @@ export class UserComponent extends BaseComponent {
 				{
 					this.user_from_db=user_from_db;
 					this.form.value.email = this.user_from_db.email;
+					this.form.value.profile_ind = this.user_from_db.profile_ind;
 				} else {
 					this.error_msg= user_from_db.error;
 				}

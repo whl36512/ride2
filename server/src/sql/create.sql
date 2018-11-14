@@ -54,6 +54,7 @@ create table usr
 	, oauth_host		text not null default 'linkedin'
 	, deposit_id		sys_id not null
 	, sm_link		text	-- social media link
+	, profile_ind	boolean not null default false
 	, c_ts 			sys_ts not null
 	, m_ts 			sys_ts not null
 	, constraint pk_usr PRIMARY KEY (usr_id)

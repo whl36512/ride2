@@ -15,6 +15,7 @@ export	class	Usr{
 	public	deposit_id		:	string	;
 	public	c_ts			:	Date	;
 	public	m_ts			:	Date	;
+	public	profile_ind		:	boolean	;
 
 	public	names	=	class	names	{
 		static	const	USR_ID				=	"usr_id"			;

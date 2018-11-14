@@ -206,22 +206,23 @@ BEGIN
 	--select * into s1 from usr u where (u.usr_id=u0.usr_id or u.oauth_id=s0.oauth_id) ;
 
 	update usr u
-			set first_name	=coalesce(s0.first_name, u.first_name ) 
-			, last_name		=coalesce(s0.last_name, u.last_name )
-			, headline		=coalesce(s0.headline, u.headline) 
-			, email		=coalesce(s0.email, u.email)
-			, bank_email		=coalesce(s0.bank_email, u.bank_email)
-			--, member_since 	=coalesce(s0.member_since, u.member_since)
+			set first_name			=coalesce(s0.first_name, u.first_name ) 
+			, last_name				=coalesce(s0.last_name, u.last_name )
+			, headline				=coalesce(s0.headline, u.headline) 
+			, email					=coalesce(s0.email, u.email)
+			, bank_email			=coalesce(s0.bank_email, u.bank_email)
+			--, member_since 		=coalesce(s0.member_since, u.member_since)
 			--, trips_posted		=coalesce(s0.trips_posted, u.trips_posted)
 			--, trips_completed		=coalesce(s0.trips_completed, u.trips_completed)
-			--, rating					 	=coalesce(s0.rating, u.rating)
-			--, balance						=coalesce(s0.balance, u.balance)
-			--, oauth_id				 	=coalesce(s0.oauth_id, u.oauth_id)
-			--, oauth_host			 	=coalesce(s0.oauth_host, u.oauth_host)
-			--, deposit_id			 	=coalesce(s0.deposit_id, u.deposit_id)
+			--, rating				=coalesce(s0.rating, u.rating)
+			--, balance				=coalesce(s0.balance, u.balance)
+			--, oauth_id			=coalesce(s0.oauth_id, u.oauth_id)
+			--, oauth_host			=coalesce(s0.oauth_host, u.oauth_host)
+			--, deposit_id			=coalesce(s0.deposit_id, u.deposit_id)
 			, sm_link			 	=coalesce(s0.sm_link, u.sm_link)
-			--, c_ts						 	=coalesce(s0.c_ts, u.c_ts)
-			, m_ts						 	=coalesce(s0.m_ts, clock_timestamp())
+			--, c_ts				=coalesce(s0.c_ts, u.c_ts)
+			, m_ts					=coalesce(s0.m_ts, clock_timestamp())
+			, profile_ind			=coalesce(s0.profile_ind, u.profile_ind)
 	where 	u.usr_id=u0.usr_id 
 	or 		u.oauth_id=s0.oauth_id
 	returning u.* into u1
@@ -895,7 +896,7 @@ $body$
 			, case when u.balance >=	funcs.calc_cost(j.price ,t.distance	,c0.seats , true)
 				then true else false 
 				end sufficient_balance
-			--, ut.sm_link
+			, case when ut.profile_ind then ut.sm_link else null end sm_link
 			, ut.headline
 			, c0.rp1
 			, c0.rp2
@@ -1106,29 +1107,61 @@ DECLARE
 		t1 RECORD ;
 BEGIN
 
-				SELECT * into t0 FROM funcs.json_populate_record(NULL::money_trnx, in_trnx) ;
-				SELECT * into u0 FROM funcs.json_populate_record(NULL::usr, in_trnx) ;
+	SELECT * into t0 FROM funcs.json_populate_record(NULL::money_trnx, in_trnx) ;
+	SELECT * into u0 FROM funcs.json_populate_record(NULL::usr, in_user) ;
 
-				insert into money_trnx ( 
-			usr_id
+	insert into money_trnx ( 
+		  usr_id
 		, trnx_cd
 		, requested_amount
 		, request_ts
 		, bank_email
 		, reference_no	
 		)
-				values (
-			u0.usr_id
+		values (
+		  u0.usr_id
 		, 'W'
 		, -t0.requested_amount
 		, clock_timestamp()
 		, t0.bank_email
 		, uuid_generate_v4()
 		)
-				returning * into t1
-				;
+		returning * into t1
+		;
 
 		return t1;
+END
+$body$
+language plpgsql;
+
+create or replace function funcs.finish_withdraw( in_trnx text, in_user text)
+	returns money_trnx
+as
+$body$
+DECLARE
+		t0 RECORD ;
+		u0 RECORD ;
+		t1 RECORD ;
+BEGIN
+
+	SELECT * into t0 FROM funcs.json_populate_record(NULL::money_trnx, in_trnx) ;
+	--SELECT * into u0 FROM funcs.json_populate_record(NULL::usr, in_user) ;
+
+
+	update money_trnx m
+	set 	  actual_amount = -least(greatest(0,u.balance), -m.requested_amount)
+			, actual_ts		= clock_timestamp()	
+	from 	usr u
+	where 	u.usr_id=m.usr_id
+	and		m.money_trnx_id=t0.money_trnx_id
+	returning m.* into t1
+	;
+
+	update usr 
+	set balance = balance + t1.actual_amount
+	;
+
+	return t1;
 END
 $body$
 language plpgsql;
@@ -1289,8 +1322,11 @@ $body$
 			, b.dropoff_display_name
 			, b.dropoff_lat
 			, b.dropoff_lon
-			, case when ids.usr_id = t.driver_id then ur.headline else ud.headline end headline
-			, case when ids.usr_id = t.driver_id then ur.sm_link	else ud.sm_link	end sm_link
+			, case 	when ids.usr_id = t.driver_id then ur.headline else ud.headline end headline
+			, case 	when ids.usr_id = t.driver_id and ur.profile_ind then ur.sm_link	
+					when ids.usr_id = b.rider_id  and ud.profile_ind then ud.sm_link	
+					else null
+			  end sm_link
 		from ids 
 		join trip 		t 	on ( t.trip_id=ids.trip_id )
 		join journey 		j 	on (j.journey_id= ids.journey_id) 
