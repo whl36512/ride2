@@ -82,7 +82,10 @@
 				<a [href]='bookings_from_db[i].sm_link' target=_blank>Driver:</a>
 			</span>
 			{{bookings_from_db[i].headline}} 
- 			<span class='button clickable-text' >
+ 			<span class=warning *ngIf='!(bookings_from_db[i].sm_link)'>
+				LinkedIn profile opted out
+			</span>
+ 			<span class='button clickable-text'  *ngIf='bookings_from_db[i].sm_link'>
 				<a [href]='bookings_from_db[i].sm_link' target=_blank>LinkedIn Profile</a>
 			</span>
 		</div>
@@ -96,7 +99,10 @@
 					<a [href]='bookings_from_db[i].sm_link' target=_blank>Passenger:</a>
 				</span>
 				{{bookings_from_db[i].headline}} 
- 				<span class='button clickable-text' >
+ 				<span class=warning *ngIf='!(bookings_from_db[i].sm_link)'>
+				LinkedIn profile opted out
+				</span>
+ 				<span class='button clickable-text'  *ngIf='(bookings_from_db[i].sm_link)' >
 					<a [href]='bookings_from_db[i].sm_link' target=_blank>LinkedIn Profile</a>
 				</span> <br/>
 			</span>
